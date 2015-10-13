@@ -2,13 +2,17 @@ package com.adamnickle.delivering;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.parse.Parse;
+import com.parse.ParseUser;
 
 
-public class DeliveringApplication extends Application
+public class Delivering extends Application
 {
+    private static final String TAG = "Delivering";
+
     private static Context sContext;
 
     @Override
@@ -18,11 +22,23 @@ public class DeliveringApplication extends Application
 
         sContext = this;
 
+        ParseUser.registerSubclass( DeliveringUser.class );
+
         Parse.initialize( this, getString( R.string.applicationId ), getString( R.string.clientKey ) );
     }
 
     public static void toast( String message )
     {
         Toast.makeText( sContext, message, Toast.LENGTH_LONG ).show();
+    }
+
+    public static void log( String message )
+    {
+        Log.d( TAG, message );
+    }
+
+    public static void log( String message, Exception ex )
+    {
+        Log.e( TAG, message, ex );
     }
 }

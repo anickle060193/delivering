@@ -1,5 +1,6 @@
 package com.adamnickle.delivering;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,6 +14,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
+
+import com.parse.LogOutCallback;
+import com.parse.ParseException;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -27,10 +32,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
         }
 
-        Toolbar toolbar = (Toolbar)findViewById( R.id.toolbar );
+        final Toolbar toolbar = (Toolbar)findViewById( R.id.toolbar );
         setSupportActionBar( toolbar );
 
-        FloatingActionButton fab = (FloatingActionButton)findViewById( R.id.fab );
+        final FloatingActionButton fab = (FloatingActionButton)findViewById( R.id.fab );
         fab.setOnClickListener( new View.OnClickListener()
         {
             @Override
@@ -41,20 +46,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         } );
 
-        DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close );
+        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
+        final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle( this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close );
         drawer.setDrawerListener( toggle );
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView)findViewById( R.id.nav_view );
+        final NavigationView navigationView = (NavigationView)findViewById( R.id.nav_view );
         navigationView.setNavigationItemSelectedListener( this );
+
+        final DeliveringUser user = DeliveringUser.getCurrentUser();
+
+        final TextView fullName = (TextView)findViewById( R.id.user_full_name );
+        fullName.setText( user.getUsername() );
+
+        final TextView userEmail = (TextView)findViewById( R.id.user_email );
+        userEmail.setText( user.getEmail() );
     }
 
     @Override
     public void onBackPressed()
     {
-        DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
+        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
         if( drawer.isDrawerOpen( GravityCompat.START ) )
         {
             drawer.closeDrawer( GravityCompat.START );
@@ -68,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu( Menu menu )
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate( R.menu.main, menu );
         return true;
     }
@@ -76,52 +87,60 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onOptionsItemSelected( MenuItem item )
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if( id == R.id.action_settings )
+        switch( item.getItemId() )
         {
-            return true;
-        }
+            case R.id.action_logout:
+                DeliveringUser.logOutInBackground( new LogOutCallback()
+                {
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex == null )
+                        {
+                            startActivity( new Intent( MainActivity.this, LoginActivity.class ) );
+                            finish();
+                        }
+                        else
+                        {
+                            Delivering.log( "Could not logout.", ex );
+                        }
+                    }
+                } );
+                return true;
 
-        return super.onOptionsItemSelected( item );
+            case R.id.action_settings:
+                return true;
+
+            default:
+                return super.onOptionsItemSelected( item );
+        }
     }
 
     @Override
     public boolean onNavigationItemSelected( MenuItem item )
     {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if( id == R.id.nav_camara )
+        switch( item.getItemId() )
         {
-            // Handle the camera action
-        }
-        else if( id == R.id.nav_gallery )
-        {
+            case R.id.nav_camara:
+                break;
 
-        }
-        else if( id == R.id.nav_slideshow )
-        {
+            case R.id.nav_gallery:
+                break;
 
-        }
-        else if( id == R.id.nav_manage )
-        {
+            case R.id.nav_slideshow:
+                break;
 
-        }
-        else if( id == R.id.nav_share )
-        {
+            case R.id.nav_manage:
+                break;
 
-        }
-        else if( id == R.id.nav_send )
-        {
+            case R.id.nav_share:
+                break;
 
+            case R.id.nav_send:
+                break;
         }
 
-        DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
+        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
         drawer.closeDrawer( GravityCompat.START );
         return true;
     }
