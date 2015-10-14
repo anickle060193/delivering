@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.parse.Parse;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 
@@ -23,6 +24,7 @@ public class Delivering extends Application
         sContext = this;
 
         ParseUser.registerSubclass( DeliveringUser.class );
+        ParseObject.registerSubclass( Delivery.class );
 
         Parse.initialize( this, getString( R.string.applicationId ), getString( R.string.clientKey ) );
     }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    style="@style/CardViewListItem">
+
+    <TextView
+        android:id="@+id/load_more_items"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:gravity="center"
+        android:text="Load more items..."/>
+
+</android.support.v7.widget.CardView>
