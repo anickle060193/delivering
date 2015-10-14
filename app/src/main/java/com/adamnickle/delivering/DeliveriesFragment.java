@@ -10,9 +10,14 @@ import android.widget.TextView;
 
 import com.parse.ParseQuery;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 
 public class DeliveriesFragment extends Fragment
 {
+    private static final DateFormat FORMATTER = DateFormat.getDateTimeInstance();
+
     private View mMainView;
     private RecyclerView mDeliveriesList;
 
@@ -49,12 +54,44 @@ public class DeliveriesFragment extends Fragment
     {
         public Delivery Delivery;
         public final TextView DeliveryName;
+        public final TextView DeliveredAt;
 
         public DeliveryViewHolder( View itemView )
         {
             super( itemView );
 
             DeliveryName = (TextView)itemView.findViewById( R.id.delivery_name );
+            DeliveredAt = (TextView)itemView.findViewById( R.id.delivery_delivered_at );
+            itemView.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View v )
+                {
+                    if( Delivery != null )
+                    {
+                        Delivery.setDeliveredAt( new Date() );
+                        Delivery.saveEventually();
+                        update();
+                    }
+                }
+            } );
+        }
+
+        public void update()
+        {
+            if( Delivery != null )
+            {
+                DeliveryName.setText( Delivery.getName() );
+                final Date date = Delivery.getDeliveredAt();
+                if( date == null )
+                {
+                    DeliveredAt.setText( "Not yet delivered." );
+                }
+                else
+                {
+                    DeliveredAt.setText( "Delivered At: " + FORMATTER.format( date ) );
+                }
+            }
         }
     }
 
@@ -67,7 +104,10 @@ public class DeliveriesFragment extends Fragment
                 @Override
                 public ParseQuery<Delivery> getQuery()
                 {
-                    return Delivery.createQuery().addAscendingOrder( Delivery.NAME );
+                    return Delivery.createQuery()
+                            .addDescendingOrder( Delivery.DELIVERED_AT )
+                            .addDescendingOrder( Delivery.CREATED_AT )
+                            .addAscendingOrder( Delivery.NAME );
                 }
             } );
         }
@@ -82,9 +122,8 @@ public class DeliveriesFragment extends Fragment
         @Override
         public void onBindParseObjectViewHolder( DeliveryViewHolder holder, int position )
         {
-            final Delivery delivery = get( position );
-            holder.Delivery = delivery;
-            holder.DeliveryName.setText( delivery.getName() );
+            holder.Delivery = get( position );
+            holder.update();
         }
     }
 }

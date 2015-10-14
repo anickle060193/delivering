@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch( item.getItemId() )
         {
             case R.id.shifts:
-                Delivery.create( "Delivery " + String.valueOf( (int)( Math.random() * 100 ) ) ).saveInBackground();
                 closeDrawer();
                 return true;
 
