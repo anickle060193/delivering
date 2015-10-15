@@ -138,7 +138,7 @@ public class DeliveriesFragment extends Fragment
                     if( Delivery != null )
                     {
                         Delivery.setDeliveryEnd( new Date() );
-                        Delivery.pinInBackground();
+                        Delivery.saveEventually();
                         update();
                     }
                 }
@@ -173,7 +173,6 @@ public class DeliveriesFragment extends Fragment
                 public ParseQuery<Delivery> getQuery()
                 {
                     return Delivery.createQuery()
-                            .fromLocalDatastore()
                             .addDescendingOrder( Delivery.DELIVERY_END )
                             .addDescendingOrder( Delivery.CREATED_AT )
                             .addAscendingOrder( Delivery.NAME );
