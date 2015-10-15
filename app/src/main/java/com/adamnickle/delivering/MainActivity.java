@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -40,13 +41,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final NavigationView navigationView = (NavigationView)findViewById( R.id.nav_view );
         navigationView.setNavigationItemSelectedListener( this );
 
-        final DeliveringUser user = DeliveringUser.getCurrentUser();
+        navigationView.addOnLayoutChangeListener( new View.OnLayoutChangeListener()
+        {
+            @Override
+            public void onLayoutChange( View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom )
+            {
+                navigationView.removeOnLayoutChangeListener( this );
 
-        final TextView fullName = (TextView)findViewById( R.id.user_full_name );
-        fullName.setText( user.getUsername() );
+                final DeliveringUser user = DeliveringUser.getCurrentUser();
 
-        final TextView userEmail = (TextView)findViewById( R.id.user_email );
-        userEmail.setText( user.getEmail() );
+                final TextView fullName = (TextView)navigationView.findViewById( R.id.user_full_name );
+                fullName.setText( user.getUsername() );
+
+                final TextView userEmail = (TextView)navigationView.findViewById( R.id.user_email );
+                userEmail.setText( user.getEmail() );
+            }
+        } );
     }
 
     @Override
