@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +20,7 @@ import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 
 public class DeliveriesFragment extends Fragment
@@ -146,12 +146,34 @@ public class DeliveriesFragment extends Fragment
                 .show();
     }
 
+    private void onSetTipClick( DeliveryViewHolder holder )
+    {
+        setTip( holder.Delivery );
+    }
+
     private void setTip( Delivery delivery )
     {
         Delivering.toast( "Sorry, can't set tip yet" );
     }
 
-    private void endDelivery( Delivery delivery )
+    private void onCompleteDeliveryClick( final DeliveryViewHolder holder )
+    {
+        new AlertDialog.Builder( getActivity() )
+                .setMessage( "Are you sure you want to complete this delivery?" )
+                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which )
+                    {
+                        completeDelivery( holder.Delivery );
+                        holder.update();
+                    }
+                } )
+                .setNegativeButton( "No", null )
+                .show();
+    }
+
+    private void completeDelivery( Delivery delivery )
     {
         delivery.setDeliveryEnd( new Date() );
         delivery.saveInBackground( new SaveCallback()
@@ -159,17 +181,31 @@ public class DeliveriesFragment extends Fragment
             @Override
             public void done( ParseException ex )
             {
-                if( ex == null )
-                {
-                    Delivering.toast( "Delivery completed!" );
-                }
-                else
+                if( ex != null )
                 {
                     Delivering.log( "Failed to complete Delivery.", ex );
                     Delivering.toast( "Something went wrong! Try again." );
                 }
             }
         } );
+    }
+
+    private void onStartDeliveryClick( final DeliveryViewHolder holder )
+    {
+        new AlertDialog.Builder( getActivity() )
+                .setTitle( holder.Delivery.getName() )
+                .setMessage( "Are you sure you want to start this delivery?" )
+                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which )
+                    {
+                        startDelivery( holder.Delivery );
+                        holder.update();
+                    }
+                } )
+                .setNegativeButton( "No", null )
+                .show();
     }
 
     private void startDelivery( Delivery delivery )
@@ -180,11 +216,7 @@ public class DeliveriesFragment extends Fragment
             @Override
             public void done( ParseException ex )
             {
-                if( ex == null )
-                {
-                    Delivering.toast( "Delivery started!" );
-                }
-                else
+                if( ex != null )
                 {
                     Delivering.log( "Failed to start Delivery.", ex );
                     Delivering.toast( "Something went wrong! Try again." );
@@ -244,17 +276,15 @@ public class DeliveriesFragment extends Fragment
                 {
                     if( Delivery.isCompleted() )
                     {
-                        Delivering.toast( "Delivery already completed." );
+                        onSetTipClick( DeliveryViewHolder.this );
                     }
                     else if( Delivery.isInProgress() )
                     {
-                        endDelivery( Delivery );
-                        update();
+                        onCompleteDeliveryClick( DeliveryViewHolder.this );
                     }
                     else
                     {
-                        startDelivery( Delivery );
-                        update();
+                        onStartDeliveryClick( DeliveryViewHolder.this );
                     }
                 }
             } );
@@ -272,10 +302,8 @@ public class DeliveriesFragment extends Fragment
                     DeliveryStatusCompleted.setVisibility( View.VISIBLE );
                     final long start = Delivery.getDeliveryStart().getTime();
                     final long end = Delivery.getDeliveryEnd().getTime();
-                    final long span = end - start;
-                    final long now = System.currentTimeMillis();
-                    final String str = DateUtils.getRelativeTimeSpanString( now + span, now, 60 * 1000, DateUtils.FORMAT_ABBREV_ALL ).toString();
-                    DeliveryStatus.setText( "Delivery completed " + str );
+                    final long minutes = TimeUnit.MINUTES.convert( end - start, TimeUnit.MILLISECONDS );
+                    DeliveryStatus.setText( "Delivery completed in " + minutes + " minutes" );
                 }
                 else if( Delivery.isInProgress() )
                 {
@@ -283,8 +311,8 @@ public class DeliveriesFragment extends Fragment
                     DeliveryStatusCompleted.setVisibility( View.GONE );
                     final long start = Delivery.getDeliveryStart().getTime();
                     final long now = System.currentTimeMillis();
-                    final String str = DateUtils.getRelativeTimeSpanString( start, now, 60 * 1000, DateUtils.FORMAT_ABBREV_ALL ).toString();
-                    DeliveryStatus.setText( "Delivery started " + str );
+                    final long minutes = TimeUnit.MINUTES.convert( now - start, TimeUnit.MILLISECONDS );
+                    DeliveryStatus.setText( "Delivery started " + minutes + " minutes ago" );
                 }
                 else
                 {
