@@ -43,4 +43,9 @@ public class Delivering extends Application
     {
         Log.e( TAG, message, ex );
     }
+
+    public static void oops()
+    {
+        Delivering.toast( "Something went wrong! Try again." );
+    }
 }

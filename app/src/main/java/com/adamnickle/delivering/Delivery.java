@@ -78,14 +78,16 @@ public class Delivery extends ParseObject
         return (float)get( DISTANCE );
     }
 
-    public void setTip( BigDecimal decimal )
+    public void setTip( BigDecimal tip )
     {
-        put( TIP, decimal );
+        final String tipString = tip.toString();
+        put( TIP, tipString );
     }
 
     public BigDecimal getTip()
     {
-        return (BigDecimal)get( TIP );
+        final String tipString = getString( TIP );
+        return tipString == null ? null : new BigDecimal( tipString );
     }
 
     public void setDeliveryStart( Date date )

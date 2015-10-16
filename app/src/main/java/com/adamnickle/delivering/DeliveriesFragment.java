@@ -6,12 +6,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -19,13 +21,17 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 
 public class DeliveriesFragment extends Fragment
 {
     public static final String FRAGMENT_TAG = DeliveriesFragment.class.getName();
+
+    private static final Pattern TIP_PATTERN = Pattern.compile( "^[1-9]\\d*(?:\\.\\d{2})?$" );
 
     private View mMainView;
     private SwipeRefreshLayout mSwipeToRefreshLayout;
@@ -136,7 +142,7 @@ public class DeliveriesFragment extends Fragment
                                 else
                                 {
                                     Delivering.log( "Created Delivery could not be saved.", ex );
-                                    Delivering.toast( "Delivery could not be created at this time." );
+                                    Delivering.oops();
                                 }
                             }
                         } );
@@ -146,14 +152,67 @@ public class DeliveriesFragment extends Fragment
                 .show();
     }
 
-    private void onSetTipClick( DeliveryViewHolder holder )
+    private void onSetTipClick( final DeliveryViewHolder holder )
     {
-        setTip( holder.Delivery );
+        final AlertDialog dialog = new AlertDialog.Builder( getActivity() )
+                .setView( R.layout.delivery_tip_dialog_layout )
+                .setPositiveButton( "Tip", null )
+                .show();
+        final EditText tipEditText = (EditText)dialog.findViewById( R.id.delivery_tip );
+        final BigDecimal initialTip = holder.Delivery.getTip();
+        if( initialTip != null )
+        {
+            tipEditText.setText( initialTip.toString() );
+        }
+        tipEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        {
+            @Override
+            public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
+            {
+                if( actionId == EditorInfo.IME_NULL )
+                {
+                    // This is gross
+                    dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
+                }
+                return false;
+            }
+        } );
+        dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                final String tipString = tipEditText.getText().toString();
+                if( TIP_PATTERN.matcher( tipString ).matches() )
+                {
+                    final BigDecimal tip = new BigDecimal( tipString );
+                    setTip( holder.Delivery, tip );
+                    dialog.dismiss();
+                }
+                else
+                {
+                    tipEditText.setError( "Invalid tip format (e.g. 4.56)" );
+                    tipEditText.requestFocus();
+                }
+            }
+        } );
     }
 
-    private void setTip( Delivery delivery )
+    private void setTip( Delivery delivery, BigDecimal tip )
     {
-        Delivering.toast( "Sorry, can't set tip yet" );
+        delivery.setTip( tip );
+        delivery.saveInBackground( new SaveCallback()
+        {
+            @Override
+            public void done( ParseException e )
+            {
+                if( e != null )
+                {
+                    Delivering.log( "Error occurred while setting tip." );
+                    Delivering.oops();
+                }
+            }
+        } );
     }
 
     private void onCompleteDeliveryClick( final DeliveryViewHolder holder )
@@ -184,7 +243,7 @@ public class DeliveriesFragment extends Fragment
                 if( ex != null )
                 {
                     Delivering.log( "Failed to complete Delivery.", ex );
-                    Delivering.toast( "Something went wrong! Try again." );
+                    Delivering.oops();
                 }
             }
         } );
@@ -219,7 +278,7 @@ public class DeliveriesFragment extends Fragment
                 if( ex != null )
                 {
                     Delivering.log( "Failed to start Delivery.", ex );
-                    Delivering.toast( "Something went wrong! Try again." );
+                    Delivering.oops();
                 }
             }
         } );
@@ -265,7 +324,7 @@ public class DeliveriesFragment extends Fragment
                 @Override
                 public void onClick( View v )
                 {
-                    setTip( Delivery );
+                    onSetTipClick( DeliveryViewHolder.this );
                 }
             } );
 
