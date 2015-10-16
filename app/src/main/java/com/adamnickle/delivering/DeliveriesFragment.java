@@ -3,8 +3,10 @@ package com.adamnickle.delivering;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -18,15 +20,15 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
-import java.text.DateFormat;
 import java.util.Date;
 
 
 public class DeliveriesFragment extends Fragment
 {
-    private static final DateFormat FORMATTER = DateFormat.getDateTimeInstance();
+    public static final String FRAGMENT_TAG = DeliveriesFragment.class.getName();
 
     private View mMainView;
+    private SwipeRefreshLayout mSwipeToRefreshLayout;
     private RecyclerView mDeliveriesList;
     private DeliveryArrayAdapter mAdapter;
 
@@ -50,9 +52,34 @@ public class DeliveriesFragment extends Fragment
         {
             mMainView = inflater.inflate( R.layout.fragment_deliveries, container, false );
 
+            mSwipeToRefreshLayout = (SwipeRefreshLayout)mMainView.findViewById( R.id.deliveries_swipe_refresh_layout );
             mDeliveriesList = (RecyclerView)mMainView.findViewById( R.id.deliveries_list );
             mAdapter = new DeliveryArrayAdapter();
             mDeliveriesList.setAdapter( mAdapter );
+            mAdapter.addOnQueryListener( new ParseObjectArrayAdapter.OnQueryListener()
+            {
+                @Override
+                public void onQueryStarted()
+                {
+                    mSwipeToRefreshLayout.setRefreshing( true );
+                }
+
+                @Override
+                public void onQueryEnded( boolean successful )
+                {
+                    mSwipeToRefreshLayout.setRefreshing( false );
+                }
+            } );
+
+            mSwipeToRefreshLayout.setColorSchemeResources( R.color.colorAccent );
+            mSwipeToRefreshLayout.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener()
+            {
+                @Override
+                public void onRefresh()
+                {
+                    mAdapter.refresh();
+                }
+            } );
         }
         else
         {
@@ -95,7 +122,8 @@ public class DeliveriesFragment extends Fragment
                         final EditText deliveryNameEditText = (EditText)dialog.findViewById( R.id.delivery_name );
                         final String deliveryName = deliveryNameEditText.getText().toString();
 
-                        final Delivery deliver = Delivery.create( deliveryName );
+                        final DeliveringUser deliverer = DeliveringUser.getCurrentUser();
+                        final Delivery deliver = Delivery.create( deliverer, deliveryName );
                         deliver.saveInBackground( new SaveCallback()
                         {
                             @Override
@@ -118,18 +146,74 @@ public class DeliveriesFragment extends Fragment
                 .show();
     }
 
+    private void setTip( Delivery delivery )
+    {
+        Delivering.toast( "Sorry, can't set tip yet" );
+    }
+
+    private void endDelivery( Delivery delivery )
+    {
+        delivery.setDeliveryEnd( new Date() );
+        delivery.saveInBackground( new SaveCallback()
+        {
+            @Override
+            public void done( ParseException ex )
+            {
+                if( ex == null )
+                {
+                    Delivering.toast( "Delivery completed!" );
+                }
+                else
+                {
+                    Delivering.log( "Failed to complete Delivery.", ex );
+                    Delivering.toast( "Something went wrong! Try again." );
+                }
+            }
+        } );
+    }
+
+    private void startDelivery( Delivery delivery )
+    {
+        delivery.setDeliveryStart( new Date() );
+        delivery.saveInBackground( new SaveCallback()
+        {
+            @Override
+            public void done( ParseException ex )
+            {
+                if( ex == null )
+                {
+                    Delivering.toast( "Delivery started!" );
+                }
+                else
+                {
+                    Delivering.log( "Failed to start Delivery.", ex );
+                    Delivering.toast( "Something went wrong! Try again." );
+                }
+            }
+        } );
+    }
+
     private class DeliveryViewHolder extends ParseObjectArrayAdapter.ViewHolder
     {
         public Delivery Delivery;
         public final TextView DeliveryName;
-        public final TextView DeliveredAt;
+        public final TextView DeliveryStatus;
+        public final View SetTip;
+        public final View UpdateDeliveryStatus;
+        public final View DeliveryStatusInProgress;
+        public final View DeliveryStatusCompleted;
 
         public DeliveryViewHolder( View itemView )
         {
             super( itemView );
 
-            DeliveryName = (TextView)itemView.findViewById( R.id.delivery_name );
-            DeliveredAt = (TextView)itemView.findViewById( R.id.delivery_delivered_at );
+            DeliveryName = (TextView)findViewById( R.id.delivery_name );
+            DeliveryStatus = (TextView)findViewById( R.id.delivery_status );
+            SetTip = findViewById( R.id.set_tip );
+            UpdateDeliveryStatus = findViewById( R.id.update_delivery_status );
+            DeliveryStatusInProgress = findViewById( R.id.delivery_status_in_progress );
+            DeliveryStatusCompleted = findViewById( R.id.delivery_status_completed );
+
             itemView.setOnClickListener( new View.OnClickListener()
             {
                 @Override
@@ -143,6 +227,37 @@ public class DeliveriesFragment extends Fragment
                     }
                 }
             } );
+
+            SetTip.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View v )
+                {
+                    setTip( Delivery );
+                }
+            } );
+
+            UpdateDeliveryStatus.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View v )
+                {
+                    if( Delivery.isCompleted() )
+                    {
+                        Delivering.toast( "Delivery already completed." );
+                    }
+                    else if( Delivery.isInProgress() )
+                    {
+                        endDelivery( Delivery );
+                        update();
+                    }
+                    else
+                    {
+                        startDelivery( Delivery );
+                        update();
+                    }
+                }
+            } );
         }
 
         public void update()
@@ -150,14 +265,32 @@ public class DeliveriesFragment extends Fragment
             if( Delivery != null )
             {
                 DeliveryName.setText( Delivery.getName() );
-                final Date date = Delivery.getDeliveryEnd();
-                if( date == null )
+
+                if( Delivery.isCompleted() )
                 {
-                    DeliveredAt.setText( "Not yet delivered." );
+                    DeliveryStatusInProgress.setVisibility( View.GONE );
+                    DeliveryStatusCompleted.setVisibility( View.VISIBLE );
+                    final long start = Delivery.getDeliveryStart().getTime();
+                    final long end = Delivery.getDeliveryEnd().getTime();
+                    final long span = end - start;
+                    final long now = System.currentTimeMillis();
+                    final String str = DateUtils.getRelativeTimeSpanString( now + span, now, 60 * 1000, DateUtils.FORMAT_ABBREV_ALL ).toString();
+                    DeliveryStatus.setText( "Delivery completed " + str );
+                }
+                else if( Delivery.isInProgress() )
+                {
+                    DeliveryStatusInProgress.setVisibility( View.VISIBLE );
+                    DeliveryStatusCompleted.setVisibility( View.GONE );
+                    final long start = Delivery.getDeliveryStart().getTime();
+                    final long now = System.currentTimeMillis();
+                    final String str = DateUtils.getRelativeTimeSpanString( start, now, 60 * 1000, DateUtils.FORMAT_ABBREV_ALL ).toString();
+                    DeliveryStatus.setText( "Delivery started " + str );
                 }
                 else
                 {
-                    DeliveredAt.setText( "Delivered At: " + FORMATTER.format( date ) );
+                    DeliveryStatusInProgress.setVisibility( View.GONE );
+                    DeliveryStatusCompleted.setVisibility( View.GONE );
+                    DeliveryStatus.setText( "Delivery not yet started." );
                 }
             }
         }
@@ -173,11 +306,13 @@ public class DeliveriesFragment extends Fragment
                 public ParseQuery<Delivery> getQuery()
                 {
                     return Delivery.createQuery()
+                            .whereEqualTo( Delivery.DELIVERER, DeliveringUser.getCurrentUser() )
                             .addDescendingOrder( Delivery.DELIVERY_END )
+                            .addDescendingOrder( Delivery.DELIVERY_START )
                             .addDescendingOrder( Delivery.CREATED_AT )
                             .addAscendingOrder( Delivery.NAME );
                 }
-            } );
+            }, 20 );
         }
 
         @Override

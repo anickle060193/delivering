@@ -8,27 +8,73 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/delivery_name"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="12dp"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:text="Delivery Name"/>
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:layout_weight="1">
 
-        <TextView
-            android:id="@+id/delivery_delivered_at"
-            android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/delivery_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:text="Delivery Name"/>
+
+            <TextView
+                android:id="@+id/delivery_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:textAppearance="?android:textAppearanceSmall"
+                android:text="Completed"/>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/set_tip"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="13dp"
-            android:layout_marginStart="13dp"
-            android:layout_marginBottom="12dp"
-            android:textAppearance="?android:textAppearanceSmall"
-            android:text="Delivered At"/>
+            android:layout_margin="4dp"
+            android:src="@drawable/ic_set_tip_36dp"
+            android:tint="@color/colorAccent"
+            android:contentDescription="Set Tip"/>
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp">
+
+            <ImageView
+                android:id="@+id/update_delivery_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_update_delivery_status_36dp"
+                android:tint="@color/colorAccent"
+                android:contentDescription="Update Delivery Status"/>
+
+            <ImageView
+                android:id="@+id/delivery_status_in_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_in_progress_36dp"
+                android:layout_gravity="bottom|end"
+                android:contentDescription="Delivery In-Progress"/>
+
+            <ImageView
+                android:id="@+id/delivery_status_completed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_completed_36dp"
+                android:layout_gravity="bottom|end"
+                android:contentDescription="Delivery Completed"/>
+
+        </FrameLayout>
 
     </LinearLayout>
 

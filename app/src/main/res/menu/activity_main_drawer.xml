@@ -6,15 +6,20 @@
 
     <group
         android:checkableBehavior="single">
+
         <item
             android:id="@+id/shifts"
             android:icon="@drawable/ic_restore_24dp"
             android:title="Shifts"/>
+
         <item
             android:id="@+id/deliveries"
-            android:icon="@drawable/ic_local_shipping_24dp"
+            android:icon="@drawable/ic_deliveries_24dp"
             android:title="Deliveries"/>
+
     </group>
+
+    <!--
 
     <item
         android:title="Communicate">
@@ -29,6 +34,8 @@
                 android:title="Send"/>
         </menu>
     </item>
+
+    -->
 
     <item
         android:id="@+id/settings"

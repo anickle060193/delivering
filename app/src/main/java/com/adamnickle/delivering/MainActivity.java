@@ -3,6 +3,7 @@ package com.adamnickle.delivering;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,6 +20,8 @@ import com.parse.ParseException;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
+    private DeliveriesFragment mDeliveriesFragment;
+
     @Override
     protected void onCreate( Bundle savedInstanceState )
     {
@@ -57,6 +60,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 userEmail.setText( user.getEmail() );
             }
         } );
+
+        if( savedInstanceState != null )
+        {
+            mDeliveriesFragment = (DeliveriesFragment)getSupportFragmentManager()
+                    .getFragment( savedInstanceState, DeliveriesFragment.FRAGMENT_TAG );
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState( Bundle outState )
+    {
+        super.onSaveInstanceState( outState );
+
+        getSupportFragmentManager().putFragment( outState, DeliveriesFragment.FRAGMENT_TAG, mDeliveriesFragment );
     }
 
     @Override
@@ -86,25 +103,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch( item.getItemId() )
         {
             case R.id.action_logout:
-                DeliveringUser.logOutInBackground( new LogOutCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex == null )
-                        {
-                            startActivity( new Intent( MainActivity.this, LoginActivity.class ) );
-                            finish();
-                        }
-                        else
-                        {
-                            Delivering.log( "Could not logout.", ex );
-                        }
-                    }
-                } );
+                logout();
                 return true;
 
             case R.id.action_settings:
+                Delivering.toast( "Sorry, no settings yet." );
                 return true;
 
             default:
@@ -118,22 +121,58 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         switch( item.getItemId() )
         {
             case R.id.shifts:
+                Delivering.toast( "Sorry, no shifts yet." );
                 closeDrawer();
                 return true;
 
             case R.id.deliveries:
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .addToBackStack( null )
-                        .replace( R.id.main_content, DeliveriesFragment.newInstance() )
-                        .commit();
-
+                openDeliveries();
                 closeDrawer();
                 return true;
 
             default:
-                return true;
+                return false;
         }
+    }
+
+    private void logout()
+    {
+        DeliveringUser.logOutInBackground( new LogOutCallback()
+        {
+            @Override
+            public void done( ParseException ex )
+            {
+                if( ex == null )
+                {
+                    startActivity( new Intent( MainActivity.this, LoginActivity.class ) );
+                    finish();
+                }
+                else
+                {
+                    Delivering.log( "Could not logout.", ex );
+                    Delivering.toast( "Logout failed. Try again." );
+                }
+            }
+        } );
+    }
+
+    private void openDeliveries()
+    {
+        final Fragment fragment = getSupportFragmentManager().findFragmentById( R.id.main_content );
+        if( fragment != null && fragment == mDeliveriesFragment )
+        {
+            return;
+        }
+
+        if( mDeliveriesFragment == null )
+        {
+            mDeliveriesFragment = DeliveriesFragment.newInstance();
+        }
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack( null )
+                .replace( R.id.main_content, mDeliveriesFragment )
+                .commit();
     }
 
     public void closeDrawer()

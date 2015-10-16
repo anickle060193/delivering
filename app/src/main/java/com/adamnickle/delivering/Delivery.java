@@ -1,5 +1,6 @@
 package com.adamnickle.delivering;
 
+import com.parse.ParseACL;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -11,7 +12,7 @@ import java.util.Date;
 @ParseClassName( "Delivery" )
 public class Delivery extends ParseObject
 {
-    //ajn public static final String DELIVERER = "deliverer";
+    public static final String DELIVERER = "deliverer";
     public static final String NAME = "name";
     //ajn public static final String ORIGIN = "origin";
     //ajn public static final String DESTINATION = "destination";
@@ -23,9 +24,11 @@ public class Delivery extends ParseObject
     public static final String CREATED_AT = "createdAt";
     public static final String UPDATED_AT = "updatedAt";
 
-    public static Delivery create( String name )
+    public static Delivery create( DeliveringUser deliverer, String name )
     {
         final Delivery delivery = new Delivery();
+        delivery.setACL( new ParseACL( deliverer ) );
+        delivery.setDeliverer( deliverer );
         delivery.setName( name );
         return delivery;
     }
@@ -33,6 +36,26 @@ public class Delivery extends ParseObject
     public static ParseQuery<Delivery> createQuery()
     {
         return new ParseQuery<>( Delivery.class );
+    }
+
+    public boolean isCompleted()
+    {
+        return getDeliveryEnd() != null && getDeliveryStart() != null;
+    }
+
+    public boolean isInProgress()
+    {
+        return !isCompleted() && getDeliveryStart() != null;
+    }
+
+    public void setDeliverer( DeliveringUser deliverer )
+    {
+        put( DELIVERER, deliverer );
+    }
+
+    public DeliveringUser getDeliverer()
+    {
+        return (DeliveringUser)getParseUser( DELIVERER );
     }
 
     public void setName( String name )
