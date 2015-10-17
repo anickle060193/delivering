@@ -73,8 +73,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else
         {
-            navigationView.setCheckedItem( R.id.summary );
-            openSummary();
+            navigationView.setCheckedItem( R.id.shifts );
+            openShifts();
         }
     }
 

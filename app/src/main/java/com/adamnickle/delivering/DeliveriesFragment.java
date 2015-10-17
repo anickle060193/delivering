@@ -1,20 +1,15 @@
 package com.adamnickle.delivering;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.parse.ParseException;
@@ -24,14 +19,11 @@ import com.parse.SaveCallback;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 
 public class DeliveriesFragment extends Fragment
 {
     public static final String FRAGMENT_TAG = DeliveriesFragment.class.getName();
-
-    private static final Pattern TIP_PATTERN = Pattern.compile( "^[1-9]\\d*(?:\\.\\d{2})?$" );
 
     private View mMainView;
     private SwipeRefreshLayout mSwipeToRefreshLayout;
@@ -106,7 +98,7 @@ public class DeliveriesFragment extends Fragment
         switch( item.getItemId() )
         {
             case R.id.add_delivery:
-                createDelivery();
+                onCreateDeliveryClick();
                 return true;
 
             default:
@@ -114,38 +106,16 @@ public class DeliveriesFragment extends Fragment
         }
     }
 
-    private void createDelivery()
+    private void onCreateDeliveryClick()
     {
-        final AlertDialog dialog = new AlertDialog.Builder( getActivity() )
-                .setView( R.layout.delivery_creator_dialog_layout )
-                .setPositiveButton( "Create Delivery", null )
-                .setNegativeButton( "Cancel", null )
-                .show();
-        final EditText distanceEditText = (EditText)dialog.findViewById( R.id.delivery_creator_distance );
-        distanceEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        DeliveryDialogs.create( getActivity(), new DeliveryDialogs.DeliveryCreatorListener()
         {
             @Override
-            public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
+            public void onDeliveryCreated( String deliveryName )
             {
-                if( actionId == EditorInfo.IME_ACTION_DONE )
-                {
-                    // This is gross
-                    dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
-                    return true;
-                }
-                return false;
-            }
-        } );
-        final EditText deliveryNameEditText = (EditText)dialog.findViewById( R.id.delivery_creator_name );
-        dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-                final String deliveryName = deliveryNameEditText.getText().toString();
-
                 final Deliverer deliverer = Deliverer.getCurrentUser();
-                final Delivery deliver = Delivery.create( deliverer, deliveryName );
+                final Shift shift = Shift.getCurrentShift();
+                final Delivery deliver = Delivery.create( deliverer, shift, deliveryName );
                 deliver.saveInBackground( new SaveCallback()
                 {
                     @Override
@@ -163,143 +133,111 @@ public class DeliveriesFragment extends Fragment
                         }
                     }
                 } );
-                dialog.dismiss();
+            }
+        }, new ShiftDialogs.ShiftCreatorListener()
+        {
+            @Override
+            public void OnShiftCreated( boolean clockIn )
+            {
+                final Deliverer deliverer = Deliverer.getCurrentUser();
+                final Shift shift = Shift.createShift( deliverer );
+                if( clockIn )
+                {
+                    shift.setStart( new Date() );
+                }
+                shift.saveInBackground( new SaveCallback()
+                {
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex == null )
+                        {
+                            onCreateDeliveryClick();
+                        }
+                        else
+                        {
+                            Delivering.log( "Shift could not be created.", ex );
+                            Delivering.toast( "Shift creation failed. Try again." );
+                        }
+                    }
+                } );
             }
         } );
     }
 
     private void onSetTipClick( final DeliveryViewHolder holder )
     {
-        final AlertDialog dialog = new AlertDialog.Builder( getActivity() )
-                .setView( R.layout.delivery_tip_dialog_layout )
-                .setPositiveButton( "Tip", null )
-                .show();
-        final EditText tipEditText = (EditText)dialog.findViewById( R.id.delivery_tip );
-        final BigDecimal initialTip = holder.Delivery.getTip();
-        if( initialTip != null )
-        {
-            tipEditText.setText( initialTip.toString() );
-        }
-        tipEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        DeliveryDialogs.setTip( getActivity(), holder.Delivery.getTip(), new DeliveryDialogs.DeliveryTipSetListener()
         {
             @Override
-            public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
+            public void onDeliveryTipSet( BigDecimal tip )
             {
-                if( actionId == EditorInfo.IME_ACTION_DONE )
+                holder.Delivery.setTip( tip );
+                holder.Delivery.saveInBackground( new SaveCallback()
                 {
-                    // This is gross
-                    dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
-                    return true;
-                }
-                return false;
+                    @Override
+                    public void done( ParseException e )
+                    {
+                        if( e != null )
+                        {
+                            Delivering.log( "Error occurred while setting tip." );
+                            Delivering.oops();
+                        }
+                    }
+                } );
+                holder.update();
             }
         } );
-        dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-                final String tipString = tipEditText.getText().toString();
-                if( TIP_PATTERN.matcher( tipString ).matches() )
-                {
-                    final BigDecimal tip = new BigDecimal( tipString );
-                    setTip( holder, tip );
-                    dialog.dismiss();
-                }
-                else
-                {
-                    tipEditText.setError( "Invalid tip format (e.g. 4.56)" );
-                    tipEditText.requestFocus();
-                }
-            }
-        } );
-    }
-
-    private void setTip( DeliveryViewHolder holder, BigDecimal tip )
-    {
-        holder.Delivery.setTip( tip );
-        holder.Delivery.saveInBackground( new SaveCallback()
-        {
-            @Override
-            public void done( ParseException e )
-            {
-                if( e != null )
-                {
-                    Delivering.log( "Error occurred while setting tip." );
-                    Delivering.oops();
-                }
-            }
-        } );
-        holder.update();
     }
 
     private void onCompleteDeliveryClick( final DeliveryViewHolder holder )
     {
-        new AlertDialog.Builder( getActivity() )
-                .setMessage( "Are you sure you want to complete this delivery?" )
-                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        completeDelivery( holder );
-                    }
-                } )
-                .setNegativeButton( "No", null )
-                .show();
-    }
-
-    private void completeDelivery( DeliveryViewHolder holder )
-    {
-        holder.Delivery.setDeliveryEnd( new Date() );
-        holder.Delivery.saveInBackground( new SaveCallback()
+        DeliveryDialogs.completeDelivery( getActivity(), new DeliveryDialogs.DeliveryCompleteListener()
         {
             @Override
-            public void done( ParseException ex )
+            public void onDeliveryComplete()
             {
-                if( ex != null )
+                holder.Delivery.setDeliveryEnd( new Date() );
+                holder.Delivery.saveInBackground( new SaveCallback()
                 {
-                    Delivering.log( "Failed to complete Delivery.", ex );
-                    Delivering.oops();
-                }
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex != null )
+                        {
+                            Delivering.log( "Failed to complete Delivery.", ex );
+                            Delivering.oops();
+                        }
+                    }
+                } );
+                holder.update();
             }
         } );
-        holder.update();
     }
 
     private void onStartDeliveryClick( final DeliveryViewHolder holder )
     {
-        new AlertDialog.Builder( getActivity() )
-                .setTitle( holder.Delivery.getName() )
-                .setMessage( "Are you sure you want to start this delivery?" )
-                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        startDelivery( holder );
-                    }
-                } )
-                .setNegativeButton( "No", null )
-                .show();
-    }
-
-    private void startDelivery( DeliveryViewHolder holder )
-    {
-        holder.Delivery.setDeliveryStart( new Date() );
-        holder.Delivery.saveInBackground( new SaveCallback()
+        DeliveryDialogs.startDelivery( getActivity(), new DeliveryDialogs.DeliveryStartListener()
         {
             @Override
-            public void done( ParseException ex )
+            public void onDeliveryStarted()
             {
-                if( ex != null )
+                holder.Delivery.setDeliveryStart( new Date() );
+                holder.Delivery.saveInBackground( new SaveCallback()
                 {
-                    Delivering.log( "Failed to start Delivery.", ex );
-                    Delivering.oops();
-                }
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex != null )
+                        {
+                            Delivering.log( "Failed to start Delivery.", ex );
+                            Delivering.oops();
+                        }
+                    }
+                } );
+                holder.update();
             }
         } );
-        holder.update();
     }
 
     private class DeliveryViewHolder extends ParseObjectArrayAdapter.ViewHolder
@@ -324,20 +262,6 @@ public class DeliveriesFragment extends Fragment
             UpdateDeliveryStatus = findViewById( R.id.delivery_update_status );
             DeliveryStatusInProgress = findViewById( R.id.delivery_status_in_progress );
             DeliveryStatusCompleted = findViewById( R.id.delivery_status_completed );
-
-            itemView.setOnClickListener( new View.OnClickListener()
-            {
-                @Override
-                public void onClick( View v )
-                {
-                    if( Delivery != null )
-                    {
-                        Delivery.setDeliveryEnd( new Date() );
-                        Delivery.saveEventually();
-                        update();
-                    }
-                }
-            } );
 
             SetTip.setOnClickListener( new View.OnClickListener()
             {

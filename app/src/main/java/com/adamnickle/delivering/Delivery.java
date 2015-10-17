@@ -12,8 +12,9 @@ import java.util.Date;
 @ParseClassName( "Delivery" )
 public class Delivery extends ParseObject
 {
-    public static final String DELIVERER = "deliverer";
     public static final String NAME = "name";
+    public static final String DELIVERER = "deliverer";
+    public static final String SHIFT = "shift";
     //ajn public static final String ORIGIN = "origin";
     //ajn public static final String DESTINATION = "destination";
     public static final String DISTANCE = "distance";
@@ -24,11 +25,12 @@ public class Delivery extends ParseObject
     public static final String CREATED_AT = "createdAt";
     public static final String UPDATED_AT = "updatedAt";
 
-    public static Delivery create( Deliverer deliverer, String name )
+    public static Delivery create( Deliverer deliverer, Shift shift, String name )
     {
         final Delivery delivery = new Delivery();
         delivery.setACL( new ParseACL( deliverer ) );
         delivery.setDeliverer( deliverer );
+        delivery.setShift( shift );
         delivery.setName( name );
         return delivery;
     }
@@ -56,6 +58,16 @@ public class Delivery extends ParseObject
     public Deliverer getDeliverer()
     {
         return (Deliverer)getParseUser( DELIVERER );
+    }
+
+    public void setShift( Shift shift )
+    {
+        put( SHIFT, shift );
+    }
+
+    public Shift getShift()
+    {
+        return (Shift)get( SHIFT );
     }
 
     public void setName( String name )

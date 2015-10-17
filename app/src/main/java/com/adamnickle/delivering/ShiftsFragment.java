@@ -1,10 +1,8 @@
 package com.adamnickle.delivering;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -98,7 +96,7 @@ public class ShiftsFragment extends Fragment
         switch( item.getItemId() )
         {
             case R.id.add_shift:
-                promptCreateShift();
+                onClickCreateShift();
                 return true;
 
             default:
@@ -106,120 +104,86 @@ public class ShiftsFragment extends Fragment
         }
     }
 
-    private void promptCreateShift()
+    private void onClickCreateShift()
     {
-        new AlertDialog.Builder( getActivity() )
-                .setMessage( "Automatically clock-in to new Shift?" )
-                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        createShift( true );
-                    }
-                } )
-                .setNegativeButton( "No", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        createShift( false );
-                    }
-                } )
-                .show();
-    }
-
-    private void createShift( boolean clockIn )
-    {
-        final Shift shift = Shift.createShift( Deliverer.getCurrentUser() );
-        if( clockIn )
-        {
-            shift.setStart( new Date() );
-        }
-        shift.saveInBackground( new SaveCallback()
+        ShiftDialogs.create( getActivity(), new ShiftDialogs.ShiftCreatorListener()
         {
             @Override
-            public void done( ParseException ex )
+            public void OnShiftCreated( boolean clockIn )
             {
-                if( ex == null )
+                final Shift shift = Shift.createShift( Deliverer.getCurrentUser() );
+                if( clockIn )
                 {
-                    mAdapter.add( 0, shift );
+                    shift.setStart( new Date() );
                 }
-                else
+                shift.saveInBackground( new SaveCallback()
                 {
-                    Delivering.log( "Could not create new Shift", ex );
-                    Delivering.toast( "Shift couldn't be created. Try again." );
-                }
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex == null )
+                        {
+                            mAdapter.add( 0, shift );
+                        }
+                        else
+                        {
+                            Delivering.log( "Could not create new Shift", ex );
+                            Delivering.toast( "Shift couldn't be created. Try again." );
+                        }
+                    }
+                } );
             }
         } );
     }
 
     private void onClickClockIn( final ShiftViewHolder holder )
     {
-        new AlertDialog.Builder( getActivity() )
-                .setMessage( "Clock in?" )
-                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        clockIn( holder );
-                    }
-                } )
-                .setNegativeButton( "No", null )
-                .show();
-    }
-
-    private void clockIn( ShiftViewHolder holder )
-    {
-        holder.Shift.setStart( new Date() );
-        holder.Shift.saveInBackground( new SaveCallback()
+        ShiftDialogs.clockIn( getActivity(), holder.Shift, new ShiftDialogs.ShiftClockInListener()
         {
             @Override
-            public void done( ParseException ex )
+            public void onShiftClockIn()
             {
-                if( ex != null )
+                holder.Shift.setStart( new Date() );
+                holder.Shift.saveInBackground( new SaveCallback()
                 {
-                    Delivering.log( "Could not clock-in to Shift.", ex );
-                    Delivering.oops();
-                }
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex != null )
+                        {
+                            Delivering.log( "Could not clock-in to Shift.", ex );
+                            Delivering.oops();
+                        }
+                    }
+                } );
+                holder.update();
             }
         } );
-        holder.update();
     }
 
     private void onClickClockOut( final ShiftViewHolder holder )
     {
-        new AlertDialog.Builder( getActivity() )
-                .setMessage( "Clock out?" )
-                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        clockOut( holder );
-                    }
-                } )
-                .setNegativeButton( "No", null )
-                .show();
-    }
-
-    private void clockOut( ShiftViewHolder holder )
-    {
-        holder.Shift.setEnd( new Date() );
-        holder.Shift.saveInBackground( new SaveCallback()
+        ShiftDialogs.clockOut( getActivity(), holder.Shift, new ShiftDialogs.ShiftClockOutListener()
         {
             @Override
-            public void done( ParseException ex )
+            public void onShiftClockOut()
             {
-                if( ex != null )
+                holder.Shift.setEnd( new Date() );
+                holder.Shift.saveInBackground( new SaveCallback()
                 {
-                    Delivering.log( "Could not clock-out of Shift.", ex );
-                    Delivering.oops();
-                }
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex != null )
+                        {
+                            Delivering.log( "Could not clock-out of Shift.", ex );
+                            Delivering.oops();
+                        }
+                    }
+                } );
+                holder.update();
             }
         } );
-        holder.update();
     }
 
     private class ShiftViewHolder extends ParseObjectArrayAdapter.ViewHolder
