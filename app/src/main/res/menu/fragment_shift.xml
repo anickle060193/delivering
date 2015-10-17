@@ -4,9 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/deliveries_fragment_action_add_delivery"
-        android:title="Add Delivery"
-        android:icon="@drawable/ic_add"
+        android:id="@+id/shift_fragment_action_clock_in_out"
+        android:icon="@drawable/ic_clock_in_out"
+        android:title="Clock In/Out"
         app:showAsAction="ifRoom"/>
 
 </menu>

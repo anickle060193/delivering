@@ -98,6 +98,7 @@ public abstract class DeliveryDialogs
                 if( TIP_PATTERN.matcher( tipString ).matches() )
                 {
                     listener.onDeliveryTipSet( new BigDecimal( tipString ) );
+                    dialog.dismiss();
                 }
                 else
                 {

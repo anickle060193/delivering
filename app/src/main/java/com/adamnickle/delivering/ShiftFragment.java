@@ -2,15 +2,32 @@ package com.adamnickle.delivering;
 
 
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.SaveCallback;
+
+import java.util.Date;
 
 
 @SuppressWarnings( "ValidFragment" )
 public class ShiftFragment extends Fragment
 {
+    private View mMainView;
+    private RecyclerView mDeliveriesList;
+    private TextView mShiftDate;
+    private TextView mShiftClockInTime;
+    private TextView mShiftClockOutTime;
+
     public static ShiftFragment newInstance( Shift shift )
     {
         return new ShiftFragment( shift );
@@ -27,11 +44,110 @@ public class ShiftFragment extends Fragment
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        setRetainInstance( true );
+        setHasOptionsMenu( true );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
-        return inflater.inflate( R.layout.fragment_shift, container, false );
+        if( mMainView == null )
+        {
+            mMainView = inflater.inflate( R.layout.fragment_shift, container, false );
+            mShiftDate = (TextView)mMainView.findViewById( R.id.shift_fragment_date );
+            mShiftClockInTime = (TextView)mMainView.findViewById( R.id.shift_fragment_clock_in_time );
+            mShiftClockOutTime = (TextView)mMainView.findViewById( R.id.shift_fragment_clock_out_time );
+            mDeliveriesList = (RecyclerView)mMainView.findViewById( R.id.shift_fragment_deliveries_list );
+            mDeliveriesList.setAdapter( new DeliveryAdapter( getActivity(), new ParseObjectArrayAdapter.ParseQueryFactory<Delivery>()
+            {
+                @Override
+                public ParseQuery<Delivery> getQuery()
+                {
+                    return Delivery.createQuery()
+                            .whereEqualTo( Delivery.DELIVERER, Deliverer.getCurrentUser() )
+                            .whereEqualTo( Delivery.SHIFT, mShift )
+                            .addDescendingOrder( Delivery.CREATED_AT );
+                }
+            } ) );
+            update();
+        }
+        else
+        {
+            Utilities.removeFromParent( mMainView );
+        }
+        return mMainView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
+    {
+        inflater.inflate( R.menu.fragment_shift, menu );
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+        switch( item.getItemId() )
+        {
+            case R.id.shift_fragment_action_clock_in_out:
+                onClockInOutClick();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected( item );
+        }
+    }
+
+    private void update()
+    {
+        final Date start = mShift.getStart();
+        final Date end = mShift.getEnd();
+        mShiftDate.setText( Utilities.DATE_FORMAT.format( start ) );
+        mShiftClockInTime.setText( Utilities.SHORT_TIME_FORMAT.format( start ) );
+        mShiftClockOutTime.setText( Utilities.SHORT_TIME_FORMAT.format( end ) );
+    }
+
+    private void onClockInOutClick()
+    {
+        ShiftDialogs.clockInOut( getActivity(), mShift, new ShiftDialogs.ShiftStatusListener()
+        {
+            @Override
+            public void onShiftClockIn()
+            {
+                mShift.setStart( new Date() );
+                mShift.saveInBackground( new SaveCallback()
+                {
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex != null )
+                        {
+                            Delivering.log( "Could not clock-in to Shift.", ex );
+                            Delivering.oops();
+                        }
+                    }
+                } );
+                update();
+            }
+
+            @Override
+            public void onShiftClockOut()
+            {
+                mShift.setEnd( new Date() );
+                mShift.saveInBackground( new SaveCallback()
+                {
+                    @Override
+                    public void done( ParseException ex )
+                    {
+                        if( ex != null )
+                        {
+                            Delivering.log( "Could not clock-out of Shift.", ex );
+                            Delivering.oops();
+                        }
+                    }
+                } );
+                update();
+            }
+        } );
     }
 }

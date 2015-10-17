@@ -8,17 +8,17 @@
         android:checkableBehavior="single">
 
         <item
-            android:id="@+id/summary"
+            android:id="@+id/main_drawer_action_summary"
             android:icon="@drawable/ic_summary"
             android:title="Summary"/>
 
         <item
-            android:id="@+id/shifts"
+            android:id="@+id/main_drawer_action_shifts"
             android:icon="@drawable/ic_shifts"
             android:title="Shifts"/>
 
         <item
-            android:id="@+id/deliveries"
+            android:id="@+id/main_drawer_action_deliveries"
             android:icon="@drawable/ic_deliveries"
             android:title="Deliveries"/>
 
@@ -43,12 +43,12 @@
     -->
 
     <item
-        android:id="@+id/settings"
+        android:id="@+id/main_drawer_action_settings"
         android:icon="@drawable/ic_settings"
         android:title="Settings"/>
 
     <item
-        android:id="@+id/logout"
+        android:id="@+id/main_drawer_action_logout"
         android:icon="@drawable/ic_logout"
         android:title="Logout"/>
 

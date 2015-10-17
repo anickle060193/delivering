@@ -38,12 +38,13 @@ public abstract class ShiftDialogs
                 .show();
     }
 
-    public interface ShiftClockInListener
+    public interface ShiftStatusListener
     {
         void onShiftClockIn();
+        void onShiftClockOut();
     }
 
-    public static void clockIn( Context context, Shift shift, final ShiftClockInListener listener )
+    public static void clockInOut( Context context, Shift shift, final ShiftStatusListener listener )
     {
         if( shift.isCompleted() )
         {
@@ -51,7 +52,18 @@ public abstract class ShiftDialogs
         }
         else if( shift.isInProgress() )
         {
-            Delivering.toast( "Already clocked-in" );
+            new AlertDialog.Builder( context )
+                    .setMessage( "Clock out?" )
+                    .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick( DialogInterface dialog, int which )
+                        {
+                            listener.onShiftClockOut();
+                        }
+                    } )
+                    .setNegativeButton( "No", null )
+                    .show();
         }
         else
         {
@@ -63,34 +75,6 @@ public abstract class ShiftDialogs
                         public void onClick( DialogInterface dialog, int which )
                         {
                             listener.onShiftClockIn();
-                        }
-                    } )
-                    .setNegativeButton( "No", null )
-                    .show();
-        }
-    }
-
-    public interface ShiftClockOutListener
-    {
-        void onShiftClockOut();
-    }
-
-    public static void clockOut( Context context, Shift shift, final ShiftClockOutListener listener )
-    {
-        if( shift.isCompleted() )
-        {
-            Delivering.toast( "Already clocked out" );
-        }
-        else
-        {
-            new AlertDialog.Builder( context )
-                    .setMessage( "Clock out?" )
-                    .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick( DialogInterface dialog, int which )
-                        {
-                            listener.onShiftClockOut();
                         }
                     } )
                     .setNegativeButton( "No", null )

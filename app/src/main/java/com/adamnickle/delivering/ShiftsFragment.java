@@ -95,7 +95,7 @@ public class ShiftsFragment extends Fragment
     {
         switch( item.getItemId() )
         {
-            case R.id.add_shift:
+            case R.id.shifts_fragment_action_add_shift:
                 onClickCreateShift();
                 return true;
 
@@ -136,9 +136,9 @@ public class ShiftsFragment extends Fragment
         } );
     }
 
-    private void onClickClockIn( final ShiftViewHolder holder )
+    private void onClockInOutClick( final ShiftViewHolder holder )
     {
-        ShiftDialogs.clockIn( getActivity(), holder.Shift, new ShiftDialogs.ShiftClockInListener()
+        ShiftDialogs.clockInOut( getActivity(), holder.Shift, new ShiftDialogs.ShiftStatusListener()
         {
             @Override
             public void onShiftClockIn()
@@ -158,13 +158,7 @@ public class ShiftsFragment extends Fragment
                 } );
                 holder.update();
             }
-        } );
-    }
 
-    private void onClickClockOut( final ShiftViewHolder holder )
-    {
-        ShiftDialogs.clockOut( getActivity(), holder.Shift, new ShiftDialogs.ShiftClockOutListener()
-        {
             @Override
             public void onShiftClockOut()
             {
@@ -208,18 +202,7 @@ public class ShiftsFragment extends Fragment
                 @Override
                 public void onClick( View v )
                 {
-                    if( Shift.isCompleted() )
-                    {
-                        Delivering.toast( "Already clocked-out" );
-                    }
-                    else if( Shift.isInProgress() )
-                    {
-                        onClickClockOut( ShiftViewHolder.this );
-                    }
-                    else
-                    {
-                        onClickClockIn( ShiftViewHolder.this );
-                    }
+                    onClockInOutClick( ShiftViewHolder.this );
                 }
             } );
         }

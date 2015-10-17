@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/add_shift"
+        android:id="@+id/shifts_fragment_action_add_shift"
         android:icon="@drawable/ic_add"
         android:title="Add Shift"
         app:showAsAction="ifRoom"/>

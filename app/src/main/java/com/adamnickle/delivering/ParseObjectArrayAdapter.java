@@ -128,6 +128,12 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
         mRecyclerViews.remove( recyclerView );
     }
 
+    public void notifyItemUpdated( T object )
+    {
+        final int index = indexOf( object );
+        notifyItemChanged( index );
+    }
+
     @Override
     public void add( int location, T object )
     {

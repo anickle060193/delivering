@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,15 +17,23 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.parse.GetCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
+    public interface FragmentListener
+    {
+        void onFragmentAttach( Fragment fragment );
+    }
+
     private SummaryFragment mSummaryFragment;
     private ShiftsFragment mShiftsFragment;
     private DeliveriesFragment mDeliveriesFragment;
 
+    @Override
     protected void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
@@ -74,9 +83,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else
         {
-            navigationView.setCheckedItem( R.id.shifts );
-            openShifts();
+            navigationView.setCheckedItem( R.id.main_drawer_action_summary );
+            final Shift shift = Shift.createWithoutData( Shift.class, "9htfKxlplt" );
+            shift.fetchIfNeededInBackground( new GetCallback<ParseObject>()
+            {
+                @Override
+                public void done( ParseObject object, ParseException ex )
+                {
+                    if( ex == null )
+                    {
+                        addFragment( null, ShiftFragment.newInstance( (Shift)object ) );
+                    }
+                    else
+                    {
+                        Delivering.log( "Could not find specified Shift.", ex );
+                    }
+                }
+            } );
         }
+
+        getSupportFragmentManager().addOnBackStackChangedListener( new FragmentManager.OnBackStackChangedListener()
+        {
+            @Override
+            public void onBackStackChanged()
+            {
+                final Fragment fragment = getCurrentFragment();
+                if( fragment instanceof SummaryFragment )
+                {
+                    setTitle( "Summary" );
+                }
+                else if( fragment instanceof ShiftsFragment )
+                {
+                    setTitle( "Shifts" );
+                }
+                else if( fragment instanceof DeliveriesFragment )
+                {
+                    setTitle( "Deliveries" );
+                }
+                else if( fragment instanceof ShiftFragment )
+                {
+                    setTitle( "Shift" );
+                }
+            }
+        } );
     }
 
     @Override
@@ -105,22 +154,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         switch( item.getItemId() )
         {
-            case R.id.summary:
+            case R.id.main_drawer_action_summary:
                 openSummary();
                 closeDrawer();
                 return true;
 
-            case R.id.shifts:
+            case R.id.main_drawer_action_shifts:
                 openShifts();
                 closeDrawer();
                 return true;
 
-            case R.id.deliveries:
+            case R.id.main_drawer_action_deliveries:
                 openDeliveries();
                 closeDrawer();
                 return true;
 
-            case R.id.logout:
+            case R.id.main_drawer_action_logout:
                 new AlertDialog.Builder( this )
                         .setMessage( "Are you sure you want to logout?" )
                         .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
@@ -136,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 closeDrawer();
                 return false;
 
-            case R.id.settings:
+            case R.id.main_drawer_action_settings:
                 Delivering.toast( "Sorry, no settings yet." );
                 closeDrawer();
                 return false;
@@ -172,6 +221,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return getSupportFragmentManager().findFragmentById( R.id.main_activity_content_holder );
     }
 
+    private void addFragment( String fragmentTag, Fragment fragment )
+    {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack( fragmentTag )
+                .replace( R.id.main_activity_content_holder, fragment )
+                .commit();
+    }
+
     private void popOrAdd( String fragmentTag, Fragment fragment )
     {
         final Fragment currentFragment = getCurrentFragment();
@@ -179,13 +237,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             return;
         }
-        if( !getSupportFragmentManager().popBackStackImmediate( fragmentTag, 0 ) )
+        if( fragmentTag == null || !getSupportFragmentManager().popBackStackImmediate( fragmentTag, 0 ) )
         {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack( fragmentTag )
-                    .replace( R.id.main_activity_content_holder, fragment )
-                    .commit();
+            addFragment( fragmentTag, fragment );
         }
     }
 

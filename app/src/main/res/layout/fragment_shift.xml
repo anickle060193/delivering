@@ -1,14 +1,103 @@
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    style="@style/MainContentFragment"
     tools:context="com.adamnickle.delivering.ShiftFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:id="@+id/shift_fragment_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:textAppearanceLarge"
+        android:layout_alignParentStart="true"
+        android:text="12/1/2015"/>
+
+    <LinearLayout
+        android:id="@+id/shift_fragment_clock_in_out_labels"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="6dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/shift_fragment_date">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"
+            android:text="Clock-in:"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:textStyle="bold"
+            android:text="Clock-out:"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toEndOf="@+id/shift_fragment_clock_in_out_labels"
+        android:layout_below="@id/shift_fragment_date">
+
+        <TextView
+            android:id="@+id/shift_fragment_clock_in_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="12:00am"/>
+
+        <TextView
+            android:id="@+id/shift_fragment_clock_out_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="12:00am"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/shift_fragment_deliveries_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:layout_below="@+id/shift_fragment_clock_in_out_labels"
+        android:layout_marginTop="8dp"
+        android:text="Deliveries"/>
+
+    <View
+        android:id="@+id/shift_fragment_deliveries_divider_above"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:minHeight="1px"
+        android:layout_below="@+id/shift_fragment_deliveries_label"
+        android:background="@color/colorAccent"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/shift_fragment_deliveries_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment"/>
+        android:layout_below="@+id/shift_fragment_deliveries_divider_above"
+        android:layout_above="@+id/shift_fragment_deliveries_divider_below"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        tools:listitem="@layout/delivery_item_layout"/>
 
-</FrameLayout>
+    <View
+        android:id="@+id/shift_fragment_deliveries_divider_below"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:minHeight="1px"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorAccent"/>
+
+</RelativeLayout>
