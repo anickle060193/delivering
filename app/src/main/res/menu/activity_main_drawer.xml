@@ -13,13 +13,13 @@
 
         <item
             android:id="@+id/shifts"
-            android:icon="@drawable/ic_restore_24dp"
+            android:icon="@drawable/ic_shifts"
             android:title="Shifts"
             android:visible="false"/>
 
         <item
             android:id="@+id/deliveries"
-            android:icon="@drawable/ic_deliveries_24dp"
+            android:icon="@drawable/ic_deliveries"
             android:title="Deliveries"/>
 
     </group>
@@ -44,7 +44,7 @@
 
     <item
         android:id="@+id/settings"
-        android:icon="@drawable/ic_settings_24dp"
+        android:icon="@drawable/ic_settings"
         android:title="Settings"/>
 
 </menu>

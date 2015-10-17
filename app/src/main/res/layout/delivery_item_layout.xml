@@ -41,8 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            android:src="@drawable/ic_set_tip_36dp"
-            android:tint="@color/colorAccent"
+            android:src="@drawable/ic_set_tip"
             android:contentDescription="Set Tip"/>
 
         <FrameLayout
@@ -54,15 +53,14 @@
                 android:id="@+id/update_delivery_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_update_delivery_status_36dp"
-                android:tint="@color/colorAccent"
+                android:src="@drawable/ic_update_delivery_status"
                 android:contentDescription="Update Delivery Status"/>
 
             <ImageView
                 android:id="@+id/delivery_status_in_progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_in_progress_36dp"
+                android:src="@drawable/ic_in_progress"
                 android:layout_gravity="bottom|end"
                 android:contentDescription="Delivery In-Progress"/>
 
@@ -70,7 +68,7 @@
                 android:id="@+id/delivery_status_completed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_completed_36dp"
+                android:src="@drawable/ic_completed"
                 android:layout_gravity="bottom|end"
                 android:contentDescription="Delivery Completed"/>
 
