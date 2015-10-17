@@ -136,6 +136,15 @@ public class ShiftsFragment extends Fragment
         } );
     }
 
+    private void openShift( ShiftViewHolder holder )
+    {
+        getActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .addToBackStack( null )
+                .replace( R.id.main_activity_content_holder, ShiftFragment.newInstance( holder.Shift ) )
+                .commit();
+    }
+
     private void onClockInOutClick( final ShiftViewHolder holder )
     {
         ShiftDialogs.clockInOut( getActivity(), holder.Shift, new ShiftDialogs.ShiftStatusListener()
@@ -197,6 +206,14 @@ public class ShiftsFragment extends Fragment
             ClockOutTime = findViewById( R.id.shift_item_clock_out_time );
             ClockInOut = findViewById( R.id.shift_item_clock_in_out );
 
+            itemView.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View v )
+                {
+                    openShift( ShiftViewHolder.this );
+                }
+            } );
             ClockInOut.setOnClickListener( new View.OnClickListener()
             {
                 @Override

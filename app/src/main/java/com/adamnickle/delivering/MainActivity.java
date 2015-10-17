@@ -17,10 +17,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.parse.GetCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
-import com.parse.ParseObject;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
@@ -84,22 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else
         {
             navigationView.setCheckedItem( R.id.main_drawer_action_summary );
-            final Shift shift = Shift.createWithoutData( Shift.class, "9htfKxlplt" );
-            shift.fetchIfNeededInBackground( new GetCallback<ParseObject>()
-            {
-                @Override
-                public void done( ParseObject object, ParseException ex )
-                {
-                    if( ex == null )
-                    {
-                        addFragment( null, ShiftFragment.newInstance( (Shift)object ) );
-                    }
-                    else
-                    {
-                        Delivering.log( "Could not find specified Shift.", ex );
-                    }
-                }
-            } );
+            openShifts();
         }
 
         getSupportFragmentManager().addOnBackStackChangedListener( new FragmentManager.OnBackStackChangedListener()
