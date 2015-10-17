@@ -70,7 +70,7 @@ public abstract class DeliveryDialogs
                 .setView( R.layout.delivery_tip_dialog_layout )
                 .setPositiveButton( "Tip", null )
                 .show();
-        final EditText tipEditText = (EditText)dialog.findViewById( R.id.delivery_tip );
+        final EditText tipEditText = (EditText)dialog.findViewById( R.id.delivery_tip_dialog_tip );
         if( initialTip != null )
         {
             tipEditText.setText( initialTip.toString() );

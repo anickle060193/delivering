@@ -19,14 +19,14 @@
             android:layout_weight="1">
 
             <TextView
-                android:id="@+id/delivery_name"
+                android:id="@+id/delivery_item_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:textAppearanceMedium"
                 android:text="Delivery Name"/>
 
             <TextView
-                android:id="@+id/delivery_status"
+                android:id="@+id/delivery_item_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
@@ -45,7 +45,7 @@
                     android:text="Tip:"/>
 
                 <TextView
-                    android:id="@+id/delivery_tip"
+                    android:id="@+id/delivery_item_tip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
@@ -57,7 +57,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/delivery_set_tip"
+            android:id="@+id/delivery_item_set_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
@@ -70,14 +70,14 @@
             android:layout_margin="4dp">
 
             <ImageView
-                android:id="@+id/delivery_update_status"
+                android:id="@+id/delivery_item_update_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_update_delivery_status"
                 android:contentDescription="Update Delivery Status"/>
 
             <ImageView
-                android:id="@+id/delivery_status_in_progress"
+                android:id="@+id/delivery_item_status_in_progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_in_progress"
@@ -85,7 +85,7 @@
                 android:contentDescription="Delivery In-Progress"/>
 
             <ImageView
-                android:id="@+id/delivery_status_completed"
+                android:id="@+id/delivery_item_status_completed"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_completed"

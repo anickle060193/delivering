@@ -26,7 +26,7 @@
             android:text="Tips"/>
 
         <TextView
-            android:id="@+id/tip_count"
+            android:id="@+id/summary_fragment_tip_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:textAppearanceLarge"
@@ -36,7 +36,7 @@
     </LinearLayout>
 
     <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/tips_chart"
+        android:id="@+id/summary_fragment_tips_chart"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
 
@@ -57,7 +57,7 @@
             android:text="Total Tips"/>
 
         <TextView
-            android:id="@+id/total_tips_amount"
+            android:id="@+id/summary_fragment_total_tips_amount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:textAppearanceLarge"
@@ -67,7 +67,7 @@
     </LinearLayout>
 
     <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/total_tips_chart"
+        android:id="@+id/summary_fragment_total_tips_chart"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
 

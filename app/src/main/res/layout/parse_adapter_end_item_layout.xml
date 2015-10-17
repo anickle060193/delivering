@@ -6,7 +6,7 @@
     style="@style/CardViewListItem">
 
     <TextView
-        android:id="@+id/load_more_items"
+        android:id="@+id/parse_adapter_end_item_load_more_items"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"

@@ -38,11 +38,11 @@ public class RegisterActivity extends AppCompatActivity
 
         final String username = getIntent().getStringExtra( EXTRA_USERNAME );
 
-        mEmailView = (AutoCompleteTextView)findViewById( R.id.email );
+        mEmailView = (AutoCompleteTextView)findViewById( R.id.register_email );
 
-        mPasswordView = (EditText)findViewById( R.id.password );
+        mPasswordView = (EditText)findViewById( R.id.register_password );
 
-        mVerifyPasswordView = (EditText)findViewById( R.id.password_verify );
+        mVerifyPasswordView = (EditText)findViewById( R.id.register_password_verify );
         mVerifyPasswordView.setOnEditorActionListener( new TextView.OnEditorActionListener()
         {
             @Override

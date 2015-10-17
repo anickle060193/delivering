@@ -44,10 +44,10 @@ public class LoginActivity extends AppCompatActivity
         setContentView( R.layout.activity_login );
         setTitle( R.string.title_activity_login );
 
-        mEmailView = (AutoCompleteTextView)findViewById( R.id.email );
+        mEmailView = (AutoCompleteTextView)findViewById( R.id.login_email );
         populateAutoComplete();
 
-        mPasswordView = (EditText)findViewById( R.id.password );
+        mPasswordView = (EditText)findViewById( R.id.login_password );
         mPasswordView.setOnEditorActionListener( new TextView.OnEditorActionListener()
         {
             @Override
@@ -62,7 +62,7 @@ public class LoginActivity extends AppCompatActivity
             }
         } );
 
-        findViewById( R.id.sign_in_button ).setOnClickListener( new OnClickListener()
+        findViewById( R.id.login_sign_in_button ).setOnClickListener( new OnClickListener()
         {
             @Override
             public void onClick( View view )

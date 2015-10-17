@@ -54,16 +54,16 @@ public class SummaryFragment extends Fragment
         {
             mMainView = inflater.inflate( R.layout.fragment_summary, container, false );
 
-            mTipsChart = (LineChart)mMainView.findViewById( R.id.tips_chart );
+            mTipsChart = (LineChart)mMainView.findViewById( R.id.summary_fragment_tips_chart );
             formatLineCharts( mTipsChart );
 
-            mTotalTipsChart = (LineChart)mMainView.findViewById( R.id.total_tips_chart );
+            mTotalTipsChart = (LineChart)mMainView.findViewById( R.id.summary_fragment_total_tips_chart );
             formatLineCharts( mTotalTipsChart );
 
-            mTipCount = (TextView)mMainView.findViewById( R.id.tip_count );
+            mTipCount = (TextView)mMainView.findViewById( R.id.summary_fragment_tip_count );
             mTipCount.setText( "0" );
 
-            mTotalTips = (TextView)mMainView.findViewById( R.id.total_tips_amount );
+            mTotalTips = (TextView)mMainView.findViewById( R.id.summary_fragment_total_tips_amount );
             mTotalTips.setText( Utilities.CURRENCY_FORMATTER.format( 0 ) );
         }
         else

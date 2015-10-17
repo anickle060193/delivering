@@ -48,8 +48,8 @@ public class ShiftsFragment extends Fragment
         {
             mMainView = inflater.inflate( R.layout.fragment_shifts, container, false );
 
-            mSwipeRefreshLayout = (SwipeRefreshLayout)mMainView.findViewById( R.id.shifts_swipe_refresh_layout );
-            mShiftsList = (RecyclerView)mMainView.findViewById( R.id.shifts_list );
+            mSwipeRefreshLayout = (SwipeRefreshLayout)mMainView.findViewById( R.id.shifts_fragment_swipe_refresh_layout );
+            mShiftsList = (RecyclerView)mMainView.findViewById( R.id.shifts_fragment_list );
             mAdapter = new ShiftsArrayAdapter();
             mShiftsList.setAdapter( mAdapter );
             mAdapter.addOnQueryListener( new ParseObjectArrayAdapter.OnQueryListener()
@@ -198,10 +198,10 @@ public class ShiftsFragment extends Fragment
         {
             super( itemView );
 
-            ShiftDate = findViewById( R.id.shift_date );
-            ClockInTime = findViewById( R.id.shift_clock_in_time );
-            ClockOutTime = findViewById( R.id.shift_clock_out_time );
-            ClockInOut = findViewById( R.id.shift_clock_in_out );
+            ShiftDate = findViewById( R.id.shift_item_date );
+            ClockInTime = findViewById( R.id.shift_item_clock_in_time );
+            ClockOutTime = findViewById( R.id.shift_item_clock_out_time );
+            ClockInOut = findViewById( R.id.shift_item_clock_in_out );
 
             ClockInOut.setOnClickListener( new View.OnClickListener()
             {

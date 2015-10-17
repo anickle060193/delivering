@@ -35,15 +35,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
         }
 
-        final Toolbar toolbar = (Toolbar)findViewById( R.id.toolbar );
+        final Toolbar toolbar = (Toolbar)findViewById( R.id.main_activity_toolbar );
         setSupportActionBar( toolbar );
 
-        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
+        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.main_activity_drawer_layout );
         final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle( this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close );
         drawer.setDrawerListener( toggle );
         toggle.syncState();
 
-        final NavigationView navigationView = (NavigationView)findViewById( R.id.nav_view );
+        final NavigationView navigationView = (NavigationView)findViewById( R.id.main_activity_nav_layout );
         navigationView.setNavigationItemSelectedListener( this );
 
         navigationView.addOnLayoutChangeListener( new View.OnLayoutChangeListener()
@@ -55,10 +55,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 final Deliverer user = Deliverer.getCurrentUser();
 
-                final TextView fullName = (TextView)navigationView.findViewById( R.id.user_full_name );
+                final TextView fullName = (TextView)navigationView.findViewById( R.id.main_activity_drawer_header_user_full_name );
                 fullName.setText( user.getUsername() );
 
-                final TextView userEmail = (TextView)navigationView.findViewById( R.id.user_email );
+                final TextView userEmail = (TextView)navigationView.findViewById( R.id.main_activity_drawer_header_user_email );
                 userEmail.setText( user.getEmail() );
             }
         } );
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onBackPressed()
     {
-        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
+        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.main_activity_drawer_layout );
         if( drawer.isDrawerOpen( GravityCompat.START ) )
         {
             drawer.closeDrawer( GravityCompat.START );
@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Fragment getCurrentFragment()
     {
-        return getSupportFragmentManager().findFragmentById( R.id.main_content );
+        return getSupportFragmentManager().findFragmentById( R.id.main_activity_content_holder );
     }
 
     private void popOrAdd( String fragmentTag, Fragment fragment )
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             getSupportFragmentManager()
                     .beginTransaction()
                     .addToBackStack( fragmentTag )
-                    .replace( R.id.main_content, fragment )
+                    .replace( R.id.main_activity_content_holder, fragment )
                     .commit();
         }
     }
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void closeDrawer()
     {
-        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.drawer_layout );
+        final DrawerLayout drawer = (DrawerLayout)findViewById( R.id.main_activity_drawer_layout );
         drawer.closeDrawer( GravityCompat.START );
     }
 }

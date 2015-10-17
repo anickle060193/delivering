@@ -51,8 +51,8 @@ public class DeliveriesFragment extends Fragment
         {
             mMainView = inflater.inflate( R.layout.fragment_deliveries, container, false );
 
-            mSwipeToRefreshLayout = (SwipeRefreshLayout)mMainView.findViewById( R.id.deliveries_swipe_refresh_layout );
-            mDeliveriesList = (RecyclerView)mMainView.findViewById( R.id.deliveries_list );
+            mSwipeToRefreshLayout = (SwipeRefreshLayout)mMainView.findViewById( R.id.deliveries_fragment_swipe_refresh_layout );
+            mDeliveriesList = (RecyclerView)mMainView.findViewById( R.id.deliveries_fragment_list );
             mAdapter = new DeliveryArrayAdapter();
             mDeliveriesList.setAdapter( mAdapter );
             mAdapter.addOnQueryListener( new ParseObjectArrayAdapter.OnQueryListener()
@@ -237,13 +237,13 @@ public class DeliveriesFragment extends Fragment
         {
             super( itemView );
 
-            DeliveryName = findViewById( R.id.delivery_name );
-            DeliveryStatus = findViewById( R.id.delivery_status );
-            DeliveryTip = findViewById( R.id.delivery_tip );
-            SetTip = findViewById( R.id.delivery_set_tip );
-            UpdateDeliveryStatus = findViewById( R.id.delivery_update_status );
-            DeliveryStatusInProgress = findViewById( R.id.delivery_status_in_progress );
-            DeliveryStatusCompleted = findViewById( R.id.delivery_status_completed );
+            DeliveryName = findViewById( R.id.delivery_item_name );
+            DeliveryStatus = findViewById( R.id.delivery_item_status );
+            DeliveryTip = findViewById( R.id.delivery_item_tip );
+            SetTip = findViewById( R.id.delivery_item_set_tip );
+            UpdateDeliveryStatus = findViewById( R.id.delivery_item_update_status );
+            DeliveryStatusInProgress = findViewById( R.id.delivery_item_status_in_progress );
+            DeliveryStatusCompleted = findViewById( R.id.delivery_item_status_completed );
 
             SetTip.setOnClickListener( new View.OnClickListener()
             {

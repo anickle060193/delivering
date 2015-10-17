@@ -10,7 +10,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/shift_date"
+            android:id="@+id/shift_item_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:textAppearanceMedium"
@@ -18,14 +18,14 @@
             android:text="12/1/2015"/>
 
         <LinearLayout
-            android:id="@+id/clock_in_out_labels"
+            android:id="@+id/shift_item_clock_in_out_labels"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="6dp"
             android:layout_alignParentStart="true"
-            android:layout_below="@id/shift_date">
+            android:layout_below="@id/shift_item_date">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -43,17 +43,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_toEndOf="@+id/clock_in_out_labels"
-            android:layout_below="@id/shift_date">
+            android:layout_toEndOf="@+id/shift_item_clock_in_out_labels"
+            android:layout_below="@id/shift_item_date">
 
             <TextView
-                android:id="@+id/shift_clock_in_time"
+                android:id="@+id/shift_item_clock_in_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="12:00am"/>
 
             <TextView
-                android:id="@+id/shift_clock_out_time"
+                android:id="@+id/shift_item_clock_out_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="12:00am"/>
@@ -61,7 +61,7 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/shift_clock_in_out"
+            android:id="@+id/shift_item_clock_in_out"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_clock_in_out"

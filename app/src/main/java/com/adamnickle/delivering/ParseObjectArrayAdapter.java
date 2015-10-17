@@ -55,7 +55,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
         {
             super( itemView );
 
-            LoadMoreItems = (TextView)itemView.findViewById( R.id.load_more_items );
+            LoadMoreItems = (TextView)itemView.findViewById( R.id.parse_adapter_end_item_load_more_items );
         }
 
         public void enable()
@@ -259,7 +259,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
         {
             final View view = LayoutInflater
                     .from( parent.getContext() )
-                    .inflate( R.layout.parse_object_array_adapter_end_item_layout, parent, false );
+                    .inflate( R.layout.parse_adapter_end_item_layout, parent, false );
             return new EndViewHolder( view );
         }
         else

@@ -26,7 +26,6 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:id="@+id/password_register_form"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -36,7 +35,7 @@
                 android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
-                    android:id="@+id/email"
+                    android:id="@+id/register_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
@@ -51,7 +50,7 @@
                 android:layout_height="wrap_content">
 
                 <AutoCompleteTextView
-                    android:id="@+id/password"
+                    android:id="@+id/register_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_register_password"
@@ -66,7 +65,7 @@
                 android:layout_height="wrap_content">
 
                 <EditText
-                    android:id="@+id/password_verify"
+                    android:id="@+id/register_password_verify"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_register_password_verify"
