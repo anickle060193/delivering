@@ -112,9 +112,6 @@ public class SummaryFragment extends Fragment
         Delivery.createQuery()
                 .whereEqualTo( Delivery.DELIVERER, DeliveringUser.getCurrentUser() )
                 .whereExists( Delivery.TIP )
-                .whereExists( Delivery.DELIVERY_END )
-                .addAscendingOrder( Delivery.DELIVERY_END )
-                .addAscendingOrder( Delivery.DELIVERY_START )
                 .addAscendingOrder( Delivery.CREATED_AT )
                 .findInBackground( new FindCallback<Delivery>()
                 {
