@@ -15,8 +15,7 @@
         <item
             android:id="@+id/shifts"
             android:icon="@drawable/ic_shifts"
-            android:title="Shifts"
-            android:visible="false"/>
+            android:title="Shifts"/>
 
         <item
             android:id="@+id/deliveries"
