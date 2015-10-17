@@ -34,7 +34,6 @@ public class SummaryFragment extends Fragment
 {
     public static final String FRAGMENT_TAG = SummaryFragment.class.getName();
 
-    private static final NumberFormat CURRENCY_FORMAT = NumberFormat.getCurrencyInstance();
     private static final java.text.DateFormat SHORT_DATE_FORMAT = new SimpleDateFormat( DateFormat.getBestDateTimePattern( Locale.getDefault(), "Md" ), Locale.getDefault() );
 
     private View mMainView;
@@ -71,7 +70,7 @@ public class SummaryFragment extends Fragment
             mTipCount.setText( "0" );
 
             mTotalTips = (TextView)mMainView.findViewById( R.id.total_tips_amount );
-            mTotalTips.setText( CURRENCY_FORMAT.format( 0 ) );
+            mTotalTips.setText( Utilities.CURRENCY_FORMATTER.format( 0 ) );
         }
         else
         {
@@ -156,14 +155,14 @@ public class SummaryFragment extends Fragment
                         }
 
                         mTipCount.setText( String.valueOf( deliveryCount ) );
-                        mTotalTips.setText( CURRENCY_FORMAT.format( total ) );
+                        mTotalTips.setText( Utilities.CURRENCY_FORMATTER.format( total ) );
 
                         final ValueFormatter currencyValueFormatter = new ValueFormatter()
                         {
                             @Override
                             public String getFormattedValue( float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler )
                             {
-                                return CURRENCY_FORMAT.format( value );
+                                return Utilities.CURRENCY_FORMATTER.format( value );
                             }
                         };
 

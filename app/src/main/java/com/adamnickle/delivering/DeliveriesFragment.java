@@ -307,6 +307,7 @@ public class DeliveriesFragment extends Fragment
         public Delivery Delivery;
         public final TextView DeliveryName;
         public final TextView DeliveryStatus;
+        public final TextView DeliveryTip;
         public final View SetTip;
         public final View UpdateDeliveryStatus;
         public final View DeliveryStatusInProgress;
@@ -316,10 +317,11 @@ public class DeliveriesFragment extends Fragment
         {
             super( itemView );
 
-            DeliveryName = (TextView)findViewById( R.id.delivery_creator_name );
+            DeliveryName = (TextView)findViewById( R.id.delivery_name );
             DeliveryStatus = (TextView)findViewById( R.id.delivery_status );
-            SetTip = findViewById( R.id.set_tip );
-            UpdateDeliveryStatus = findViewById( R.id.update_delivery_status );
+            DeliveryTip = (TextView)findViewById( R.id.delivery_tip );
+            SetTip = findViewById( R.id.delivery_set_tip );
+            UpdateDeliveryStatus = findViewById( R.id.delivery_update_status );
             DeliveryStatusInProgress = findViewById( R.id.delivery_status_in_progress );
             DeliveryStatusCompleted = findViewById( R.id.delivery_status_completed );
 
@@ -372,6 +374,16 @@ public class DeliveriesFragment extends Fragment
             if( Delivery != null )
             {
                 DeliveryName.setText( Delivery.getName() );
+
+                final BigDecimal tip = Delivery.getTip();
+                if( tip == null )
+                {
+                    DeliveryTip.setText( "No tip yet" );
+                }
+                else
+                {
+                    DeliveryTip.setText( Utilities.CURRENCY_FORMATTER.format( tip ) );
+                }
 
                 if( Delivery.isCompleted() )
                 {

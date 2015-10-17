@@ -19,7 +19,7 @@
             android:layout_weight="1">
 
             <TextView
-                android:id="@+id/delivery_creator_name"
+                android:id="@+id/delivery_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:textAppearanceMedium"
@@ -33,10 +33,31 @@
                 android:textAppearance="?android:textAppearanceSmall"
                 android:text="Completed"/>
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tip:"/>
+
+                <TextView
+                    android:id="@+id/delivery_tip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textAppearance="?android:textAppearanceSmall"
+                    android:text="$2.00"/>
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/set_tip"
+            android:id="@+id/delivery_set_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
@@ -49,7 +70,7 @@
             android:layout_margin="4dp">
 
             <ImageView
-                android:id="@+id/update_delivery_status"
+                android:id="@+id/delivery_update_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_update_delivery_status"
