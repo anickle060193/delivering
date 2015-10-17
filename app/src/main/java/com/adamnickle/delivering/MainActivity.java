@@ -23,7 +23,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SummaryFragment mSummaryFragment;
     private DeliveriesFragment mDeliveriesFragment;
 
-    @Override
     protected void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
@@ -71,17 +70,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else
         {
+            navigationView.setCheckedItem( R.id.summary );
             openSummary();
         }
-    }
-
-    @Override
-    protected void onSaveInstanceState( Bundle outState )
-    {
-        super.onSaveInstanceState( outState );
-
-        getSupportFragmentManager().putFragment( outState, DeliveriesFragment.FRAGMENT_TAG, mDeliveriesFragment );
-        getSupportFragmentManager().putFragment( outState, SummaryFragment.FRAGMENT_TAG, mSummaryFragment );
     }
 
     @Override
