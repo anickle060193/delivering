@@ -57,12 +57,12 @@
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/delivery_item_set_tip"
+            android:id="@+id/delivery_item_set_payment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:src="@drawable/ic_set_tip"
-            android:contentDescription="Set Tip"/>
+            android:contentDescription="Set Payment"/>
 
         <FrameLayout
             android:layout_width="wrap_content"

@@ -3,13 +3,18 @@ package com.adamnickle.delivering;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SwitchCompat;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.regex.Pattern;
 
 
@@ -57,24 +62,47 @@ public abstract class DeliveryDialogs
         } );
     }
 
-    public interface DeliveryTipSetListener
+    public interface DeliveryPaymentSetListener
     {
-        void onDeliveryTipSet( BigDecimal tip );
+        void onDeliveryPaymentSet( BigDecimal total, String totalPaymentMethod, BigDecimal tip, String tipPaymentMethod );
     }
 
-    private static final Pattern TIP_PATTERN = Pattern.compile( "^[1-9]\\d*(?:\\.\\d{2})?$" );
+    private static final Pattern PLAIN_MONEY_PATTERN = Pattern.compile( "^[1-9]\\d*(?:\\.\\d{2})?$" );
+    private static final NumberFormat PLAIN_MONEY_FORMATTER = new DecimalFormat( "0.00" );
 
-    public static void setTip( Context context, BigDecimal initialTip, final DeliveryTipSetListener listener )
+    public static void setPayment( Context context, Delivery prefillDelivery, final DeliveryPaymentSetListener listener )
     {
         final AlertDialog dialog = new AlertDialog.Builder( context )
-                .setView( R.layout.delivery_tip_dialog_layout )
-                .setPositiveButton( "Tip", null )
+                .setView( R.layout.delivery_payment_dialog_layout )
+                .setPositiveButton( "Done", null )
                 .show();
-        final EditText tipEditText = (EditText)dialog.findViewById( R.id.delivery_tip_dialog_tip );
+
+        final EditText tipEditText = (EditText)dialog.findViewById( R.id.delivery_payment_dialog_tip );
+        final EditText totalEditText = (EditText)dialog.findViewById( R.id.delivery_payment_dialog_total );
+
+        final Spinner tipPaymentMethodSpinner = (Spinner)dialog.findViewById( R.id.delivery_payment_dialog_tip_payment_method );
+        final Spinner totalPaymentMethodSpinner = (Spinner)dialog.findViewById( R.id.delivery_payment_dialog_total_payment_method );
+
+        final ArrayAdapter<CharSequence> paymentMethodAdapter = ArrayAdapter.createFromResource( context, R.array.delivery_payment_methods, android.R.layout.simple_spinner_item );
+        paymentMethodAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
+
+        totalPaymentMethodSpinner.setAdapter( paymentMethodAdapter );
+        tipPaymentMethodSpinner.setAdapter( paymentMethodAdapter );
+
+        final SwitchCompat tipIncludedSwitch = (SwitchCompat)dialog.findViewById( R.id.delivery_payment_dialog_tip_included );
+
+        final BigDecimal initialTip = prefillDelivery.getTip();
         if( initialTip != null )
         {
-            tipEditText.setText( initialTip.toString() );
+            tipEditText.setText( PLAIN_MONEY_FORMATTER.format( initialTip ) );
         }
+
+        final BigDecimal initialTotal = prefillDelivery.getTotal();
+        if( initialTotal != null )
+        {
+            totalEditText.setText( PLAIN_MONEY_FORMATTER.format( initialTotal ) );
+        }
+
         tipEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
         {
             @Override
@@ -94,17 +122,50 @@ public abstract class DeliveryDialogs
             @Override
             public void onClick( View v )
             {
-                final String tipString = tipEditText.getText().toString();
-                if( TIP_PATTERN.matcher( tipString ).matches() )
+                View focusView = null;
+                boolean hasError = false;
+
+                final String totalString = totalEditText.getText().toString();
+                if( !PLAIN_MONEY_PATTERN.matcher( totalString ).matches() )
                 {
-                    listener.onDeliveryTipSet( new BigDecimal( tipString ) );
-                    dialog.dismiss();
+                    totalEditText.setError( "Invalid total format (e.g. 12.73)" );
+                    focusView = totalEditText;
+                    hasError = true;
                 }
-                else
+
+                final String tipString = tipEditText.getText().toString();
+                if( !PLAIN_MONEY_PATTERN.matcher( tipString ).matches() )
                 {
                     tipEditText.setError( "Invalid tip format (e.g. 4.56)" );
-                    tipEditText.requestFocus();
+                    focusView = tipEditText;
+                    hasError = true;
                 }
+
+                if( hasError )
+                {
+                    focusView.requestFocus();
+                    return;
+                }
+
+                final BigDecimal tip = new BigDecimal( tipString );
+                final String tipPaymentMethod = (String)tipPaymentMethodSpinner.getSelectedItem();
+
+                BigDecimal total = new BigDecimal( totalString );
+                final String totalPaymentMethod = (String)totalPaymentMethodSpinner.getSelectedItem();
+
+                if( tipIncludedSwitch.isChecked() )
+                {
+                    total = total.subtract( tip );
+                    if( total.signum() == -1 )
+                    {
+                        totalEditText.setError( "Total must be greater than tip." );
+                        totalEditText.requestFocus();
+                        return;
+                    }
+                }
+
+                listener.onDeliveryPaymentSet( total, totalPaymentMethod, tip, tipPaymentMethod );
+                dialog.dismiss();
             }
         } );
     }

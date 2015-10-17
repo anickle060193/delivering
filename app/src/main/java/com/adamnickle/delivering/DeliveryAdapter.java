@@ -39,14 +39,17 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
         holder.update();
     }
 
-    private void onSetTipClick( final DeliveryViewHolder holder )
+    private void onSetPaymentClick( final DeliveryViewHolder holder )
     {
-        DeliveryDialogs.setTip( mContext, holder.Delivery.getTip(), new DeliveryDialogs.DeliveryTipSetListener()
+        DeliveryDialogs.setPayment( mContext, holder.Delivery, new DeliveryDialogs.DeliveryPaymentSetListener()
         {
             @Override
-            public void onDeliveryTipSet( BigDecimal tip )
+            public void onDeliveryPaymentSet( BigDecimal total, String totalPaymentMethod, BigDecimal tip, String tipPaymentMethod )
             {
                 holder.Delivery.setTip( tip );
+                holder.Delivery.setTipPaymentMethod( tipPaymentMethod );
+                holder.Delivery.setTotal( total );
+                holder.Delivery.setTotalPaymentMethod( totalPaymentMethod );
                 holder.Delivery.saveInBackground( new SaveCallback()
                 {
                     @Override
@@ -54,14 +57,14 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                     {
                         if( e != null )
                         {
-                            Delivering.log( "Error occurred while setting tip." );
+                            Delivering.log( "Error occurred while setting Delivery payment." );
                             Delivering.oops();
                         }
                     }
                 } );
-                holder.update();
             }
         } );
+        holder.update();
     }
 
     private void onCompleteDeliveryClick( final DeliveryViewHolder holder )
@@ -120,7 +123,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
         public final TextView DeliveryName;
         public final TextView DeliveryStatus;
         public final TextView DeliveryTip;
-        public final View SetTip;
+        public final View SetPayment;
         public final View UpdateDeliveryStatus;
         public final View DeliveryStatusInProgress;
         public final View DeliveryStatusCompleted;
@@ -132,17 +135,17 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
             DeliveryName = findViewById( R.id.delivery_item_name );
             DeliveryStatus = findViewById( R.id.delivery_item_status );
             DeliveryTip = findViewById( R.id.delivery_item_tip );
-            SetTip = findViewById( R.id.delivery_item_set_tip );
+            SetPayment = findViewById( R.id.delivery_item_set_payment );
             UpdateDeliveryStatus = findViewById( R.id.delivery_item_update_status );
             DeliveryStatusInProgress = findViewById( R.id.delivery_item_status_in_progress );
             DeliveryStatusCompleted = findViewById( R.id.delivery_item_status_completed );
 
-            SetTip.setOnClickListener( new View.OnClickListener()
+            SetPayment.setOnClickListener( new View.OnClickListener()
             {
                 @Override
                 public void onClick( View v )
                 {
-                    onSetTipClick( DeliveryViewHolder.this );
+                    onSetPaymentClick( DeliveryViewHolder.this );
                 }
             } );
 

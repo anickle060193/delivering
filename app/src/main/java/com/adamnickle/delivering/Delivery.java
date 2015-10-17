@@ -15,10 +15,11 @@ public class Delivery extends ParseObject
     public static final String NAME = "name";
     public static final String DELIVERER = "deliverer";
     public static final String SHIFT = "shift";
-    //ajn public static final String ORIGIN = "origin";
-    //ajn public static final String DESTINATION = "destination";
     public static final String DISTANCE = "distance";
+    public static final String TOTAL = "total";
+    public static final String TOTAL_PAYMENT_METHOD = "total_payment_method";
     public static final String TIP = "tip";
+    public static final String TIP_PAYMENT_METHOD = "tip_payment_method";
     public static final String DELIVERY_START = "delivery_started_at";
     public static final String DELIVERY_END = "delivered_at";
 
@@ -100,6 +101,38 @@ public class Delivery extends ParseObject
     {
         final String tipString = getString( TIP );
         return tipString == null ? null : new BigDecimal( tipString );
+    }
+
+    public void setTipPaymentMethod( String paymentMethod )
+    {
+        put( TIP_PAYMENT_METHOD, paymentMethod );
+    }
+
+    public String getTipPaymentMethod()
+    {
+        return getString( TIP_PAYMENT_METHOD );
+    }
+
+    public void setTotal( BigDecimal total )
+    {
+        final String totalString = total.toString();
+        put( TOTAL, totalString );
+    }
+
+    public BigDecimal getTotal()
+    {
+        final String totalString = getString( TOTAL );
+        return totalString == null ? null : new BigDecimal( totalString );
+    }
+
+    public void setTotalPaymentMethod( String paymentMethod )
+    {
+        put( TOTAL_PAYMENT_METHOD, paymentMethod );
+    }
+
+    public String getTotalPaymentMethod()
+    {
+        return getString( TOTAL_PAYMENT_METHOD );
     }
 
     public void setDeliveryStart( Date date )
