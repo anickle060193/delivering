@@ -20,6 +20,7 @@ import com.parse.ParseException;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
+    private SummaryFragment mSummaryFragment;
     private DeliveriesFragment mDeliveriesFragment;
 
     @Override
@@ -65,6 +66,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         {
             mDeliveriesFragment = (DeliveriesFragment)getSupportFragmentManager()
                     .getFragment( savedInstanceState, DeliveriesFragment.FRAGMENT_TAG );
+            mSummaryFragment = (SummaryFragment)getSupportFragmentManager()
+                    .getFragment( savedInstanceState, SummaryFragment.FRAGMENT_TAG );
+        }
+        else
+        {
+            openSummary();
         }
     }
 
@@ -74,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onSaveInstanceState( outState );
 
         getSupportFragmentManager().putFragment( outState, DeliveriesFragment.FRAGMENT_TAG, mDeliveriesFragment );
+        getSupportFragmentManager().putFragment( outState, SummaryFragment.FRAGMENT_TAG, mSummaryFragment );
     }
 
     @Override
@@ -86,7 +94,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         else
         {
-            super.onBackPressed();
+            if( getSupportFragmentManager().getBackStackEntryCount() == 1 )
+            {
+                finish();
+            }
+            else
+            {
+                super.onBackPressed();
+            }
         }
     }
 
@@ -120,6 +135,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     {
         switch( item.getItemId() )
         {
+            case R.id.summary:
+                openSummary();
+                closeDrawer();
+                return true;
+
             case R.id.shifts:
                 Delivering.toast( "Sorry, no shifts yet." );
                 closeDrawer();
@@ -156,23 +176,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } );
     }
 
-    private void openDeliveries()
+    private Fragment getCurrentFragment()
     {
-        final Fragment fragment = getSupportFragmentManager().findFragmentById( R.id.main_content );
-        if( fragment != null && fragment == mDeliveriesFragment )
+        return getSupportFragmentManager().findFragmentById( R.id.main_content );
+    }
+
+    private void popOrAdd( String fragmentTag, Fragment fragment )
+    {
+        final Fragment currentFragment = getCurrentFragment();
+        if( currentFragment != null && currentFragment == fragment )
         {
             return;
         }
+        if( !getSupportFragmentManager().popBackStackImmediate( fragmentTag, 0 ) )
+        {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack( fragmentTag )
+                    .replace( R.id.main_content, fragment )
+                    .commit();
+        }
+    }
 
+    private void openSummary()
+    {
+        if( mSummaryFragment == null )
+        {
+            mSummaryFragment = SummaryFragment.newInstance();
+        }
+        popOrAdd( SummaryFragment.FRAGMENT_TAG, mSummaryFragment );
+    }
+
+    private void openDeliveries()
+    {
         if( mDeliveriesFragment == null )
         {
             mDeliveriesFragment = DeliveriesFragment.newInstance();
         }
-        getSupportFragmentManager()
-                .beginTransaction()
-                .addToBackStack( null )
-                .replace( R.id.main_content, mDeliveriesFragment )
-                .commit();
+        popOrAdd( DeliveriesFragment.FRAGMENT_TAG, mDeliveriesFragment );
     }
 
     public void closeDrawer()

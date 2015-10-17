@@ -8,9 +8,14 @@
         android:checkableBehavior="single">
 
         <item
+            android:id="@+id/summary"
+            android:title="Summary"/>
+
+        <item
             android:id="@+id/shifts"
             android:icon="@drawable/ic_restore_24dp"
-            android:title="Shifts"/>
+            android:title="Shifts"
+            android:visible="false"/>
 
         <item
             android:id="@+id/deliveries"

@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.adamnickle.delivering"
-        minSdkVersion 16
+        minSdkVersion 18
         targetSdkVersion 23
         versionCode 1
         versionName "0.1.0"
@@ -16,6 +16,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    repositories {
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -28,4 +32,6 @@ dependencies {
 
     compile 'com.parse.bolts:bolts-android:1.2.1'
     compile 'com.parse:parse-android:1.10.3'
+
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.5'
 }
