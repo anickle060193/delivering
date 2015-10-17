@@ -1,5 +1,6 @@
 package com.adamnickle.delivering;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -7,9 +8,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -100,31 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onCreateOptionsMenu( Menu menu )
-    {
-        getMenuInflater().inflate( R.menu.activity_main, menu );
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected( MenuItem item )
-    {
-        switch( item.getItemId() )
-        {
-            case R.id.action_logout:
-                logout();
-                return true;
-
-            case R.id.action_settings:
-                Delivering.toast( "Sorry, no settings yet." );
-                return true;
-
-            default:
-                return super.onOptionsItemSelected( item );
-        }
-    }
-
-    @Override
     public boolean onNavigationItemSelected( MenuItem item )
     {
         switch( item.getItemId() )
@@ -143,6 +119,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 openDeliveries();
                 closeDrawer();
                 return true;
+
+            case R.id.logout:
+                new AlertDialog.Builder( this )
+                        .setMessage( "Are you sure you want to logout?" )
+                        .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick( DialogInterface dialog, int which )
+                            {
+                                logout();
+                            }
+                        } )
+                        .setNegativeButton( "No", null )
+                        .show();
+                closeDrawer();
+                return false;
+
+            case R.id.settings:
+                Delivering.toast( "Sorry, no settings yet." );
+                closeDrawer();
+                return false;
 
             default:
                 return false;
