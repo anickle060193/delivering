@@ -116,7 +116,7 @@ public class DeliveriesFragment extends Fragment
 
     private void createDelivery()
     {
-        new AlertDialog.Builder( getActivity() )
+        final AlertDialog createdDialog = new AlertDialog.Builder( getActivity() )
                 .setView( R.layout.delivery_creator_dialog_layout )
                 .setPositiveButton( "Create Delivery", new DialogInterface.OnClickListener()
                 {
@@ -125,7 +125,7 @@ public class DeliveriesFragment extends Fragment
                     {
                         final AlertDialog dialog = (AlertDialog)dialogInterface;
 
-                        final EditText deliveryNameEditText = (EditText)dialog.findViewById( R.id.delivery_name );
+                        final EditText deliveryNameEditText = (EditText)dialog.findViewById( R.id.delivery_creator_name );
                         final String deliveryName = deliveryNameEditText.getText().toString();
 
                         final DeliveringUser deliverer = DeliveringUser.getCurrentUser();
@@ -150,15 +150,51 @@ public class DeliveriesFragment extends Fragment
                 } )
                 .setNegativeButton( "Cancel", null )
                 .show();
+        final EditText distanceEditText = (EditText)createdDialog.findViewById( R.id.delivery_creator_distance );
+        distanceEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        {
+            @Override
+            public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
+            {
+                if( actionId == EditorInfo.IME_ACTION_DONE )
+                {
+                    // This is gross
+                    createdDialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        } );
     }
 
     private void onSetTipClick( final DeliveryViewHolder holder )
     {
-        final AlertDialog dialog = new AlertDialog.Builder( getActivity() )
+        final AlertDialog createdDialog = new AlertDialog.Builder( getActivity() )
                 .setView( R.layout.delivery_tip_dialog_layout )
-                .setPositiveButton( "Tip", null )
+                .setPositiveButton( "Tip", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialogInterface, int which )
+                    {
+                        final AlertDialog dialog = (AlertDialog)dialogInterface;
+
+                        final EditText tipEditText = (EditText)dialog.findViewById( R.id.delivery_tip );
+                        final String tipString = tipEditText.getText().toString();
+                        if( TIP_PATTERN.matcher( tipString ).matches() )
+                        {
+                            final BigDecimal tip = new BigDecimal( tipString );
+                            setTip( holder.Delivery, tip );
+                            dialog.dismiss();
+                        }
+                        else
+                        {
+                            tipEditText.setError( "Invalid tip format (e.g. 4.56)" );
+                            tipEditText.requestFocus();
+                        }
+                    }
+                } )
                 .show();
-        final EditText tipEditText = (EditText)dialog.findViewById( R.id.delivery_tip );
+        final EditText tipEditText = (EditText)createdDialog.findViewById( R.id.delivery_tip );
         final BigDecimal initialTip = holder.Delivery.getTip();
         if( initialTip != null )
         {
@@ -169,31 +205,13 @@ public class DeliveriesFragment extends Fragment
             @Override
             public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
             {
-                if( actionId == EditorInfo.IME_NULL )
+                if( actionId == EditorInfo.IME_ACTION_DONE )
                 {
                     // This is gross
-                    dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
+                    createdDialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
+                    return true;
                 }
                 return false;
-            }
-        } );
-        dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
-        {
-            @Override
-            public void onClick( View v )
-            {
-                final String tipString = tipEditText.getText().toString();
-                if( TIP_PATTERN.matcher( tipString ).matches() )
-                {
-                    final BigDecimal tip = new BigDecimal( tipString );
-                    setTip( holder.Delivery, tip );
-                    dialog.dismiss();
-                }
-                else
-                {
-                    tipEditText.setError( "Invalid tip format (e.g. 4.56)" );
-                    tipEditText.requestFocus();
-                }
             }
         } );
     }
@@ -298,7 +316,7 @@ public class DeliveriesFragment extends Fragment
         {
             super( itemView );
 
-            DeliveryName = (TextView)findViewById( R.id.delivery_name );
+            DeliveryName = (TextView)findViewById( R.id.delivery_creator_name );
             DeliveryStatus = (TextView)findViewById( R.id.delivery_status );
             SetTip = findViewById( R.id.set_tip );
             UpdateDeliveryStatus = findViewById( R.id.update_delivery_status );

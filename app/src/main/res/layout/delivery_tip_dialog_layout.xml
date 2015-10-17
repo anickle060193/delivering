@@ -15,8 +15,7 @@
             android:layout_height="wrap_content"
             android:hint="Delivery Tip"
             android:inputType="numberDecimal"
-            android:imeActionLabel="Tip!"
-            android:imeOptions="actionUnspecified"
+            android:imeOptions="actionDone"
             android:maxLines="1"
             android:singleLine="true"
             android:textAlignment="viewStart"/>
