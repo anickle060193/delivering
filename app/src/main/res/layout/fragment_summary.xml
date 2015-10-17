@@ -16,13 +16,14 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:textSize="30sp"
-        android:layout_weight="1"
-        android:text="Tips"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:textAlignment="viewStart"
+            android:text="Tips"/>
 
         <TextView
             android:id="@+id/tip_count"
@@ -52,6 +53,7 @@
             android:textAppearance="?android:textAppearanceLarge"
             android:textSize="30sp"
             android:layout_weight="1"
+            android:textAlignment="viewStart"
             android:text="Total Tips"/>
 
         <TextView

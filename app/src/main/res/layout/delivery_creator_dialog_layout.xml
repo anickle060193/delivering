@@ -19,7 +19,8 @@
                 android:imeActionLabel="Create"
                 android:imeOptions="actionUnspecified"
                 android:maxLines="1"
-                android:singleLine="true"/>
+                android:singleLine="true"
+                android:textAlignment="viewStart"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -36,7 +37,8 @@
             android:imeActionLabel="Create"
             android:imeOptions="actionUnspecified"
             android:maxLines="1"
-            android:singleLine="true"/>
+            android:singleLine="true"
+            android:textAlignment="viewStart"/>
 
     </android.support.design.widget.TextInputLayout>
 
