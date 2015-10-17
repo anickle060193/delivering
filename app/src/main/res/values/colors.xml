@@ -6,7 +6,4 @@
 
     <color name="dark_green">#006400</color>
 
-    <color name="toolbar_action_icon">#FFFFFFFF</color>
-    <color name="nav_menu_icon">@color/colorAccent</color>
-    <color name="delivery_action_icon">@color/colorAccent</color>
 </resources>
