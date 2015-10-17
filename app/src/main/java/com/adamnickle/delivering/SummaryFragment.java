@@ -1,6 +1,5 @@
 package com.adamnickle.delivering;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -8,8 +7,8 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
@@ -40,7 +39,9 @@ public class SummaryFragment extends Fragment
 
     private View mMainView;
     private LineChart mTipsChart;
+    private TextView mTipCount;
     private LineChart mTotalTipsChart;
+    private TextView mTotalTips;
 
     public static SummaryFragment newInstance()
     {
@@ -65,6 +66,12 @@ public class SummaryFragment extends Fragment
 
             mTotalTipsChart = (LineChart)mMainView.findViewById( R.id.total_tips_chart );
             formatLineCharts( mTotalTipsChart );
+
+            mTipCount = (TextView)mMainView.findViewById( R.id.tip_count );
+            mTipCount.setText( "0" );
+
+            mTotalTips = (TextView)mMainView.findViewById( R.id.total_tips_amount );
+            mTotalTips.setText( CURRENCY_FORMAT.format( 0 ) );
         }
         else
         {
@@ -75,9 +82,12 @@ public class SummaryFragment extends Fragment
     }
 
     @Override
-    public void onResume()
+    public void onStart()
     {
-        super.onResume();
+        super.onStart();
+
+        mTipsChart.animateXY( 1000, 1000 );
+        mTotalTipsChart.animateXY( 1000, 1000 );
     }
 
     private void formatLineCharts( final LineChart chart )
@@ -85,7 +95,7 @@ public class SummaryFragment extends Fragment
         chart.getLegend().setEnabled( false );
         chart.setDescription( null );
         chart.getXAxis().setPosition( XAxis.XAxisPosition.BOTTOM );
-        chart.getAxisLeft().setEnabled( true );
+        chart.getAxisLeft().setEnabled( false );
         chart.getAxisRight().setEnabled( false );
         chart.getAxisLeft().setValueFormatter( new YAxisValueFormatter()
         {
@@ -95,8 +105,6 @@ public class SummaryFragment extends Fragment
                 return NumberFormat.getCurrencyInstance().format( value );
             }
         } );
-        chart.animateX( 1000, Easing.EasingOption.EaseInCubic );
-        chart.animateY( 1000, Easing.EasingOption.EaseInCubic );
     }
 
     private void loadData()
@@ -129,25 +137,26 @@ public class SummaryFragment extends Fragment
 
                         BigDecimal total = BigDecimal.ZERO;
 
-                        final int deliveries = objects.size();
-                        for( int i = 0; i < deliveries; i++ )
+                        final int deliveryCount = objects.size();
+                        for( int i = 0; i < deliveryCount; i++ )
                         {
                             final Delivery delivery = objects.get( i );
                             final BigDecimal tip = delivery.getTip();
-                            if( tip != null )
-                            {
-                                final Entry tipEntry = new Entry( tip.floatValue(), tipEntries.size(), delivery );
-                                tipEntries.add( tipEntry );
 
-                                total = total.add( tip );
-                                final Entry totalTipEntry = new Entry( total.floatValue(), totalTipEntries.size(), delivery );
-                                totalTipEntries.add( totalTipEntry );
+                            final Entry tipEntry = new Entry( tip.floatValue(), tipEntries.size(), delivery );
+                            tipEntries.add( tipEntry );
 
-                                final String dateLabel = SHORT_DATE_FORMAT.format( delivery.getDeliveryEnd() );
-                                tipXLabels.add( dateLabel );
-                                totalTipXLabels.add( dateLabel );
-                            }
+                            total = total.add( tip );
+                            final Entry totalTipEntry = new Entry( total.floatValue(), totalTipEntries.size(), delivery );
+                            totalTipEntries.add( totalTipEntry );
+
+                            final String dateLabel = SHORT_DATE_FORMAT.format( delivery.getDeliveryEnd() );
+                            tipXLabels.add( dateLabel );
+                            totalTipXLabels.add( dateLabel );
                         }
+
+                        mTipCount.setText( String.valueOf( deliveryCount ) );
+                        mTotalTips.setText( CURRENCY_FORMAT.format( total ) );
 
                         final ValueFormatter currencyValueFormatter = new ValueFormatter()
                         {
@@ -164,6 +173,7 @@ public class SummaryFragment extends Fragment
                         tipSet.setColor( tipColor );
                         tipSet.setCircleColor( tipColor );
                         tipSet.setLineWidth( 1.5f );
+                        tipSet.setValueTextSize( 10.0f );
                         tipSet.setValueFormatter( currencyValueFormatter );
 
                         final LineData tipData = new LineData( tipXLabels, Collections.singletonList( tipSet ) );
@@ -173,10 +183,11 @@ public class SummaryFragment extends Fragment
 
                         final LineDataSet totalTipSet = new LineDataSet( totalTipEntries, "Total Tips" );
                         totalTipSet.setAxisDependency( YAxis.AxisDependency.LEFT );
-                        final int totalTipColor = Color.GREEN;
+                        final int totalTipColor = ContextCompat.getColor( getActivity(), R.color.dark_green );
                         totalTipSet.setColor( totalTipColor );
                         totalTipSet.setCircleColor( totalTipColor );
                         totalTipSet.setLineWidth( 1.5f );
+                        totalTipSet.setValueTextSize( 10.0f );
                         totalTipSet.setValueFormatter( currencyValueFormatter );
 
                         final LineData totalTipData = new LineData( totalTipXLabels, Collections.singletonList( totalTipSet ) );

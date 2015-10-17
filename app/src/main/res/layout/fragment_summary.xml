@@ -10,25 +10,59 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.adamnickle.delivering.SummaryFragment">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:textAppearanceLarge"
         android:textSize="30sp"
+        android:layout_weight="1"
         android:text="Tips"/>
+
+        <TextView
+            android:id="@+id/tip_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textSize="30sp"
+            android:text="12"/>
+
+    </LinearLayout>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/tips_chart"
         android:layout_width="match_parent"
         android:layout_height="200dp"/>
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:textAppearance="?android:textAppearanceLarge"
-        android:textSize="30sp"
-        android:text="Total Tips"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:text="Total Tips"/>
+
+        <TextView
+            android:id="@+id/total_tips_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceLarge"
+            android:textSize="30sp"
+            android:text="$1.00"/>
+
+    </LinearLayout>
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/total_tips_chart"
