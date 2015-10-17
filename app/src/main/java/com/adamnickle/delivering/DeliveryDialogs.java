@@ -22,57 +22,39 @@ public abstract class DeliveryDialogs
         void onDeliveryCreated( String deliveryName );
     }
 
-    public static void create( final Context context, final DeliveryCreatorListener listener, final ShiftDialogs.ShiftCreatorListener shiftCreatorListener )
+    public static void create( final Context context, final DeliveryCreatorListener listener )
     {
-        if( Shift.getCurrentShift() == null )
+        final AlertDialog dialog = new AlertDialog.Builder( context )
+                .setView( R.layout.delivery_creator_dialog_layout )
+                .setPositiveButton( "Create Delivery", null )
+                .setNegativeButton( "Cancel", null )
+                .show();
+        final EditText distanceEditText = (EditText)dialog.findViewById( R.id.delivery_creator_distance );
+        distanceEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
         {
-            new AlertDialog.Builder( context )
-                    .setMessage( "You must be clocked-in to a shift to create a new delivery. Clock in now?" )
-                    .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick( DialogInterface dialog, int which )
-                        {
-                            ShiftDialogs.create( context, shiftCreatorListener );
-                        }
-                    } )
-                    .setNegativeButton( "No", null )
-                    .show();
-        }
-        else
+            @Override
+            public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
+            {
+                if( actionId == EditorInfo.IME_ACTION_DONE )
+                {
+                    // This is gross
+                    dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        } );
+        final EditText deliveryNameEditText = (EditText)dialog.findViewById( R.id.delivery_creator_name );
+        dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
         {
-            final AlertDialog dialog = new AlertDialog.Builder( context )
-                    .setView( R.layout.delivery_creator_dialog_layout )
-                    .setPositiveButton( "Create Delivery", null )
-                    .setNegativeButton( "Cancel", null )
-                    .show();
-            final EditText distanceEditText = (EditText)dialog.findViewById( R.id.delivery_creator_distance );
-            distanceEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+            @Override
+            public void onClick( View v )
             {
-                @Override
-                public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
-                {
-                    if( actionId == EditorInfo.IME_ACTION_DONE )
-                    {
-                        // This is gross
-                        dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
-                        return true;
-                    }
-                    return false;
-                }
-            } );
-            final EditText deliveryNameEditText = (EditText)dialog.findViewById( R.id.delivery_creator_name );
-            dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
-            {
-                @Override
-                public void onClick( View v )
-                {
-                    final String deliveryName = deliveryNameEditText.getText().toString();
-                    listener.onDeliveryCreated( deliveryName );
-                    dialog.dismiss();
-                }
-            } );
-        }
+                final String deliveryName = deliveryNameEditText.getText().toString();
+                listener.onDeliveryCreated( deliveryName );
+                dialog.dismiss();
+            }
+        } );
     }
 
     public interface DeliveryTipSetListener

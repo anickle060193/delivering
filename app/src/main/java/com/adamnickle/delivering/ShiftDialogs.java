@@ -16,35 +16,26 @@ public abstract class ShiftDialogs
 
     public static void create( Context context, final ShiftCreatorListener listener )
     {
-        if( Shift.getCurrentShift() != null )
-        {
-            new AlertDialog.Builder( context )
-                    .setMessage( "You cannot create a new shift while still clocked-in to another." )
-                    .setPositiveButton( "OK", null )
-                    .show();
-        }
-        else
-        {
-            new AlertDialog.Builder( context )
-                    .setMessage( "Automatically clock-in to new shift?" )
-                    .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
+        new AlertDialog.Builder( context )
+                .setMessage( "Automatically clock-in to new shift?" )
+                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which )
                     {
-                        @Override
-                        public void onClick( DialogInterface dialog, int which )
-                        {
-                            listener.OnShiftCreated( true );
-                        }
-                    } )
-                    .setNegativeButton( "No", new DialogInterface.OnClickListener()
+                        listener.OnShiftCreated( true );
+                    }
+                } )
+                .setNegativeButton( "No", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which )
                     {
-                        @Override
-                        public void onClick( DialogInterface dialog, int which )
-                        {
-                            listener.OnShiftCreated( false );
-                        }
-                    } )
-                    .show();
-        }
+                        listener.OnShiftCreated( false );
+                    }
+                } )
+                .setNeutralButton( "Cancel", null )
+                .show();
     }
 
     public interface ShiftClockInListener

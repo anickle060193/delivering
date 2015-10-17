@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.SaveCallback;
@@ -111,56 +112,38 @@ public class DeliveriesFragment extends Fragment
         DeliveryDialogs.create( getActivity(), new DeliveryDialogs.DeliveryCreatorListener()
         {
             @Override
-            public void onDeliveryCreated( String deliveryName )
+            public void onDeliveryCreated( final String deliveryName )
             {
-                final Deliverer deliverer = Deliverer.getCurrentUser();
-                final Shift shift = Shift.getCurrentShift();
-                final Delivery deliver = Delivery.create( deliverer, shift, deliveryName );
-                deliver.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex == null )
+                Shift.createQuery()
+                        .whereDoesNotExist( Shift.END )
+                        .whereExists( Shift.START )
+                        .addDescendingOrder( Shift.START )
+                        .getFirstInBackground( new GetCallback<Shift>()
                         {
-                            mAdapter.add( 0, deliver );
-                            mDeliveriesList.scrollToPosition( 0 );
-                        }
-                        else
-                        {
-                            Delivering.log( "Created Delivery could not be saved.", ex );
-                            Delivering.oops();
-                        }
-                    }
-                } );
-            }
-        }, new ShiftDialogs.ShiftCreatorListener()
-        {
-            @Override
-            public void OnShiftCreated( boolean clockIn )
-            {
-                final Deliverer deliverer = Deliverer.getCurrentUser();
-                final Shift shift = Shift.createShift( deliverer );
-                if( clockIn )
-                {
-                    shift.setStart( new Date() );
-                }
-                shift.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex == null )
-                        {
-                            onCreateDeliveryClick();
-                        }
-                        else
-                        {
-                            Delivering.log( "Shift could not be created.", ex );
-                            Delivering.toast( "Shift creation failed. Try again." );
-                        }
-                    }
-                } );
+                            @Override
+                            public void done( Shift shift, ParseException e )
+                            {
+                                final Deliverer deliverer = Deliverer.getCurrentUser();
+                                final Delivery deliver = Delivery.create( deliverer, shift, deliveryName );
+                                deliver.saveInBackground( new SaveCallback()
+                                {
+                                    @Override
+                                    public void done( ParseException ex )
+                                    {
+                                        if( ex == null )
+                                        {
+                                            mAdapter.add( 0, deliver );
+                                            mDeliveriesList.scrollToPosition( 0 );
+                                        }
+                                        else
+                                        {
+                                            Delivering.log( "Created Delivery could not be saved.", ex );
+                                            Delivering.oops();
+                                        }
+                                    }
+                                } );
+                            }
+                        } );
             }
         } );
     }

@@ -124,6 +124,7 @@ public class ShiftsFragment extends Fragment
                         if( ex == null )
                         {
                             mAdapter.add( 0, shift );
+                            mShiftsList.scrollToPosition( 0 );
                         }
                         else
                         {

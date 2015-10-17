@@ -83,7 +83,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
 
     public ParseObjectArrayAdapter( ParseQueryFactory<T> factory )
     {
-        this( factory, 20 );
+        this( factory, 10 );
     }
 
     public ParseObjectArrayAdapter( ParseQueryFactory<T> factory, int itemsToLoadPerQuery )

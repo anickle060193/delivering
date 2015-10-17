@@ -2,7 +2,6 @@ package com.adamnickle.delivering;
 
 import com.parse.ParseACL;
 import com.parse.ParseClassName;
-import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
@@ -30,19 +29,6 @@ public class Shift extends ParseObject
     public static ParseQuery<Shift> createQuery()
     {
         return new ParseQuery<>( Shift.class );
-    }
-
-    public static Shift getCurrentShift()
-    {
-        try
-        {
-            return Shift.createQuery().whereDoesNotExist( END ).getFirst();
-        }
-        catch( ParseException ex )
-        {
-            Delivering.log( "Could not retrieve current Shift.", ex );
-        }
-        return null;
     }
 
     public boolean isCompleted()
