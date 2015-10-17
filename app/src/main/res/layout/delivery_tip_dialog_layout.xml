@@ -18,7 +18,8 @@
             android:imeOptions="actionDone"
             android:maxLines="1"
             android:singleLine="true"
-            android:textAlignment="viewStart"/>
+            android:textAlignment="viewStart"
+            android:selectAllOnFocus="true"/>
 
     </android.support.design.widget.TextInputLayout>
 
