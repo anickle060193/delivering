@@ -72,6 +72,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
     }
 
     private final Set<OnQueryListener> mListeners = new HashSet<>();
+    private final Set<RecyclerView> mRecyclerViews = new HashSet<>();
     private final ParseQueryFactory<T> mQueryFactory;
     private final int mItemsToLoadPerQuery;
 
@@ -115,7 +116,27 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
     {
         super.onAttachedToRecyclerView( recyclerView );
 
+        mRecyclerViews.add( recyclerView );
         queryForMore();
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView( RecyclerView recyclerView )
+    {
+        super.onDetachedFromRecyclerView( recyclerView );
+
+        mRecyclerViews.remove( recyclerView );
+    }
+
+    @Override
+    public void add( int location, T object )
+    {
+        super.add( location, object );
+
+        for( RecyclerView recyclerView : mRecyclerViews )
+        {
+            recyclerView.scrollToPosition( location );
+        }
     }
 
     public void refresh()
@@ -168,6 +189,10 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
                             {
                                 mHasMoreItems = false;
                                 notifyDataSetChanged();
+                            }
+                            for( RecyclerView recyclerView : mRecyclerViews )
+                            {
+                                recyclerView.scrollToPosition( mSkipCount );
                             }
 
                             mSkipCount += size;

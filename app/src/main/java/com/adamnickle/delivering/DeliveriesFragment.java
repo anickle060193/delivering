@@ -133,7 +133,6 @@ public class DeliveriesFragment extends Fragment
                                         if( ex == null )
                                         {
                                             mAdapter.add( 0, deliver );
-                                            mDeliveriesList.scrollToPosition( 0 );
                                         }
                                         else
                                         {
