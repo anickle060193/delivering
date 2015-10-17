@@ -62,9 +62,9 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                         }
                     }
                 } );
+                holder.update();
             }
         } );
-        holder.update();
     }
 
     private void onCompleteDeliveryClick( final DeliveryViewHolder holder )

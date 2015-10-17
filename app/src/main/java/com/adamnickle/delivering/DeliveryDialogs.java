@@ -103,20 +103,6 @@ public abstract class DeliveryDialogs
             totalEditText.setText( PLAIN_MONEY_FORMATTER.format( initialTotal ) );
         }
 
-        tipEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
-        {
-            @Override
-            public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
-            {
-                if( actionId == EditorInfo.IME_ACTION_DONE )
-                {
-                    // This is gross
-                    dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
-                    return true;
-                }
-                return false;
-            }
-        } );
         dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
         {
             @Override
