@@ -29,9 +29,10 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
             super( itemView );
         }
 
-        public final View findViewById( @IdRes int id)
+        public final <T extends View> T findViewById( @IdRes int id)
         {
-            return itemView.findViewById( id );
+            //noinspection unchecked
+            return (T)itemView.findViewById( id );
         }
     }
 
@@ -82,7 +83,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
 
     public ParseObjectArrayAdapter( ParseQueryFactory<T> factory )
     {
-        this( factory, 10 );
+        this( factory, 20 );
     }
 
     public ParseObjectArrayAdapter( ParseQueryFactory<T> factory, int itemsToLoadPerQuery )

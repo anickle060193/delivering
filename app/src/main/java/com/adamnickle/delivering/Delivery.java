@@ -24,7 +24,7 @@ public class Delivery extends ParseObject
     public static final String CREATED_AT = "createdAt";
     public static final String UPDATED_AT = "updatedAt";
 
-    public static Delivery create( DeliveringUser deliverer, String name )
+    public static Delivery create( Deliverer deliverer, String name )
     {
         final Delivery delivery = new Delivery();
         delivery.setACL( new ParseACL( deliverer ) );
@@ -48,14 +48,14 @@ public class Delivery extends ParseObject
         return !isCompleted() && getDeliveryStart() != null;
     }
 
-    public void setDeliverer( DeliveringUser deliverer )
+    public void setDeliverer( Deliverer deliverer )
     {
         put( DELIVERER, deliverer );
     }
 
-    public DeliveringUser getDeliverer()
+    public Deliverer getDeliverer()
     {
-        return (DeliveringUser)getParseUser( DELIVERER );
+        return (Deliverer)getParseUser( DELIVERER );
     }
 
     public void setName( String name )

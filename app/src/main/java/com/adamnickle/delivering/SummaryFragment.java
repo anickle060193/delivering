@@ -3,7 +3,6 @@ package com.adamnickle.delivering;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,19 +21,14 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 
 public class SummaryFragment extends Fragment
 {
     public static final String FRAGMENT_TAG = SummaryFragment.class.getName();
-
-    private static final java.text.DateFormat SHORT_DATE_FORMAT = new SimpleDateFormat( DateFormat.getBestDateTimePattern( Locale.getDefault(), "Md" ), Locale.getDefault() );
 
     private View mMainView;
     private LineChart mTipsChart;
@@ -101,7 +95,7 @@ public class SummaryFragment extends Fragment
             @Override
             public String getFormattedValue( float value, YAxis yAxis )
             {
-                return NumberFormat.getCurrencyInstance().format( value );
+                return Utilities.CURRENCY_FORMATTER.format( value );
             }
         } );
     }
@@ -110,7 +104,7 @@ public class SummaryFragment extends Fragment
     {
         mTipsChart.clear();
         Delivery.createQuery()
-                .whereEqualTo( Delivery.DELIVERER, DeliveringUser.getCurrentUser() )
+                .whereEqualTo( Delivery.DELIVERER, Deliverer.getCurrentUser() )
                 .whereExists( Delivery.TIP )
                 .addAscendingOrder( Delivery.CREATED_AT )
                 .findInBackground( new FindCallback<Delivery>()
@@ -146,7 +140,7 @@ public class SummaryFragment extends Fragment
                             final Entry totalTipEntry = new Entry( total.floatValue(), totalTipEntries.size(), delivery );
                             totalTipEntries.add( totalTipEntry );
 
-                            final String dateLabel = SHORT_DATE_FORMAT.format( delivery.getDeliveryEnd() );
+                            final String dateLabel = Utilities.DAY_MONTH_DATE_FORMAT.format( delivery.getDeliveryEnd() );
                             tipXLabels.add( dateLabel );
                             totalTipXLabels.add( dateLabel );
                         }

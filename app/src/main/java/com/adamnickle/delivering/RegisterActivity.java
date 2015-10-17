@@ -120,7 +120,7 @@ public class RegisterActivity extends AppCompatActivity
             focusView = mPasswordView;
             cancel = true;
         }
-        else if( !DeliveringUser.isPasswordValid( password ) )
+        else if( !Deliverer.isPasswordValid( password ) )
         {
             mPasswordView.setError( getString( R.string.error_invalid_password ) );
             focusView = mPasswordView;
@@ -134,7 +134,7 @@ public class RegisterActivity extends AppCompatActivity
             focusView = mEmailView;
             cancel = true;
         }
-        else if( !DeliveringUser.isEmailValid( email ) )
+        else if( !Deliverer.isEmailValid( email ) )
         {
             mEmailView.setError( getString( R.string.error_invalid_email ) );
             focusView = mEmailView;
@@ -154,7 +154,7 @@ public class RegisterActivity extends AppCompatActivity
             showProgress( true );
 
             mRegistering = true;
-            DeliveringUser.create( email, password ).signUpInBackground( new SignUpCallback()
+            Deliverer.create( email, password ).signUpInBackground( new SignUpCallback()
             {
                 @Override
                 public void done( ParseException ex )

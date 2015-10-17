@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity
     {
         super.onCreate( savedInstanceState );
 
-        if( DeliveringUser.getCurrentUser() != null )
+        if( Deliverer.getCurrentUser() != null )
         {
             loginDone();
         }
@@ -123,7 +123,7 @@ public class LoginActivity extends AppCompatActivity
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if( !possiblyRegistering && !DeliveringUser.isPasswordValid( password ) )
+        if( !possiblyRegistering && !Deliverer.isPasswordValid( password ) )
         {
             mPasswordView.setError( getString( R.string.error_invalid_password ) );
             focusView = mPasswordView;
@@ -137,7 +137,7 @@ public class LoginActivity extends AppCompatActivity
             focusView = mEmailView;
             cancel = true;
         }
-        else if( !DeliveringUser.isEmailValid( email ) )
+        else if( !Deliverer.isEmailValid( email ) )
         {
             mEmailView.setError( getString( R.string.error_invalid_email ) );
             focusView = mEmailView;
@@ -165,7 +165,7 @@ public class LoginActivity extends AppCompatActivity
                 showProgress( true );
 
                 mLoggingIn = true;
-                DeliveringUser.logInInBackground( email, password, new LogInCallback()
+                Deliverer.logInInBackground( email, password, new LogInCallback()
                 {
                     @Override
                     public void done( ParseUser user, ParseException ex )

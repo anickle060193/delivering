@@ -23,8 +23,9 @@ public class Delivering extends Application
 
         sContext = this;
 
-        ParseUser.registerSubclass( DeliveringUser.class );
+        ParseUser.registerSubclass( Deliverer.class );
         ParseObject.registerSubclass( Delivery.class );
+        ParseObject.registerSubclass( Shift.class );
 
         Parse.initialize( this, getString( R.string.applicationId ), getString( R.string.clientKey ) );
     }

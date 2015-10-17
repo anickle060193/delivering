@@ -97,7 +97,7 @@ public class DeliveriesFragment extends Fragment
     @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
-        inflater.inflate( R.menu.deliveries, menu );
+        inflater.inflate( R.menu.fragment_deliveries, menu );
     }
 
     @Override
@@ -144,7 +144,7 @@ public class DeliveriesFragment extends Fragment
             {
                 final String deliveryName = deliveryNameEditText.getText().toString();
 
-                final DeliveringUser deliverer = DeliveringUser.getCurrentUser();
+                final Deliverer deliverer = Deliverer.getCurrentUser();
                 final Delivery deliver = Delivery.create( deliverer, deliveryName );
                 deliver.saveInBackground( new SaveCallback()
                 {
@@ -203,8 +203,7 @@ public class DeliveriesFragment extends Fragment
                 if( TIP_PATTERN.matcher( tipString ).matches() )
                 {
                     final BigDecimal tip = new BigDecimal( tipString );
-                    setTip( holder.Delivery, tip );
-                    holder.update();
+                    setTip( holder, tip );
                     dialog.dismiss();
                 }
                 else
@@ -216,10 +215,10 @@ public class DeliveriesFragment extends Fragment
         } );
     }
 
-    private void setTip( Delivery delivery, BigDecimal tip )
+    private void setTip( DeliveryViewHolder holder, BigDecimal tip )
     {
-        delivery.setTip( tip );
-        delivery.saveInBackground( new SaveCallback()
+        holder.Delivery.setTip( tip );
+        holder.Delivery.saveInBackground( new SaveCallback()
         {
             @Override
             public void done( ParseException e )
@@ -231,6 +230,7 @@ public class DeliveriesFragment extends Fragment
                 }
             }
         } );
+        holder.update();
     }
 
     private void onCompleteDeliveryClick( final DeliveryViewHolder holder )
@@ -242,18 +242,17 @@ public class DeliveriesFragment extends Fragment
                     @Override
                     public void onClick( DialogInterface dialog, int which )
                     {
-                        completeDelivery( holder.Delivery );
-                        holder.update();
+                        completeDelivery( holder );
                     }
                 } )
                 .setNegativeButton( "No", null )
                 .show();
     }
 
-    private void completeDelivery( Delivery delivery )
+    private void completeDelivery( DeliveryViewHolder holder )
     {
-        delivery.setDeliveryEnd( new Date() );
-        delivery.saveInBackground( new SaveCallback()
+        holder.Delivery.setDeliveryEnd( new Date() );
+        holder.Delivery.saveInBackground( new SaveCallback()
         {
             @Override
             public void done( ParseException ex )
@@ -265,6 +264,7 @@ public class DeliveriesFragment extends Fragment
                 }
             }
         } );
+        holder.update();
     }
 
     private void onStartDeliveryClick( final DeliveryViewHolder holder )
@@ -277,18 +277,17 @@ public class DeliveriesFragment extends Fragment
                     @Override
                     public void onClick( DialogInterface dialog, int which )
                     {
-                        startDelivery( holder.Delivery );
-                        holder.update();
+                        startDelivery( holder );
                     }
                 } )
                 .setNegativeButton( "No", null )
                 .show();
     }
 
-    private void startDelivery( Delivery delivery )
+    private void startDelivery( DeliveryViewHolder holder )
     {
-        delivery.setDeliveryStart( new Date() );
-        delivery.saveInBackground( new SaveCallback()
+        holder.Delivery.setDeliveryStart( new Date() );
+        holder.Delivery.saveInBackground( new SaveCallback()
         {
             @Override
             public void done( ParseException ex )
@@ -300,6 +299,7 @@ public class DeliveriesFragment extends Fragment
                 }
             }
         } );
+        holder.update();
     }
 
     private class DeliveryViewHolder extends ParseObjectArrayAdapter.ViewHolder
@@ -317,9 +317,9 @@ public class DeliveriesFragment extends Fragment
         {
             super( itemView );
 
-            DeliveryName = (TextView)findViewById( R.id.delivery_name );
-            DeliveryStatus = (TextView)findViewById( R.id.delivery_status );
-            DeliveryTip = (TextView)findViewById( R.id.delivery_tip );
+            DeliveryName = findViewById( R.id.delivery_name );
+            DeliveryStatus = findViewById( R.id.delivery_status );
+            DeliveryTip = findViewById( R.id.delivery_tip );
             SetTip = findViewById( R.id.delivery_set_tip );
             UpdateDeliveryStatus = findViewById( R.id.delivery_update_status );
             DeliveryStatusInProgress = findViewById( R.id.delivery_status_in_progress );
@@ -423,10 +423,10 @@ public class DeliveriesFragment extends Fragment
                 public ParseQuery<Delivery> getQuery()
                 {
                     return Delivery.createQuery()
-                            .whereEqualTo( Delivery.DELIVERER, DeliveringUser.getCurrentUser() )
+                            .whereEqualTo( Delivery.DELIVERER, Deliverer.getCurrentUser() )
                             .addDescendingOrder( Delivery.CREATED_AT );
                 }
-            }, 20 );
+            } );
         }
 
         @Override

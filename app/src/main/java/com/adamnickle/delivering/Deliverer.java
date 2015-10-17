@@ -7,20 +7,16 @@ import com.parse.ParseUser;
 
 
 @ParseClassName( "_User" )
-public class DeliveringUser extends ParseUser
+public class Deliverer extends ParseUser
 {
-    public DeliveringUser()
+    public static Deliverer getCurrentUser()
     {
+        return (Deliverer)ParseUser.getCurrentUser();
     }
 
-    public static DeliveringUser getCurrentUser()
+    public static Deliverer create( String email, String password )
     {
-        return (DeliveringUser)ParseUser.getCurrentUser();
-    }
-
-    public static DeliveringUser create( String email, String password )
-    {
-        final DeliveringUser user = new DeliveringUser();
+        final Deliverer user = new Deliverer();
         user.setUsername( email );
         user.setEmail( email );
         user.setPassword( password );

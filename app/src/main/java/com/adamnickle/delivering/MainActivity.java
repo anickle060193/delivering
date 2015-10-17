@@ -21,6 +21,7 @@ import com.parse.ParseException;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private SummaryFragment mSummaryFragment;
+    private ShiftsFragment mShiftsFragment;
     private DeliveriesFragment mDeliveriesFragment;
 
     protected void onCreate( Bundle savedInstanceState )
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 navigationView.removeOnLayoutChangeListener( this );
 
-                final DeliveringUser user = DeliveringUser.getCurrentUser();
+                final Deliverer user = Deliverer.getCurrentUser();
 
                 final TextView fullName = (TextView)navigationView.findViewById( R.id.user_full_name );
                 fullName.setText( user.getUsername() );
@@ -63,10 +64,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if( savedInstanceState != null )
         {
-            mDeliveriesFragment = (DeliveriesFragment)getSupportFragmentManager()
-                    .getFragment( savedInstanceState, DeliveriesFragment.FRAGMENT_TAG );
             mSummaryFragment = (SummaryFragment)getSupportFragmentManager()
                     .getFragment( savedInstanceState, SummaryFragment.FRAGMENT_TAG );
+            mShiftsFragment = (ShiftsFragment)getSupportFragmentManager()
+                    .getFragment( savedInstanceState, ShiftsFragment.FRAGMENT_TAG );
+            mDeliveriesFragment = (DeliveriesFragment)getSupportFragmentManager()
+                    .getFragment( savedInstanceState, DeliveriesFragment.FRAGMENT_TAG );
         }
         else
         {
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onCreateOptionsMenu( Menu menu )
     {
-        getMenuInflater().inflate( R.menu.main, menu );
+        getMenuInflater().inflate( R.menu.activity_main, menu );
         return true;
     }
 
@@ -132,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
 
             case R.id.shifts:
-                Delivering.toast( "Sorry, no shifts yet." );
+                openShifts();
                 closeDrawer();
                 return true;
 
@@ -148,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void logout()
     {
-        DeliveringUser.logOutInBackground( new LogOutCallback()
+        Deliverer.logOutInBackground( new LogOutCallback()
         {
             @Override
             public void done( ParseException ex )
@@ -196,6 +199,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mSummaryFragment = SummaryFragment.newInstance();
         }
         popOrAdd( SummaryFragment.FRAGMENT_TAG, mSummaryFragment );
+    }
+
+    private void openShifts()
+    {
+        if( mShiftsFragment == null )
+        {
+            mShiftsFragment = ShiftsFragment.newInstance();
+        }
+        popOrAdd( ShiftsFragment.FRAGMENT_TAG, mShiftsFragment );
     }
 
     private void openDeliveries()
