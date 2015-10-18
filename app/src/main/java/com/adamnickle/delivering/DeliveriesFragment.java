@@ -128,19 +128,20 @@ public class DeliveriesFragment extends Fragment
                             public void done( Shift shift, ParseException e )
                             {
                                 final Deliverer deliverer = Deliverer.getCurrentUser();
-                                final Delivery deliver = Delivery.create( deliverer, shift, deliveryName );
-                                deliver.saveInBackground( new SaveCallback()
+                                final Delivery delivery = Delivery.create( deliverer, shift, deliveryName );
+                                delivery.pinInBackground( new SaveCallback()
                                 {
                                     @Override
                                     public void done( ParseException ex )
                                     {
                                         if( ex == null )
                                         {
-                                            mAdapter.add( 0, deliver );
+                                            mAdapter.add( 0, delivery );
+                                            delivery.saveEventually();
                                         }
                                         else
                                         {
-                                            Delivering.log( "Created Delivery could not be saved.", ex );
+                                            Delivering.log( "Delivery could not be pinned.", ex );
                                             Delivering.oops();
                                         }
                                     }

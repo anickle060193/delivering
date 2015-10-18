@@ -27,6 +27,8 @@ public class Delivering extends Application
         ParseObject.registerSubclass( Delivery.class );
         ParseObject.registerSubclass( Shift.class );
 
+        Parse.enableLocalDatastore( this );
+
         Parse.initialize( this, getString( R.string.applicationId ), getString( R.string.clientKey ) );
     }
 

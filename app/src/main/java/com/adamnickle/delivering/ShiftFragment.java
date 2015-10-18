@@ -12,9 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.parse.ParseException;
 import com.parse.ParseQuery;
-import com.parse.SaveCallback;
 
 import java.util.Date;
 
@@ -130,18 +128,7 @@ public class ShiftFragment extends Fragment
             public void onShiftClockIn()
             {
                 mShift.setStart( new Date() );
-                mShift.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex != null )
-                        {
-                            Delivering.log( "Could not clock-in to Shift.", ex );
-                            Delivering.oops();
-                        }
-                    }
-                } );
+                mShift.saveEventually();
                 update();
             }
 
@@ -149,18 +136,7 @@ public class ShiftFragment extends Fragment
             public void onShiftClockOut()
             {
                 mShift.setEnd( new Date() );
-                mShift.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex != null )
-                        {
-                            Delivering.log( "Could not clock-out of Shift.", ex );
-                            Delivering.oops();
-                        }
-                    }
-                } );
+                mShift.saveEventually();
                 update();
             }
         } );

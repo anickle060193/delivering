@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -14,9 +15,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.FindCallback;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import java.util.List;
 
 
 public class LoginActivity extends AppCompatActivity
@@ -29,6 +35,12 @@ public class LoginActivity extends AppCompatActivity
     private View mLoginFormView;
 
     private boolean mLoggingIn;
+
+    private boolean mDeliveriesFetched;
+    private boolean mShiftsFetched;
+
+    private boolean mSuccessful = true;
+    private boolean mDone;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -44,7 +56,6 @@ public class LoginActivity extends AppCompatActivity
         setTitle( R.string.title_activity_login );
 
         mEmailView = (EditText)findViewById( R.id.login_email );
-        populateAutoComplete();
 
         mPasswordView = (EditText)findViewById( R.id.login_password );
         mPasswordView.setOnEditorActionListener( new TextView.OnEditorActionListener()
@@ -90,15 +101,102 @@ public class LoginActivity extends AppCompatActivity
         }
     }
 
-    private void populateAutoComplete()
-    {
-        //TODO Save past entered usernames
-    }
-
     private void loginDone()
     {
         startActivity( new Intent( this, MainActivity.class ) );
         finish();
+    }
+
+    private void finishLogin()
+    {
+        new AlertDialog.Builder( this )
+                .setMessage( "Fetching data..." )
+                .setCancelable( false )
+                .show();
+
+        final Deliverer deliverer = Deliverer.getCurrentUser();
+
+        ParseQuery.getQuery( Delivery.class )
+                .whereEqualTo( Delivery.DELIVERER, deliverer )
+                .findInBackground( new FindCallback<Delivery>()
+                {
+                    @Override
+                    public void done( List<Delivery> objects, ParseException e )
+                    {
+                        if( e == null )
+                        {
+                            Delivery.pinAllInBackground( objects, new SaveCallback()
+                            {
+                                @Override
+                                public void done( ParseException ex )
+                                {
+                                    mDeliveriesFetched = true;
+                                    if( ex != null )
+                                    {
+                                        Delivering.log( "Could not pin all Deliveries", ex );
+                                        mSuccessful = false;
+                                    }
+                                    checkForFinish();
+                                }
+                            } );
+                        }
+                        else
+                        {
+                            Delivering.log( "Could not find all Deliveries.", e );
+                            mDeliveriesFetched = true;
+                            mSuccessful = false;
+                            checkForFinish();
+                        }
+                    }
+                } );
+        ParseQuery.getQuery( Shift.class )
+                .whereEqualTo( Shift.DELIVERER, deliverer )
+                .findInBackground( new FindCallback<Shift>()
+                {
+                    @Override
+                    public void done( List<Shift> objects, ParseException e )
+                    {
+                        if( e == null )
+                        {
+                            Shift.pinAllInBackground( objects, new SaveCallback()
+                            {
+                                @Override
+                                public void done( ParseException ex )
+                                {
+                                    mShiftsFetched = true;
+                                    if( ex != null )
+                                    {
+                                        Delivering.log( "Could not pin all Shifts.", ex );
+                                        mSuccessful = false;
+                                    }
+                                    checkForFinish();
+                                }
+                            } );
+                        }
+                        else
+                        {
+                            Delivering.log( "Could not find all Shifts.", e );
+                            mShiftsFetched = true;
+                            mSuccessful = false;
+                            checkForFinish();
+                        }
+                    }
+                } );
+    }
+
+    private synchronized void checkForFinish()
+    {
+        if( !mDone && mDeliveriesFetched && mShiftsFetched )
+        {
+            mDone = true;
+
+            if( !mSuccessful )
+            {
+                Delivering.toast( "There was a problem fetching your data.\nSome may be unavailable until you login again." );
+            }
+
+            loginDone();
+        }
     }
 
     private void attemptLogin()
@@ -171,7 +269,7 @@ public class LoginActivity extends AppCompatActivity
                     {
                         if( ex == null )
                         {
-                            loginDone();
+                            finishLogin();
                         }
                         else
                         {

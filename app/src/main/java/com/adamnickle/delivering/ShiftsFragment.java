@@ -116,7 +116,7 @@ public class ShiftsFragment extends Fragment
                 {
                     shift.setStart( new Date() );
                 }
-                shift.saveInBackground( new SaveCallback()
+                shift.pinInBackground( new SaveCallback()
                 {
                     @Override
                     public void done( ParseException ex )
@@ -124,6 +124,7 @@ public class ShiftsFragment extends Fragment
                         if( ex == null )
                         {
                             mAdapter.add( 0, shift );
+                            shift.saveEventually();
                         }
                         else
                         {
@@ -153,18 +154,7 @@ public class ShiftsFragment extends Fragment
             public void onShiftClockIn()
             {
                 holder.Shift.setStart( new Date() );
-                holder.Shift.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex != null )
-                        {
-                            Delivering.log( "Could not clock-in to Shift.", ex );
-                            Delivering.oops();
-                        }
-                    }
-                } );
+                holder.Shift.saveEventually();
                 holder.update();
             }
 
@@ -172,18 +162,7 @@ public class ShiftsFragment extends Fragment
             public void onShiftClockOut()
             {
                 holder.Shift.setEnd( new Date() );
-                holder.Shift.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex != null )
-                        {
-                            Delivering.log( "Could not clock-out of Shift.", ex );
-                            Delivering.oops();
-                        }
-                    }
-                } );
+                holder.Shift.saveEventually();
                 holder.update();
             }
         } );

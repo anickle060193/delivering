@@ -6,9 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.parse.ParseException;
-import com.parse.SaveCallback;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -50,18 +47,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                 holder.Delivery.setTipPaymentMethod( tipPaymentMethod );
                 holder.Delivery.setTotal( total );
                 holder.Delivery.setTotalPaymentMethod( totalPaymentMethod );
-                holder.Delivery.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException e )
-                    {
-                        if( e != null )
-                        {
-                            Delivering.log( "Error occurred while setting Delivery payment." );
-                            Delivering.oops();
-                        }
-                    }
-                } );
+                holder.Delivery.saveEventually();
                 holder.update();
             }
         } );
@@ -76,18 +62,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
             {
                 holder.Delivery.setDeliveryEnd( new Date() );
                 holder.Delivery.setEndMileage( endMileage );
-                holder.Delivery.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex != null )
-                        {
-                            Delivering.log( "Failed to complete Delivery.", ex );
-                            Delivering.oops();
-                        }
-                    }
-                } );
+                holder.Delivery.saveEventually();
                 holder.update();
             }
         } );
@@ -102,18 +77,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
             {
                 holder.Delivery.setDeliveryStart( new Date() );
                 holder.Delivery.setStartMileage( startMileage );
-                holder.Delivery.saveInBackground( new SaveCallback()
-                {
-                    @Override
-                    public void done( ParseException ex )
-                    {
-                        if( ex != null )
-                        {
-                            Delivering.log( "Failed to start Delivery.", ex );
-                            Delivering.oops();
-                        }
-                    }
-                } );
+                holder.Delivery.saveEventually();
                 holder.update();
             }
         } );

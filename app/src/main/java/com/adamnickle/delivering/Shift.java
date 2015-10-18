@@ -28,7 +28,8 @@ public class Shift extends ParseObject
 
     public static ParseQuery<Shift> createQuery()
     {
-        return new ParseQuery<>( Shift.class );
+        return new ParseQuery<>( Shift.class )
+                .fromLocalDatastore();
     }
 
     public boolean isCompleted()

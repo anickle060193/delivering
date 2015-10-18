@@ -17,16 +17,13 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.parse.DeleteCallback;
 import com.parse.LogOutCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
-    public interface FragmentListener
-    {
-        void onFragmentAttach( Fragment fragment );
-    }
-
     private SummaryFragment mSummaryFragment;
     private ShiftsFragment mShiftsFragment;
     private DeliveriesFragment mDeliveriesFragment;
@@ -187,6 +184,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             {
                 if( ex == null )
                 {
+                    ParseObject.unpinAllInBackground( new DeleteCallback()
+                    {
+                        @Override
+                        public void done( ParseException e )
+                        {
+                            if( e != null )
+                            {
+                                Delivering.log( "Could not unpin all objects", e );
+                            }
+                        }
+                    } );
+
                     startActivity( new Intent( MainActivity.this, LoginActivity.class ) );
                     finish();
                 }

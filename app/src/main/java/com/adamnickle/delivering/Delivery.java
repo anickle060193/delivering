@@ -42,7 +42,8 @@ public class Delivery extends ParseObject
 
     public static ParseQuery<Delivery> createQuery()
     {
-        return new ParseQuery<>( Delivery.class );
+        return new ParseQuery<>( Delivery.class )
+                .fromLocalDatastore();
     }
 
     public boolean isCompleted()
