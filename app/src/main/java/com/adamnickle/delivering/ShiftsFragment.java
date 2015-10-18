@@ -232,7 +232,8 @@ public class ShiftsFragment extends Fragment
                 final Date end = Shift.getEnd();
                 if( start == null )
                 {
-                    ShiftDate.setText( "[Not Clock-In Yet]" );
+                    final Date createdAt = Shift.getCreatedAt();
+                    ShiftDate.setText( Utilities.DATE_FORMAT.format( createdAt ) );
                     ClockInTime.setText( "[Not clocked-in yet]" );
                 }
                 else
