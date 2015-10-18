@@ -40,4 +40,25 @@
 
     </android.support.design.widget.TextInputLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceSmall"
+            android:textSize="16sp"
+            android:layout_weight="1"
+            android:text="Use current location for origin?"/>
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/delivery_creator_base_fragment_use_current_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
 </LinearLayout>

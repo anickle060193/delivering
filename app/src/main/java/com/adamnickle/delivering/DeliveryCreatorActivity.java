@@ -1,11 +1,8 @@
 package com.adamnickle.delivering;
 
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -14,20 +11,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
 
 public class DeliveryCreatorActivity extends AppCompatActivity
 {
-    private DeliveryCreatorPageAdapter mDeliveryCreatorPageAdapter;
+    private Button mPrevious;
+    private Button mNext;
 
-    private ViewPager mViewPager;
+    private boolean mUseCurrentLocation;
+    private int mCurrentStep;
+
+    private DeliveryBaseFragment mBaseFragment;
+    private DeliveryOriginFragment mOriginFragment;
+    private DeliveryDestinationFragment mDestinationFragment;
 
     @Override
     protected void onCreate( Bundle savedInstanceState )
@@ -42,57 +44,122 @@ public class DeliveryCreatorActivity extends AppCompatActivity
 
         setSupportActionBar( (Toolbar)findViewById( R.id.delivery_creator_activity_toolbar ) );
 
-        mDeliveryCreatorPageAdapter = new DeliveryCreatorPageAdapter( getSupportFragmentManager() );
+        mPrevious = (Button)findViewById( R.id.delivery_creator_activity_previous );
+        mPrevious.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                onPreviousClicked();
+            }
+        } );
 
-        mViewPager = (ViewPager)findViewById( R.id.delivery_creator_activity_pager );
-        mViewPager.setAdapter( mDeliveryCreatorPageAdapter );
+        mNext = (Button)findViewById( R.id.delivery_creator_activity_next );
+        mNext.setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                onNextClicked();
+            }
+        } );
 
-        TabLayout tabLayout = (TabLayout)findViewById( R.id.delivery_creator_activity_tabs );
-        tabLayout.setupWithViewPager( mViewPager );
+        getSupportFragmentManager().addOnBackStackChangedListener( new FragmentManager.OnBackStackChangedListener()
+        {
+            @Override
+            public void onBackStackChanged()
+            {
+                final Fragment fragment = getSupportFragmentManager().findFragmentById( R.id.delivery_creator_activity_content_holder );
+                if( fragment instanceof DeliveryBaseFragment )
+                {
+                    mCurrentStep = 0;
+
+                    mPrevious.setEnabled( false );
+                    mNext.setText( "Next" );
+                }
+                else if( fragment instanceof DeliveryOriginFragment )
+                {
+                    mCurrentStep = 1;
+
+                    mPrevious.setEnabled( true );
+                    mNext.setText( "Next" );
+                }
+                else if( fragment instanceof DeliveryDestinationFragment )
+                {
+                    mCurrentStep = 2;
+
+                    mPrevious.setEnabled( true );
+                    mNext.setText( "Done" );
+                }
+            }
+        } );
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add( R.id.delivery_creator_activity_content_holder, DeliveryBaseFragment.newInstance() )
+                .commit();
     }
 
-    public class DeliveryCreatorPageAdapter extends FragmentPagerAdapter
+    private void onPreviousClicked()
     {
-        public DeliveryCreatorPageAdapter( FragmentManager fragmentManager )
-        {
-            super( fragmentManager );
-        }
+        getSupportFragmentManager().popBackStack();
+    }
 
-        @Override
-        public Fragment getItem( int position )
+    private void onNextClicked()
+    {
+        if( mCurrentStep == 0 )
         {
-            switch( position )
+            if( mUseCurrentLocation )
             {
-                case 0:
-                    return DeliveryBaseFragment.newInstance();
-                case 1:
-                    return DeliveryOriginFragment.newInstance();
-                case 2:
-                    return DeliveryDestinationFragment.newInstance();
+                if( mDestinationFragment == null )
+                {
+                    mDestinationFragment = DeliveryDestinationFragment.newInstance();
+                }
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack( null )
+                        .replace( R.id.delivery_creator_activity_content_holder, mDestinationFragment )
+                        .commit();
             }
-            return null;
-        }
-
-        @Override
-        public int getCount()
-        {
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle( int position )
-        {
-            switch( position )
+            else
             {
-                case 0:
-                    return "Delivery";
-                case 1:
-                    return "Origin";
-                case 2:
-                    return "Destination";
+                if( mOriginFragment == null )
+                {
+                    mOriginFragment = DeliveryOriginFragment.newInstance();
+                }
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack( null )
+                        .replace( R.id.delivery_creator_activity_content_holder, mOriginFragment )
+                        .commit();
             }
-            return null;
         }
+        else if( mCurrentStep == 1 )
+        {
+            if( mDestinationFragment == null )
+            {
+                mDestinationFragment = DeliveryDestinationFragment.newInstance();
+            }
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack( null )
+                    .replace( R.id.delivery_creator_activity_content_holder, mDestinationFragment )
+                    .commit();
+        }
+        else
+        {
+            finish();
+        }
+    }
+
+    public void setUseCurrentLocation( boolean useCurrentLocation )
+    {
+        mUseCurrentLocation = useCurrentLocation;
+    }
+
+    public boolean getUseCurrentLocation()
+    {
+        return mUseCurrentLocation;
     }
 
     public static class DeliveryBaseFragment extends Fragment
@@ -185,7 +252,6 @@ public class DeliveryCreatorActivity extends AppCompatActivity
         public void onMapReady( GoogleMap googleMap )
         {
             mMap = googleMap;
-            mMap.animateCamera( CameraUpdateFactory.newLatLngZoom( new LatLng( 0, 0 ), 20 ) );
         }
 
         @Override
@@ -264,7 +330,6 @@ public class DeliveryCreatorActivity extends AppCompatActivity
         public void onMapReady( GoogleMap googleMap )
         {
             mMap = googleMap;
-            mMap.animateCamera( CameraUpdateFactory.newLatLngZoom( new LatLng( 0, 0 ), 20 ) );
         }
 
         @Override
