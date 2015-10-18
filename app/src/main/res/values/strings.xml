@@ -24,5 +24,6 @@
     <string name="prompt_register_password_verify">Verify Password</string>
     <string name="action_register">Register</string>
     <string name="error_non_matching_passwords">Passwords do not match</string>
+    <string name="title_activity_delivery_creator">Delivery</string>
 
 </resources>

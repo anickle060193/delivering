@@ -85,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             openShifts();
         }
 
+        startActivity( new Intent( this, DeliveryCreatorActivity.class ) );
+
         getSupportFragmentManager().addOnBackStackChangedListener( new FragmentManager.OnBackStackChangedListener()
         {
             @Override

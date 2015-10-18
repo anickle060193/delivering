@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    style="@style/MainContentFragment">
+    android:layout_height="match_parent">
+
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/delivery_creator_destination_fragment_map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp">
 
         <EditText
-            android:id="@+id/delivery_creator_address_search"
+            android:id="@+id/delivery_creator_destination_fragment_destination_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Address"
+            android:hint="Destination Address"
             android:inputType="textPostalAddress"
             android:imeOptions="actionSearch"
             android:maxLines="1"
@@ -24,9 +29,4 @@
 
     </android.support.design.widget.TextInputLayout>
 
-    <com.google.android.gms.maps.MapView
-        android:id="@+id/delivery_creator_fragment_map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-</LinearLayout>
+</FrameLayout>
