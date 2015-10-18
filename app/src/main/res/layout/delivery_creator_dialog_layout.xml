@@ -10,34 +10,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/delivery_creator_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Delivery Name"
                 android:inputType="textCapWords"
-                android:imeOptions="actionNext"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textAlignment="viewStart"/>
+                android:imeOptions="actionDone"
+                style="@style/InputEditText"/>
 
         </android.support.design.widget.TextInputLayout>
-
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <AutoCompleteTextView
-            android:id="@+id/delivery_creator_distance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Distance"
-            android:inputType="numberDecimal"
-            android:imeOptions="actionDone"
-            android:maxLines="1"
-            android:singleLine="true"
-            android:textAlignment="viewStart"/>
-
-    </android.support.design.widget.TextInputLayout>
 
 </LinearLayout>

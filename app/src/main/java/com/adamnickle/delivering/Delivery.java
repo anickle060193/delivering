@@ -15,7 +15,8 @@ public class Delivery extends ParseObject
     public static final String NAME = "name";
     public static final String DELIVERER = "deliverer";
     public static final String SHIFT = "shift";
-    public static final String DISTANCE = "distance";
+    public static final String START_MILEAGE = "start_mileage";
+    public static final String END_MILEAGE = "end_mileage";
     public static final String TOTAL = "total";
     public static final String TOTAL_PAYMENT_METHOD = "total_payment_method";
     public static final String TIP = "tip";
@@ -81,14 +82,24 @@ public class Delivery extends ParseObject
         return getString( NAME );
     }
 
-    public void setDistance( float distance )
+    public void setStartMileage( float startMileage )
     {
-        put( DISTANCE, distance );
+        put( START_MILEAGE, startMileage );
     }
 
-    public float getDistance()
+    public float getStartMileage()
     {
-        return (float)get( DISTANCE );
+        return (float)get( START_MILEAGE );
+    }
+
+    public void setEndMileage( float endMileage )
+    {
+        put( END_MILEAGE, endMileage );
+    }
+
+    public float getEndMilage()
+    {
+        return (float)get( END_MILEAGE );
     }
 
     public void setTip( BigDecimal tip )

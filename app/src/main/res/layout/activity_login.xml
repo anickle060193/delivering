@@ -33,15 +33,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <AutoCompleteTextView
+                <EditText
                     android:id="@+id/login_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
                     android:imeOptions="actionNext"
-                    android:maxLines="1"
-                    android:singleLine="true"/>
+                    style="@style/InputEditText"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -56,8 +55,7 @@
                     android:hint="@string/prompt_password"
                     android:imeOptions="actionDone"
                     android:inputType="textPassword"
-                    android:maxLines="1"
-                    android:singleLine="true"/>
+                    style="@style/InputEditText"/>
 
             </android.support.design.widget.TextInputLayout>
 

@@ -11,7 +11,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,7 +23,7 @@ public class LoginActivity extends AppCompatActivity
 {
     private static final int REQUEST_REGISTER_USER = 1001;
 
-    private AutoCompleteTextView mEmailView;
+    private EditText mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -44,7 +43,7 @@ public class LoginActivity extends AppCompatActivity
         setContentView( R.layout.activity_login );
         setTitle( R.string.title_activity_login );
 
-        mEmailView = (AutoCompleteTextView)findViewById( R.id.login_email );
+        mEmailView = (EditText)findViewById( R.id.login_email );
         populateAutoComplete();
 
         mPasswordView = (EditText)findViewById( R.id.login_password );

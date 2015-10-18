@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -20,7 +19,7 @@ public class RegisterActivity extends AppCompatActivity
 {
     public static final String EXTRA_USERNAME = BuildConfig.APPLICATION_ID + ".extra.username";
 
-    private AutoCompleteTextView mEmailView;
+    private EditText mEmailView;
     private EditText mPasswordView;
     private EditText mVerifyPasswordView;
     private View mProgressView;
@@ -38,7 +37,7 @@ public class RegisterActivity extends AppCompatActivity
 
         final String username = getIntent().getStringExtra( EXTRA_USERNAME );
 
-        mEmailView = (AutoCompleteTextView)findViewById( R.id.register_email );
+        mEmailView = (EditText)findViewById( R.id.register_email );
 
         mPasswordView = (EditText)findViewById( R.id.register_password );
 
@@ -48,7 +47,7 @@ public class RegisterActivity extends AppCompatActivity
             @Override
             public boolean onEditorAction( TextView textView, int id, KeyEvent keyEvent )
             {
-                if( id == R.id.login || id == EditorInfo.IME_NULL )
+                if( id == EditorInfo.IME_ACTION_DONE )
                 {
                     attemptRegister();
                     return true;
@@ -62,10 +61,6 @@ public class RegisterActivity extends AppCompatActivity
             mEmailView.setText( username );
             mPasswordView.requestFocus();
         }
-        else
-        {
-            populateAutoComplete();
-        }
 
         findViewById( R.id.register_button ).setOnClickListener( new View.OnClickListener()
         {
@@ -78,11 +73,6 @@ public class RegisterActivity extends AppCompatActivity
 
         mRegisterFormView = findViewById( R.id.register_form );
         mProgressView = findViewById( R.id.register_progress );
-    }
-
-    private void populateAutoComplete()
-    {
-        //TODO Save past entered usernames
     }
 
     private void attemptRegister()

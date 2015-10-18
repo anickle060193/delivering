@@ -17,16 +17,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/delivery_payment_dialog_total"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Delivery Total"
                 android:inputType="numberDecimal"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textAlignment="viewStart"
-                android:selectAllOnFocus="true"/>
+                style="@style/InputEditText"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -51,16 +48,13 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/delivery_payment_dialog_tip"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Delivery Tip"
                 android:inputType="numberDecimal"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textAlignment="viewStart"
-                android:selectAllOnFocus="true"/>
+                style="@style/InputEditText"/>
 
         </android.support.design.widget.TextInputLayout>
 

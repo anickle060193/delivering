@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         else
         {
             navigationView.setCheckedItem( R.id.main_drawer_action_summary );
-            openShifts();
+            openSummary();
         }
 
         getSupportFragmentManager().addOnBackStackChangedListener( new FragmentManager.OnBackStackChangedListener()

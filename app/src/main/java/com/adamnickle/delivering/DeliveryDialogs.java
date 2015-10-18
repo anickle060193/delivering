@@ -34,8 +34,8 @@ public abstract class DeliveryDialogs
                 .setPositiveButton( "Create Delivery", null )
                 .setNegativeButton( "Cancel", null )
                 .show();
-        final EditText distanceEditText = (EditText)dialog.findViewById( R.id.delivery_creator_distance );
-        distanceEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        final EditText deliveryNameEditText = (EditText)dialog.findViewById( R.id.delivery_creator_name );
+        deliveryNameEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
         {
             @Override
             public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
@@ -49,7 +49,6 @@ public abstract class DeliveryDialogs
                 return false;
             }
         } );
-        final EditText deliveryNameEditText = (EditText)dialog.findViewById( R.id.delivery_creator_name );
         dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
         {
             @Override
