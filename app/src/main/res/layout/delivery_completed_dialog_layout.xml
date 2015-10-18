@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/delivery_completed_dialog_start_mileage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Start Mileage"
+            android:inputType="numberDecimal"
+            android:imeOptions="actionNext"
+            android:enabled="false"
+            android:focusable="false"
+            style="@style/InputEditText"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/delivery_completed_dialog_end_mileage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="End Mileage"
+            android:inputType="numberDecimal"
+            android:imeOptions="actionDone"
+            style="@style/InputEditText"/>
+
+    </android.support.design.widget.TextInputLayout>
+
+</LinearLayout>

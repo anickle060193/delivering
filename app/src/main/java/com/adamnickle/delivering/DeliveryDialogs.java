@@ -13,8 +13,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.regex.Pattern;
 
 
@@ -67,7 +65,6 @@ public abstract class DeliveryDialogs
     }
 
     private static final Pattern PLAIN_MONEY_PATTERN = Pattern.compile( "^[1-9]\\d*(?:\\.\\d{2})?$" );
-    private static final NumberFormat PLAIN_MONEY_FORMATTER = new DecimalFormat( "0.00" );
 
     public static void setPayment( Context context, Delivery prefillDelivery, final DeliveryPaymentSetListener listener )
     {
@@ -93,13 +90,13 @@ public abstract class DeliveryDialogs
         final BigDecimal initialTip = prefillDelivery.getTip();
         if( initialTip != null )
         {
-            tipEditText.setText( PLAIN_MONEY_FORMATTER.format( initialTip ) );
+            tipEditText.setText( Utilities.PLAIN_MONEY_FORMATTER.format( initialTip ) );
         }
 
         final BigDecimal initialTotal = prefillDelivery.getTotal();
         if( initialTotal != null )
         {
-            totalEditText.setText( PLAIN_MONEY_FORMATTER.format( initialTotal ) );
+            totalEditText.setText( Utilities.PLAIN_MONEY_FORMATTER.format( initialTotal ) );
         }
 
         dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
@@ -157,43 +154,121 @@ public abstract class DeliveryDialogs
 
     public interface DeliveryCompleteListener
     {
-        void onDeliveryComplete();
+        void onDeliveryComplete( double endMileage );
     }
 
-    public static void completeDelivery( Context context, final DeliveryCompleteListener listener )
+    public static void completeDelivery( Context context, final Delivery delivery, final DeliveryCompleteListener listener )
     {
-        new AlertDialog.Builder( context )
-                .setMessage( "Are you sure you want to complete this delivery?" )
-                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        listener.onDeliveryComplete();
-                    }
-                } )
-                .setNegativeButton( "No", null )
+        final AlertDialog dialog = new AlertDialog.Builder( context )
+                .setView( R.layout.delivery_completed_dialog_layout )
+                .setPositiveButton( "Complete", null )
                 .show();
+
+        final EditText startMileageEditText = (EditText)dialog.findViewById( R.id.delivery_completed_dialog_start_mileage );
+        startMileageEditText.setText( Utilities.MILEAGE_FORMATTER.format( delivery.getStartMileage() ) );
+
+        final EditText endMileageEditText = (EditText)dialog.findViewById( R.id.delivery_completed_dialog_end_mileage );
+        endMileageEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        {
+            @Override
+            public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
+            {
+                if( actionId == EditorInfo.IME_ACTION_DONE )
+                {
+                    dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        } );
+
+        dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                final String endMileageString = endMileageEditText.getText().toString();
+                try
+                {
+                    final double endMileage = Double.valueOf( endMileageString );
+                    if( endMileage < 0 )
+                    {
+                        endMileageEditText.setError( "Mileage must be non-negative" );
+                        endMileageEditText.requestFocus();
+                    }
+                    else if( endMileage < delivery.getStartMileage() )
+                    {
+                        endMileageEditText.setError( "End mileage must be greater than start mileage" );
+                        endMileageEditText.requestFocus();
+                    }
+                    else
+                    {
+                        listener.onDeliveryComplete( endMileage );
+                        dialog.dismiss();
+                    }
+                }
+                catch( NumberFormatException ex )
+                {
+                    endMileageEditText.setError( "Invalid mileage format" );
+                    endMileageEditText.requestFocus();
+                }
+            }
+        } );
     }
 
     public interface DeliveryStartListener
     {
-        void onDeliveryStarted();
+        void onDeliveryStarted( double startMileage );
     }
 
     public static void startDelivery( Context context, final DeliveryStartListener listener )
     {
-        new AlertDialog.Builder( context )
-                .setMessage( "Are you sure you want to start this delivery?" )
-                .setPositiveButton( "Yes", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        listener.onDeliveryStarted();
-                    }
-                } )
-                .setNegativeButton( "No", null )
+        final AlertDialog dialog = new AlertDialog.Builder( context )
+                .setView( R.layout.delivery_in_progress_dialog_layout )
+                .setPositiveButton( "Start", null )
                 .show();
+
+        final EditText startMileageEditText = (EditText)dialog.findViewById( R.id.delivery_in_progress_dialog_start_mileage );
+        startMileageEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        {
+            @Override
+            public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
+            {
+                if( actionId == EditorInfo.IME_ACTION_DONE )
+                {
+                    dialog.getButton( DialogInterface.BUTTON_POSITIVE ).callOnClick();
+                    return true;
+                }
+                return false;
+            }
+        } );
+
+        dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                final String startMileageString = startMileageEditText.getText().toString();
+                try
+                {
+                    final double startMileage = Double.valueOf( startMileageString );
+                    if( startMileage < 0 )
+                    {
+                        startMileageEditText.setError( "Mileage must be non-negative" );
+                        startMileageEditText.requestFocus();
+                    }
+                    else
+                    {
+                        listener.onDeliveryStarted( startMileage );
+                        dialog.dismiss();
+                    }
+                }
+                catch( NumberFormatException ex )
+                {
+                    startMileageEditText.setError( "Invalid mileage format" );
+                    startMileageEditText.requestFocus();
+                }
+            }
+        } );
     }
 }

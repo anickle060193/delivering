@@ -69,12 +69,13 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
 
     private void onCompleteDeliveryClick( final DeliveryViewHolder holder )
     {
-        DeliveryDialogs.completeDelivery( mContext, new DeliveryDialogs.DeliveryCompleteListener()
+        DeliveryDialogs.completeDelivery( mContext, holder.Delivery, new DeliveryDialogs.DeliveryCompleteListener()
         {
             @Override
-            public void onDeliveryComplete()
+            public void onDeliveryComplete( double endMileage )
             {
                 holder.Delivery.setDeliveryEnd( new Date() );
+                holder.Delivery.setEndMileage( endMileage );
                 holder.Delivery.saveInBackground( new SaveCallback()
                 {
                     @Override
@@ -97,9 +98,10 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
         DeliveryDialogs.startDelivery( mContext, new DeliveryDialogs.DeliveryStartListener()
         {
             @Override
-            public void onDeliveryStarted()
+            public void onDeliveryStarted( double startMileage )
             {
                 holder.Delivery.setDeliveryStart( new Date() );
+                holder.Delivery.setStartMileage( startMileage );
                 holder.Delivery.saveInBackground( new SaveCallback()
                 {
                     @Override
@@ -122,7 +124,12 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
         public Delivery Delivery;
         public final TextView DeliveryName;
         public final TextView DeliveryStatus;
+        public final View DeliveryTotalGroup;
+        public final TextView DeliveryTotal;
+        public final View DeliveryTipGroup;
         public final TextView DeliveryTip;
+        public final View DeliveryMileageGroup;
+        public final TextView DeliveryMileage;
         public final View SetPayment;
         public final View UpdateDeliveryStatus;
         public final View DeliveryStatusInProgress;
@@ -134,7 +141,12 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
 
             DeliveryName = findViewById( R.id.delivery_item_name );
             DeliveryStatus = findViewById( R.id.delivery_item_status );
+            DeliveryTotalGroup = findViewById( R.id.delivery_item_total_group );
+            DeliveryTotal = findViewById( R.id.delivery_item_total );
+            DeliveryTipGroup = findViewById( R.id.delivery_item_tip_group );
             DeliveryTip = findViewById( R.id.delivery_item_tip );
+            DeliveryMileageGroup = findViewById( R.id.delivery_item_mileage_group );
+            DeliveryMileage = findViewById( R.id.delivery_item_mileage );
             SetPayment = findViewById( R.id.delivery_item_set_payment );
             UpdateDeliveryStatus = findViewById( R.id.delivery_item_update_status );
             DeliveryStatusInProgress = findViewById( R.id.delivery_item_status_in_progress );
@@ -176,16 +188,6 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
             {
                 DeliveryName.setText( Delivery.getName() );
 
-                final BigDecimal tip = Delivery.getTip();
-                if( tip == null )
-                {
-                    DeliveryTip.setText( "No tip yet" );
-                }
-                else
-                {
-                    DeliveryTip.setText( Utilities.CURRENCY_FORMATTER.format( tip ) );
-                }
-
                 if( Delivery.isCompleted() )
                 {
                     DeliveryStatusInProgress.setVisibility( View.GONE );
@@ -209,6 +211,43 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                     DeliveryStatusInProgress.setVisibility( View.GONE );
                     DeliveryStatusCompleted.setVisibility( View.GONE );
                     DeliveryStatus.setText( "Delivery not yet started." );
+                }
+
+                final BigDecimal total = Delivery.getTotal();
+                if( total == null )
+                {
+                    DeliveryTotalGroup.setVisibility( View.GONE );
+                }
+                else
+                {
+                    DeliveryTotalGroup.setVisibility( View.VISIBLE );
+                    final String totalText = String.format( "%s (%s)", Utilities.CURRENCY_FORMATTER.format( total ), Delivery.getTotalPaymentMethod() );
+                    DeliveryTotal.setText( totalText );
+                }
+
+                final BigDecimal tip = Delivery.getTip();
+                if( tip == null )
+                {
+                    DeliveryTipGroup.setVisibility( View.GONE );
+                }
+                else
+                {
+                    DeliveryTipGroup.setVisibility( View.VISIBLE );
+                    final String tipText = String.format( "%s (%s)", Utilities.CURRENCY_FORMATTER.format( tip ), Delivery.getTipPaymentMethod() );
+                    DeliveryTip.setText( tipText );
+                }
+
+                if( !Delivery.hasStartMileage() || !Delivery.hasEndMileage() )
+                {
+                    DeliveryMileageGroup.setVisibility( View.GONE );
+                }
+                else
+                {
+                    DeliveryMileageGroup.setVisibility( View.VISIBLE );
+                    final double startMileage = Delivery.getStartMileage();
+                    final double endMileage = Delivery.getEndMileage();
+                    final double mileage = endMileage - startMileage;
+                    DeliveryMileage.setText( Utilities.MILEAGE_FORMATTER.format( mileage ) );
                 }
             }
         }

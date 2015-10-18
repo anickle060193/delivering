@@ -32,7 +32,10 @@ public class Delivery extends ParseObject
         final Delivery delivery = new Delivery();
         delivery.setACL( new ParseACL( deliverer ) );
         delivery.setDeliverer( deliverer );
-        delivery.setShift( shift );
+        if( shift != null )
+        {
+            delivery.setShift( shift );
+        }
         delivery.setName( name );
         return delivery;
     }
@@ -82,24 +85,34 @@ public class Delivery extends ParseObject
         return getString( NAME );
     }
 
-    public void setStartMileage( float startMileage )
+    public void setStartMileage( double startMileage )
     {
         put( START_MILEAGE, startMileage );
     }
 
-    public float getStartMileage()
+    public boolean hasStartMileage()
     {
-        return (float)get( START_MILEAGE );
+        return has( START_MILEAGE );
     }
 
-    public void setEndMileage( float endMileage )
+    public double getStartMileage()
+    {
+        return getDouble( START_MILEAGE );
+    }
+
+    public void setEndMileage( double endMileage )
     {
         put( END_MILEAGE, endMileage );
     }
 
-    public float getEndMilage()
+    public boolean hasEndMileage()
     {
-        return (float)get( END_MILEAGE );
+        return has( END_MILEAGE );
+    }
+
+    public double getEndMileage()
+    {
+        return getDouble( END_MILEAGE );
     }
 
     public void setTip( BigDecimal tip )
