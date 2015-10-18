@@ -10,7 +10,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/delivery_creator_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

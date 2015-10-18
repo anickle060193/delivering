@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/delivery_payment_dialog_total"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/delivery_payment_dialog_tip"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
