@@ -1,8 +1,12 @@
 package com.adamnickle.delivering;
 
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
@@ -15,12 +19,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 
 public class DeliveryCreatorActivity extends AppCompatActivity
 {
+    private static final int BASE_STEP = 0;
+    private static final int ORIGIN_STEP = 1;
+    private static final int DESTINATION_STEP = 2;
+
     private Button mPrevious;
     private Button mNext;
 
@@ -64,87 +78,97 @@ public class DeliveryCreatorActivity extends AppCompatActivity
             }
         } );
 
-        getSupportFragmentManager().addOnBackStackChangedListener( new FragmentManager.OnBackStackChangedListener()
+        showBaseFragment();
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if( mCurrentStep == BASE_STEP )
         {
-            @Override
-            public void onBackStackChanged()
-            {
-                final Fragment fragment = getSupportFragmentManager().findFragmentById( R.id.delivery_creator_activity_content_holder );
-                if( fragment instanceof DeliveryBaseFragment )
-                {
-                    mCurrentStep = 0;
+            finish();
+        }
+        else
+        {
+            onPreviousClicked();
+        }
+    }
 
-                    mPrevious.setEnabled( false );
-                    mNext.setText( "Next" );
-                }
-                else if( fragment instanceof DeliveryOriginFragment )
-                {
-                    mCurrentStep = 1;
-
-                    mPrevious.setEnabled( true );
-                    mNext.setText( "Next" );
-                }
-                else if( fragment instanceof DeliveryDestinationFragment )
-                {
-                    mCurrentStep = 2;
-
-                    mPrevious.setEnabled( true );
-                    mNext.setText( "Done" );
-                }
-            }
-        } );
-
+    private void showFragment( Fragment fragment )
+    {
         getSupportFragmentManager()
                 .beginTransaction()
-                .add( R.id.delivery_creator_activity_content_holder, DeliveryBaseFragment.newInstance() )
+                .replace( R.id.delivery_creator_activity_content_holder, fragment )
                 .commit();
+    }
+
+    private void showBaseFragment()
+    {
+        if( mBaseFragment == null )
+        {
+            mBaseFragment = DeliveryBaseFragment.newInstance();
+        }
+        showFragment( mBaseFragment );
+
+        mCurrentStep = BASE_STEP;
+        mPrevious.setEnabled( false );
+        mNext.setText( "Next" );
+    }
+
+    private void showOriginFragment()
+    {
+        if( mOriginFragment == null )
+        {
+            mOriginFragment = DeliveryOriginFragment.newInstance();
+        }
+        showFragment( mOriginFragment );
+
+        mCurrentStep = ORIGIN_STEP;
+        mPrevious.setEnabled( true );
+        mNext.setText( "Next" );
+    }
+
+    private void showDestinationFragment()
+    {
+        if( mDestinationFragment == null )
+        {
+            mDestinationFragment = DeliveryDestinationFragment.newInstance();
+        }
+        showFragment( mDestinationFragment );
+
+        mCurrentStep = DESTINATION_STEP;
+        mPrevious.setEnabled( true );
+        mNext.setText( "Done" );
     }
 
     private void onPreviousClicked()
     {
-        getSupportFragmentManager().popBackStack();
+        if( mCurrentStep == ORIGIN_STEP )
+        {
+            showBaseFragment();
+        }
+        else if( mCurrentStep == DESTINATION_STEP )
+        {
+            showOriginFragment();
+        }
     }
 
     private void onNextClicked()
     {
-        if( mCurrentStep == 0 )
+        if( mCurrentStep == BASE_STEP )
         {
             if( mUseCurrentLocation )
             {
-                if( mDestinationFragment == null )
-                {
-                    mDestinationFragment = DeliveryDestinationFragment.newInstance();
-                }
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .addToBackStack( null )
-                        .replace( R.id.delivery_creator_activity_content_holder, mDestinationFragment )
-                        .commit();
+                showDestinationFragment();
             }
             else
             {
-                if( mOriginFragment == null )
-                {
-                    mOriginFragment = DeliveryOriginFragment.newInstance();
-                }
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .addToBackStack( null )
-                        .replace( R.id.delivery_creator_activity_content_holder, mOriginFragment )
-                        .commit();
+                showOriginFragment();
             }
         }
-        else if( mCurrentStep == 1 )
+        else if( mCurrentStep == ORIGIN_STEP )
         {
-            if( mDestinationFragment == null )
-            {
-                mDestinationFragment = DeliveryDestinationFragment.newInstance();
-            }
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack( null )
-                    .replace( R.id.delivery_creator_activity_content_holder, mDestinationFragment )
-                    .commit();
+            showDestinationFragment();
         }
         else
         {
@@ -160,6 +184,13 @@ public class DeliveryCreatorActivity extends AppCompatActivity
     public boolean getUseCurrentLocation()
     {
         return mUseCurrentLocation;
+    }
+
+    public static void setBackground( TextInputLayout layout )
+    {
+        final int color = ContextCompat.getColor( layout.getContext(), R.color.colorPrimaryDark );
+        final int background = Color.argb( 130, Color.red( color ), Color.green( color ), Color.blue( color ) );
+        layout.setBackgroundColor( background );
     }
 
     public static class DeliveryBaseFragment extends Fragment
@@ -217,6 +248,10 @@ public class DeliveryCreatorActivity extends AppCompatActivity
 
         private GoogleMap mMap;
 
+        private Location mCurrentLocation;
+        private Marker mCurrentLocationMarker;
+        private String mCurrentLocationAddress;
+
         public static DeliveryOriginFragment newInstance()
         {
             return new DeliveryOriginFragment();
@@ -227,6 +262,40 @@ public class DeliveryCreatorActivity extends AppCompatActivity
         {
             super.onCreate( savedInstanceState );
             setRetainInstance( true );
+
+            LocationHelper.findCurrentLocation( getActivity(), new LocationHelper.LocationFinderListener()
+            {
+                @Override
+                public void onLocationFound( Location location )
+                {
+                    mCurrentLocation = location;
+                    if( mCurrentLocation != null )
+                    {
+                        setCurrentPositionMarker();
+
+                        LocationHelper.decodeLocation( getActivity(), mCurrentLocation, new LocationHelper.LocationDecoderListener()
+                        {
+                            @Override
+                            public void onLocationDecoded( Address address )
+                            {
+                            }
+                        } );
+                    }
+                }
+
+                @Override
+                public void onConnectionSuspended( int cause )
+                {
+                    Delivering.log( "Connection Suspended: " + cause );
+                }
+
+                @Override
+                public void onConnectionFailed( ConnectionResult result )
+                {
+                    Delivering.log( "Could not find current location:\n" + result.getErrorMessage() );
+                    Delivering.toast( "Could not find current location" );
+                }
+            } );
         }
 
         @Override
@@ -238,8 +307,12 @@ public class DeliveryCreatorActivity extends AppCompatActivity
                 mOriginAddress = (EditText)mMainView.findViewById( R.id.delivery_creator_origin_fragment_origin_address );
                 mMapView = (MapView)mMainView.findViewById( R.id.delivery_creator_origin_fragment_map );
 
+                DeliveryCreatorActivity.setBackground( (TextInputLayout)mOriginAddress.getParent() );
+
                 mMapView.getMapAsync( this );
                 mMapView.onCreate( savedInstanceState );
+
+
             }
             else
             {
@@ -248,10 +321,32 @@ public class DeliveryCreatorActivity extends AppCompatActivity
             return mMainView;
         }
 
+        private void setCurrentPositionMarker()
+        {
+            if( mCurrentLocation != null && mMap != null )
+            {
+                final LatLng latLng = new LatLng( mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude() );
+                mMap.animateCamera( CameraUpdateFactory.newLatLngZoom( latLng, 15 ) );
+                final MarkerOptions options = new MarkerOptions()
+                        .position( latLng )
+                        .title( "Current Location" );
+                mCurrentLocationMarker = mMap.addMarker( options );
+                mMap.setOnMarkerClickListener( new GoogleMap.OnMarkerClickListener()
+                {
+                    @Override
+                    public boolean onMarkerClick( Marker marker )
+                    {
+                        return false;
+                    }
+                } );
+            }
+        }
+
         @Override
         public void onMapReady( GoogleMap googleMap )
         {
             mMap = googleMap;
+            setCurrentPositionMarker();
         }
 
         @Override
@@ -315,6 +410,8 @@ public class DeliveryCreatorActivity extends AppCompatActivity
                 mMainView = inflater.inflate( R.layout.fragment_delivery_creator_destination, container, false );
                 mDestinationAddress = (EditText)mMainView.findViewById( R.id.delivery_creator_destination_fragment_destination_address );
                 mMapView = (MapView)mMainView.findViewById( R.id.delivery_creator_destination_fragment_map );
+
+                DeliveryCreatorActivity.setBackground( (TextInputLayout)mDestinationAddress.getParent() );
 
                 mMapView.getMapAsync( this );
                 mMapView.onCreate( savedInstanceState );
