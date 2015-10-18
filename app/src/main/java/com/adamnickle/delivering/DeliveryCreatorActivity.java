@@ -2,7 +2,6 @@ package com.adamnickle.delivering;
 
 import android.graphics.Color;
 import android.location.Address;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -19,14 +18,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
 public class DeliveryCreatorActivity extends AppCompatActivity
@@ -248,9 +251,9 @@ public class DeliveryCreatorActivity extends AppCompatActivity
 
         private GoogleMap mMap;
 
-        private Location mCurrentLocation;
-        private Marker mCurrentLocationMarker;
-        private String mCurrentLocationAddress;
+        private List<Address> mAddresses;
+
+        private final HashMap<String, Address> mMarkerToAddress = new HashMap<>();
 
         public static DeliveryOriginFragment newInstance()
         {
@@ -262,40 +265,6 @@ public class DeliveryCreatorActivity extends AppCompatActivity
         {
             super.onCreate( savedInstanceState );
             setRetainInstance( true );
-
-            LocationHelper.findCurrentLocation( getActivity(), new LocationHelper.LocationFinderListener()
-            {
-                @Override
-                public void onLocationFound( Location location )
-                {
-                    mCurrentLocation = location;
-                    if( mCurrentLocation != null )
-                    {
-                        setCurrentPositionMarker();
-
-                        LocationHelper.decodeLocation( getActivity(), mCurrentLocation, new LocationHelper.LocationDecoderListener()
-                        {
-                            @Override
-                            public void onLocationDecoded( Address address )
-                            {
-                            }
-                        } );
-                    }
-                }
-
-                @Override
-                public void onConnectionSuspended( int cause )
-                {
-                    Delivering.log( "Connection Suspended: " + cause );
-                }
-
-                @Override
-                public void onConnectionFailed( ConnectionResult result )
-                {
-                    Delivering.log( "Could not find current location:\n" + result.getErrorMessage() );
-                    Delivering.toast( "Could not find current location" );
-                }
-            } );
         }
 
         @Override
@@ -312,7 +281,19 @@ public class DeliveryCreatorActivity extends AppCompatActivity
                 mMapView.getMapAsync( this );
                 mMapView.onCreate( savedInstanceState );
 
-
+                mOriginAddress.setOnEditorActionListener( new TextView.OnEditorActionListener()
+                {
+                    @Override
+                    public boolean onEditorAction( TextView v, int actionId, KeyEvent event )
+                    {
+                        if( actionId == EditorInfo.IME_ACTION_SEARCH )
+                        {
+                            findAddresses();
+                            return true;
+                        }
+                        return false;
+                    }
+                } );
             }
             else
             {
@@ -321,32 +302,57 @@ public class DeliveryCreatorActivity extends AppCompatActivity
             return mMainView;
         }
 
-        private void setCurrentPositionMarker()
-        {
-            if( mCurrentLocation != null && mMap != null )
-            {
-                final LatLng latLng = new LatLng( mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude() );
-                mMap.animateCamera( CameraUpdateFactory.newLatLngZoom( latLng, 15 ) );
-                final MarkerOptions options = new MarkerOptions()
-                        .position( latLng )
-                        .title( "Current Location" );
-                mCurrentLocationMarker = mMap.addMarker( options );
-                mMap.setOnMarkerClickListener( new GoogleMap.OnMarkerClickListener()
-                {
-                    @Override
-                    public boolean onMarkerClick( Marker marker )
-                    {
-                        return false;
-                    }
-                } );
-            }
-        }
-
         @Override
         public void onMapReady( GoogleMap googleMap )
         {
             mMap = googleMap;
-            setCurrentPositionMarker();
+            updateMap();
+        }
+
+        private void findAddresses()
+        {
+            final String address = mOriginAddress.getText().toString();
+            LocationHelper.decodeAddress( getActivity(), address, new LocationHelper.AddressDecoderListener()
+            {
+                @Override
+                public void onAddressDecoded( List<Address> addresses )
+                {
+                    mAddresses = addresses;
+                    updateMap();
+                }
+            } );
+        }
+
+        private void updateMap()
+        {
+            if( mMap != null )
+            {
+                mMap.clear();
+                mMarkerToAddress.clear();
+                if( mAddresses != null )
+                {
+                    final List<LatLng> latLngs = new ArrayList<>();
+                    for( Address address : mAddresses )
+                    {
+                        if( address.hasLatitude() && address.hasLatitude() )
+                        {
+                            final LatLng latLng = new LatLng( address.getLatitude(), address.getLongitude() );
+                            final MarkerOptions options = new MarkerOptions()
+                                    .position( latLng )
+                                    .title( address.getAddressLine( 0 ) + "\n" + address.getAddressLine( 1 ) );
+                            final Marker marker = mMap.addMarker( options );
+                            mMarkerToAddress.put( marker.getId(), address );
+                            latLngs.add( latLng );
+                        }
+                    }
+                    final LatLngBounds.Builder builder = LatLngBounds.builder();
+                    for( LatLng latLng : latLngs )
+                    {
+                        builder.include( latLng );
+                    }
+                    mMap.animateCamera( CameraUpdateFactory.newLatLngBounds( builder.build(), 50 ) );
+                }
+            }
         }
 
         @Override
