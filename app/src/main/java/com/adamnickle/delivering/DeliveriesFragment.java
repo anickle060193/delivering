@@ -142,7 +142,7 @@ public class DeliveriesFragment extends Fragment
                                         else
                                         {
                                             Delivering.log( "Delivery could not be pinned.", ex );
-                                            Delivering.oops();
+                                            Delivering.oops( ex );
                                         }
                                     }
                                 } );

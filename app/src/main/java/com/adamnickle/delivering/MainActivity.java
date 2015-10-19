@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 else
                 {
                     Delivering.log( "Could not logout.", ex );
-                    Delivering.toast( "Logout failed. Try again." );
+                    Delivering.oops( ex );
                 }
             }
         } );

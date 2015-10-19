@@ -1,13 +1,13 @@
 package com.adamnickle.delivering;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,8 +22,8 @@ public class RegisterActivity extends AppCompatActivity
     private EditText mEmailView;
     private EditText mPasswordView;
     private EditText mVerifyPasswordView;
-    private View mProgressView;
-    private View mRegisterFormView;
+
+    private AlertDialog mLoadingDialog;
 
     private boolean mRegistering;
 
@@ -32,6 +32,11 @@ public class RegisterActivity extends AppCompatActivity
     {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_register );
+
+        if( BuildConfig.DEBUG )
+        {
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
+        }
 
         setResult( Activity.RESULT_CANCELED );
 
@@ -70,9 +75,6 @@ public class RegisterActivity extends AppCompatActivity
                 attemptRegister();
             }
         } );
-
-        mRegisterFormView = findViewById( R.id.register_form );
-        mProgressView = findViewById( R.id.register_progress );
     }
 
     private void attemptRegister()
@@ -149,7 +151,6 @@ public class RegisterActivity extends AppCompatActivity
                 @Override
                 public void done( ParseException ex )
                 {
-                    mRegistering = false;
                     if( ex == null )
                     {
                         setResult( Activity.RESULT_OK );
@@ -157,44 +158,55 @@ public class RegisterActivity extends AppCompatActivity
                     }
                     else
                     {
+                        mRegistering = false;
                         showProgress( false );
+
+                        switch( ex.getCode() )
+                        {
+                            case ParseException.EMAIL_MISSING:
+                            case ParseException.USERNAME_MISSING:
+                                mEmailView.setError( "Email address missing" );
+                                mEmailView.requestFocus();
+                                break;
+
+                            case ParseException.INVALID_EMAIL_ADDRESS:
+                                mEmailView.setError( "Invalid email address" );
+                                mEmailView.requestFocus();
+                                break;
+
+                            case ParseException.EMAIL_TAKEN:
+                            case ParseException.USERNAME_TAKEN:
+                                mEmailView.setError( "Email address already in use" );
+                                mEmailView.requestFocus();
+                                break;
+
+                            case ParseException.PASSWORD_MISSING:
+                                mPasswordView.setError( "Password missing" );
+                                mPasswordView.requestFocus();
+                                break;
+
+                            default:
+                                Delivering.oops( ex );
+                                mEmailView.requestFocus();
+                                break;
+                        }
+
                         Delivering.log( "Could not register user.", ex );
-                        mEmailView.requestFocus();
-                        Delivering.toast( "Registration failed. Try again." );
                     }
                 }
             } );
         }
     }
 
-    private void showProgress( final boolean show )
+    private void showProgress( boolean show )
     {
-        final int shortAnimTime = getResources().getInteger( android.R.integer.config_shortAnimTime );
-
-        mRegisterFormView.setVisibility( show ? View.GONE : View.VISIBLE );
-        mRegisterFormView.animate()
-                .setDuration( shortAnimTime )
-                .alpha( show ? 0 : 1 )
-                .setListener( new AnimatorListenerAdapter()
-                {
-                    @Override
-                    public void onAnimationEnd( Animator animation )
-                    {
-                        mRegisterFormView.setVisibility( show ? View.GONE : View.VISIBLE );
-                    }
-                } );
-
-        mProgressView.setVisibility( show ? View.VISIBLE : View.GONE );
-        mProgressView.animate()
-                .setDuration( shortAnimTime )
-                .alpha( show ? 1 : 0 )
-                .setListener( new AnimatorListenerAdapter()
-                {
-                    @Override
-                    public void onAnimationEnd( Animator animation )
-                    {
-                        mProgressView.setVisibility( show ? View.VISIBLE : View.GONE );
-                    }
-                } );
+        if( show )
+        {
+            mLoadingDialog = Dialogs.showLoading( this );
+        }
+        else
+        {
+            mLoadingDialog.dismiss();
+        }
     }
 }

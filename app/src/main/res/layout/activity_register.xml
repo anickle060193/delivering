@@ -11,82 +11,59 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".RegisterActivity">
 
-    <!-- Login progress -->
-    <ProgressBar
-        android:id="@+id/register_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone"/>
-
-    <ScrollView
-        android:id="@+id/register_form"
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <LinearLayout
+        <EditText
+            android:id="@+id/register_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:hint="@string/prompt_email"
+            android:inputType="textEmailAddress"
+            android:imeOptions="actionNext"
+            style="@style/InputEditText"/>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+    </android.support.design.widget.TextInputLayout>
 
-                <EditText
-                    android:id="@+id/register_email"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_email"
-                    android:inputType="textEmailAddress"
-                    android:imeOptions="actionNext"
-                    style="@style/InputEditText"/>
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-            </android.support.design.widget.TextInputLayout>
+        <AutoCompleteTextView
+            android:id="@+id/register_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/prompt_register_password"
+            android:inputType="textPassword"
+            android:imeOptions="actionNext"
+            style="@style/InputEditText"/>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+    </android.support.design.widget.TextInputLayout>
 
-                <AutoCompleteTextView
-                    android:id="@+id/register_password"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_register_password"
-                    android:inputType="textPassword"
-                    android:imeOptions="actionNext"
-                    style="@style/InputEditText"/>
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-            </android.support.design.widget.TextInputLayout>
+        <EditText
+            android:id="@+id/register_password_verify"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/prompt_register_password_verify"
+            android:imeActionId="@+id/login"
+            android:imeOptions="actionDone"
+            android:inputType="textPassword"
+            style="@style/InputEditText"/>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+    </android.support.design.widget.TextInputLayout>
 
-                <EditText
-                    android:id="@+id/register_password_verify"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_register_password_verify"
-                    android:imeActionId="@+id/login"
-                    android:imeOptions="actionDone"
-                    android:inputType="textPassword"
-                    style="@style/InputEditText"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <Button
-                android:id="@+id/register_button"
-                style="?android:textAppearanceSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/action_register"
-                android:textStyle="bold"/>
-
-        </LinearLayout>
-
-    </ScrollView>
+    <Button
+        android:id="@+id/register_button"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/action_register"
+        android:textStyle="bold"/>
 
 </LinearLayout>

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.parse.Parse;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -47,8 +48,11 @@ public class Delivering extends Application
         Log.e( TAG, message, ex );
     }
 
-    public static void oops()
+    public static void oops( ParseException ex )
     {
-        Delivering.toast( "Something went wrong! Try again." );
+        final int errorCode = ex.getCode();
+        final String errorMessage = ex.getMessage();
+        final String message = String.format( "Something went wrong! Try again. Error %d: %s", errorCode, errorMessage );
+        Delivering.toast( message );
     }
 }

@@ -115,7 +115,7 @@ public class SummaryFragment extends Fragment
                         if( ex != null )
                         {
                             Delivering.log( "Could not retrieve all Deliveries.", ex );
-                            Delivering.oops();
+                            Delivering.oops( ex );
                             return;
                         }
 

@@ -1,7 +1,5 @@
 package com.adamnickle.delivering;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +9,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -31,8 +30,8 @@ public class LoginActivity extends AppCompatActivity
 
     private EditText mEmailView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
+
+    private AlertDialog mLoadingDialog;
 
     private boolean mLoggingIn;
 
@@ -53,6 +52,12 @@ public class LoginActivity extends AppCompatActivity
         }
 
         setContentView( R.layout.activity_login );
+
+        if( BuildConfig.DEBUG )
+        {
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
+        }
+
         setTitle( R.string.title_activity_login );
 
         mEmailView = (EditText)findViewById( R.id.login_email );
@@ -80,9 +85,6 @@ public class LoginActivity extends AppCompatActivity
                 attemptLogin();
             }
         } );
-
-        mLoginFormView = findViewById( R.id.login_form );
-        mProgressView = findViewById( R.id.login_progress );
     }
 
     @Override
@@ -270,51 +272,58 @@ public class LoginActivity extends AppCompatActivity
                         if( ex == null )
                         {
                             finishLogin();
+                            return;
                         }
-                        else
-                        {
-                            mLoggingIn = false;
-                            showProgress( false );
+                        mLoggingIn = false;
+                        showProgress( false );
 
-                            Delivering.log( "Could not login user.", ex );
-                            mPasswordView.setError( getString( R.string.error_incorrect_password ) );
-                            mPasswordView.requestFocus();
+                        switch( ex.getCode() )
+                        {
+                            case ParseException.EMAIL_MISSING:
+                            case ParseException.USERNAME_MISSING:
+                                mEmailView.setError( "Email address missing" );
+                                mEmailView.requestFocus();
+                                break;
+
+                            case ParseException.INVALID_EMAIL_ADDRESS:
+                                mEmailView.setError( "Invalid email address" );
+                                mEmailView.requestFocus();
+                                break;
+
+                            case ParseException.PASSWORD_MISSING:
+                                mPasswordView.setError( "Password missing" );
+                                mPasswordView.requestFocus();
+                                break;
+
+                            case ParseException.OBJECT_NOT_FOUND:
+                            case ParseException.EMAIL_NOT_FOUND:
+                                Delivering.toast( "Invalid login" );
+                                mEmailView.requestFocus();
+                                break;
+
+                            default:
+                                Delivering.oops( ex );
+                                mEmailView.requestFocus();
+                                break;
                         }
+
+                        Delivering.log( "Could not login user.", ex );
                     }
                 } );
             }
         }
     }
 
-    private void showProgress( final boolean show )
+    private void showProgress( boolean show )
     {
-        final int shortAnimTime = getResources().getInteger( android.R.integer.config_shortAnimTime );
-
-        mLoginFormView.setVisibility( show ? View.GONE : View.VISIBLE );
-        mLoginFormView.animate()
-                .setDuration( shortAnimTime )
-                .alpha( show ? 0 : 1 )
-                .setListener( new AnimatorListenerAdapter()
-                {
-                    @Override
-                    public void onAnimationEnd( Animator animation )
-                    {
-                        mLoginFormView.setVisibility( show ? View.GONE : View.VISIBLE );
-                    }
-                } );
-
-        mProgressView.setVisibility( show ? View.VISIBLE : View.GONE );
-        mProgressView.animate()
-                .setDuration( shortAnimTime )
-                .alpha( show ? 1 : 0 )
-                .setListener( new AnimatorListenerAdapter()
-                {
-                    @Override
-                    public void onAnimationEnd( Animator animation )
-                    {
-                        mProgressView.setVisibility( show ? View.VISIBLE : View.GONE );
-                    }
-                } );
+        if( show )
+        {
+            mLoadingDialog = Dialogs.showLoading( this );
+        }
+        else
+        {
+            mLoadingDialog.dismiss();
+        }
     }
 }
 

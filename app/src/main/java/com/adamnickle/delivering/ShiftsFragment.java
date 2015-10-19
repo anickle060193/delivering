@@ -129,7 +129,7 @@ public class ShiftsFragment extends Fragment
                         else
                         {
                             Delivering.log( "Could not create new Shift", ex );
-                            Delivering.toast( "Shift couldn't be created. Try again." );
+                            Delivering.oops( ex );
                         }
                     }
                 } );

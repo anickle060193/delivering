@@ -206,7 +206,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
                         else
                         {
                             Delivering.log( "An error occurred querying more object.", ex );
-                            Delivering.toast( "More items could not be loaded at this time. Try again later." );
+                            Delivering.oops( ex );
                         }
 
                         mQuerying = false;
