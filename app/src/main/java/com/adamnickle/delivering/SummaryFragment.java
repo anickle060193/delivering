@@ -1,29 +1,23 @@
 package com.adamnickle.delivering;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData;
-import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.formatter.YAxisValueFormatter;
-import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 
 public class SummaryFragment extends Fragment
@@ -31,10 +25,12 @@ public class SummaryFragment extends Fragment
     public static final String FRAGMENT_TAG = SummaryFragment.class.getName();
 
     private View mMainView;
-    private LineChart mTipsChart;
-    private TextView mTipCount;
-    private LineChart mTotalTipsChart;
-    private TextView mTotalTips;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private RecyclerView mList;
+    private SummaryItemArrayAdapter mAdapter;
+
+    private List<Delivery> mDeliveries;
+    private List<Shift> mShifts;
 
     public static SummaryFragment newInstance()
     {
@@ -54,136 +50,233 @@ public class SummaryFragment extends Fragment
         {
             mMainView = inflater.inflate( R.layout.fragment_summary, container, false );
 
-            mTipsChart = (LineChart)mMainView.findViewById( R.id.summary_fragment_tips_chart );
-            formatLineCharts( mTipsChart );
+            mSwipeRefreshLayout = (SwipeRefreshLayout)mMainView.findViewById( R.id.summary_fragment_swipe_refresh_layout );
+            mList = (RecyclerView)mMainView.findViewById( R.id.summary_fragment_list );
+            mAdapter = new SummaryItemArrayAdapter();
+            mList.setAdapter( mAdapter );
 
-            mTotalTipsChart = (LineChart)mMainView.findViewById( R.id.summary_fragment_total_tips_chart );
-            formatLineCharts( mTotalTipsChart );
+            mSwipeRefreshLayout.setColorSchemeResources( R.color.colorAccent );
+            mSwipeRefreshLayout.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener()
+            {
+                @Override
+                public void onRefresh()
+                {
+                    getData();
+                }
+            } );
 
-            mTipCount = (TextView)mMainView.findViewById( R.id.summary_fragment_tip_count );
-            mTipCount.setText( "0" );
-
-            mTotalTips = (TextView)mMainView.findViewById( R.id.summary_fragment_total_tips_amount );
-            mTotalTips.setText( Utilities.CURRENCY_FORMATTER.format( 0 ) );
+            getData();
         }
         else
         {
             Utilities.removeFromParent( mMainView );
         }
-        loadData();
         return mMainView;
     }
 
-    @Override
-    public void onStart()
+    private void getData()
     {
-        super.onStart();
-
-        mTipsChart.animateXY( 1000, 1000 );
-        mTotalTipsChart.animateXY( 1000, 1000 );
-    }
-
-    private void formatLineCharts( final LineChart chart )
-    {
-        chart.getLegend().setEnabled( false );
-        chart.setDescription( null );
-        chart.getXAxis().setPosition( XAxis.XAxisPosition.BOTTOM );
-        chart.getAxisLeft().setEnabled( false );
-        chart.getAxisRight().setEnabled( false );
-        chart.getAxisLeft().setValueFormatter( new YAxisValueFormatter()
+        mSwipeRefreshLayout.setRefreshing( true );
+        new AsyncTask<Void, Void, Void>()
         {
             @Override
-            public String getFormattedValue( float value, YAxis yAxis )
+            protected Void doInBackground( Void... params )
             {
-                return Utilities.CURRENCY_FORMATTER.format( value );
+                queryData();
+                return null;
             }
-        } );
+
+            @Override
+            protected void onPostExecute( Void aVoid )
+            {
+                createSummaryItems();
+            }
+        }.execute();
     }
 
-    private void loadData()
+    private void queryData()
     {
-        mTipsChart.clear();
+        final CountDownLatch latch = new CountDownLatch( 2 );
+        final Deliverer current = Deliverer.getCurrentUser();
+
         Delivery.createQuery()
-                .whereEqualTo( Delivery.DELIVERER, Deliverer.getCurrentUser() )
-                .whereExists( Delivery.TIP )
-                .addAscendingOrder( Delivery.CREATED_AT )
+                .whereEqualTo( Delivery.DELIVERER, current )
                 .findInBackground( new FindCallback<Delivery>()
                 {
                     @Override
-                    public void done( List<Delivery> objects, ParseException ex )
+                    public void done( List<Delivery> objects, ParseException e )
                     {
-                        if( ex != null )
+                        if( e == null )
                         {
-                            Delivering.log( "Could not retrieve all Deliveries.", ex );
-                            Delivering.oops( ex );
-                            return;
+                            mDeliveries = objects;
                         }
-
-                        final ArrayList<Entry> tipEntries = new ArrayList<>();
-                        final ArrayList<String> tipXLabels = new ArrayList<>();
-
-                        final ArrayList<Entry> totalTipEntries = new ArrayList<>();
-                        final ArrayList<String> totalTipXLabels = new ArrayList<>();
-
-                        BigDecimal total = BigDecimal.ZERO;
-
-                        final int deliveryCount = objects.size();
-                        for( int i = 0; i < deliveryCount; i++ )
+                        else
                         {
-                            final Delivery delivery = objects.get( i );
-                            final BigDecimal tip = delivery.getTip();
-
-                            final Entry tipEntry = new Entry( tip.floatValue(), tipEntries.size(), delivery );
-                            tipEntries.add( tipEntry );
-
-                            total = total.add( tip );
-                            final Entry totalTipEntry = new Entry( total.floatValue(), totalTipEntries.size(), delivery );
-                            totalTipEntries.add( totalTipEntry );
-
-                            final String dateLabel = Utilities.DAY_MONTH_DATE_FORMAT.format( delivery.getDeliveryEnd() );
-                            tipXLabels.add( dateLabel );
-                            totalTipXLabels.add( dateLabel );
+                            Delivering.log( "Could not find all Deliveries", e );
                         }
-
-                        mTipCount.setText( String.valueOf( deliveryCount ) );
-                        mTotalTips.setText( Utilities.CURRENCY_FORMATTER.format( total ) );
-
-                        final ValueFormatter currencyValueFormatter = new ValueFormatter()
-                        {
-                            @Override
-                            public String getFormattedValue( float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler )
-                            {
-                                return Utilities.CURRENCY_FORMATTER.format( value );
-                            }
-                        };
-
-                        final LineDataSet tipSet = new LineDataSet( tipEntries, "Tips" );
-                        tipSet.setAxisDependency( YAxis.AxisDependency.LEFT );
-                        final int tipColor = ContextCompat.getColor( getActivity(), R.color.colorAccent );
-                        tipSet.setColor( tipColor );
-                        tipSet.setCircleColor( tipColor );
-                        tipSet.setLineWidth( 1.5f );
-                        tipSet.setValueTextSize( 10.0f );
-                        tipSet.setValueFormatter( currencyValueFormatter );
-
-                        final LineData tipData = new LineData( tipXLabels, Collections.singletonList( tipSet ) );
-                        mTipsChart.setData( tipData );
-                        mTipsChart.invalidate();
-
-
-                        final LineDataSet totalTipSet = new LineDataSet( totalTipEntries, "Total Tips" );
-                        totalTipSet.setAxisDependency( YAxis.AxisDependency.LEFT );
-                        final int totalTipColor = ContextCompat.getColor( getActivity(), R.color.dark_green );
-                        totalTipSet.setColor( totalTipColor );
-                        totalTipSet.setCircleColor( totalTipColor );
-                        totalTipSet.setLineWidth( 1.5f );
-                        totalTipSet.setValueTextSize( 10.0f );
-                        totalTipSet.setValueFormatter( currencyValueFormatter );
-
-                        final LineData totalTipData = new LineData( totalTipXLabels, Collections.singletonList( totalTipSet ) );
-                        mTotalTipsChart.setData( totalTipData );
-                        mTotalTipsChart.invalidate();
+                        latch.countDown();
                     }
                 } );
+        Shift.createQuery()
+                .whereEqualTo( Shift.DELIVERER, current )
+                .findInBackground( new FindCallback<Shift>()
+                {
+                    @Override
+                    public void done( List<Shift> objects, ParseException e )
+                    {
+                        if( e == null )
+                        {
+                            mShifts = objects;
+                        }
+                        else
+                        {
+                            Delivering.log( "Could not find all Shifts", e );
+                        }
+                        latch.countDown();
+                    }
+                } );
+        try
+        {
+            latch.await();
+        }
+        catch( InterruptedException ex )
+        {
+            Delivering.log( "Interrupted", ex );
+        }
+    }
+
+    private void createSummaryItems()
+    {
+        final List<SummaryItem> items = new ArrayList<>();
+
+        int deliveryCount = 0;
+        int tipCount = 0;
+        BigDecimal totalTip = BigDecimal.ZERO;
+        int totalsCount = 0;
+        BigDecimal totalTotal = BigDecimal.ZERO;
+        double milesDriven = 0.0;
+        float hoursSpentDelivering = 0.0f;
+
+        if( mDeliveries != null )
+        {
+            deliveryCount = mDeliveries.size();
+            for( Delivery delivery : mDeliveries )
+            {
+                final BigDecimal tip = delivery.getTip();
+                if( tip != null )
+                {
+                    tipCount++;
+                    totalTip = totalTip.add( tip );
+                }
+
+                final BigDecimal total = delivery.getTotal();
+                if( total != null )
+                {
+                    totalsCount++;
+                    totalTotal = totalTotal.add( total );
+                }
+
+                if( delivery.hasStartMileage() && delivery.hasEndMileage() )
+                {
+                    milesDriven += delivery.getEndMileage() - delivery.getStartMileage();
+                }
+
+                if( delivery.isCompleted() )
+                {
+                    final long start = delivery.getDeliveryStart().getTime();
+                    final long end = delivery.getDeliveryEnd().getTime();
+                    hoursSpentDelivering += TimeUnit.HOURS.convert( end - start, TimeUnit.MILLISECONDS );
+                }
+            }
+        }
+
+        int shiftCount = 0;
+        float hoursWorked = 0.0f;
+
+        if( mShifts != null )
+        {
+            shiftCount = mShifts.size();
+            for( Shift shift : mShifts )
+            {
+                if( shift.isCompleted() )
+                {
+                    final long start = shift.getStart().getTime();
+                    final long end = shift.getEnd().getTime();
+                    hoursWorked += TimeUnit.HOURS.convert( end - start, TimeUnit.MILLISECONDS );
+                }
+            }
+        }
+
+        items.add( new SummaryItem( "Total Deliveries", null, deliveryCount ) );
+        items.add( new SummaryItem( "Tip Count", null, tipCount ) );
+        items.add( new SummaryItem( "Total Tip Amount", null, Utilities.CURRENCY_FORMATTER.format( totalTip ) ) );
+        items.add( new SummaryItem( "Total Payment Count", null, totalsCount ) );
+        items.add( new SummaryItem( "Total Paid Amount", null, Utilities.CURRENCY_FORMATTER.format( totalTotal ) ) );
+        items.add( new SummaryItem( "Miles Driven", null, Utilities.MILEAGE_FORMATTER.format( milesDriven ) ) );
+        items.add( new SummaryItem( "Hours Spent Delivering", null, hoursSpentDelivering ) );
+        items.add( new SummaryItem( "Total Shifts", null, shiftCount ) );
+        items.add( new SummaryItem( "Hours Worked", null, hoursWorked ) );
+
+        mAdapter.clear();
+        mAdapter.addAll( items );
+        mSwipeRefreshLayout.setRefreshing( false );
+    }
+
+    private static class SummaryItem
+    {
+        public final String Title;
+        public final String Subtitle;
+        public final String Data;
+
+        public SummaryItem( String title, String subtitle, Object data )
+        {
+            Title = title;
+            Subtitle = subtitle;
+            Data = String.valueOf( data );
+        }
+    }
+
+    private class SummaryItemViewHolder extends RecyclerView.ViewHolder
+    {
+        public SummaryItem Item;
+        public final TextView Title;
+        public final TextView Subtitle;
+        public final TextView Data;
+
+        public SummaryItemViewHolder( View itemView )
+        {
+            super( itemView );
+
+            Title = (TextView)itemView.findViewById( R.id.summary_item_title );
+            Subtitle = (TextView)itemView.findViewById( R.id.summary_item_subtitle );
+            Data = (TextView)itemView.findViewById( R.id.summary_item_data );
+        }
+
+        public void update()
+        {
+            Title.setText( Item.Title );
+            Data.setText( Item.Data );
+
+            Subtitle.setText( Item.Subtitle );
+            Subtitle.setVisibility( Item.Subtitle == null ? View.GONE : View.VISIBLE );
+        }
+    }
+
+    private class SummaryItemArrayAdapter extends ArrayRecyclerAdapter<SummaryItem, SummaryItemViewHolder>
+    {
+        @Override
+        public SummaryItemViewHolder onCreateViewHolder( ViewGroup parent, int viewType )
+        {
+            final View view = LayoutInflater.from( parent.getContext() )
+                    .inflate( R.layout.summary_item_layout, parent, false );
+            return new SummaryItemViewHolder( view );
+        }
+
+        @Override
+        public void onBindViewHolder( SummaryItemViewHolder holder, int position )
+        {
+            holder.Item = get( position );
+            holder.update();
+        }
     }
 }
