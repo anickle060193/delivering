@@ -100,7 +100,7 @@ public class RegisterActivity extends AppCompatActivity
         // Check for a valid password verification.
         if( !verifyPassword.equals( password ) )
         {
-            mPasswordView.setError( getString( R.string.error_non_matching_passwords ) );
+            mPasswordView.setError( "Passwords do not match" );
             focusView = mPasswordView;
             cancel = true;
         }
@@ -108,13 +108,13 @@ public class RegisterActivity extends AppCompatActivity
         // Check for a valid password, if the user entered one.
         if( TextUtils.isEmpty( password ) )
         {
-            mPasswordView.setError( getString( R.string.error_field_required ) );
+            mPasswordView.setError( "This field is required" );
             focusView = mPasswordView;
             cancel = true;
         }
         else if( !Deliverer.isPasswordValid( password ) )
         {
-            mPasswordView.setError( getString( R.string.error_invalid_password ) );
+            mPasswordView.setError( "Invalid password" );
             focusView = mPasswordView;
             cancel = true;
         }
@@ -122,13 +122,13 @@ public class RegisterActivity extends AppCompatActivity
         // Check for a valid email address.
         if( TextUtils.isEmpty( email ) )
         {
-            mEmailView.setError( getString( R.string.error_field_required ) );
+            mEmailView.setError( "This field is required" );
             focusView = mEmailView;
             cancel = true;
         }
         else if( !Deliverer.isEmailValid( email ) )
         {
-            mEmailView.setError( getString( R.string.error_invalid_email ) );
+            mEmailView.setError( "Invalid email" );
             focusView = mEmailView;
             cancel = true;
         }

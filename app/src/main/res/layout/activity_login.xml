@@ -19,7 +19,7 @@
             android:id="@+id/login_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_email"
+            android:hint="Email"
             android:inputType="textEmailAddress"
             android:imeOptions="actionNext"
             style="@style/InputEditText"/>
@@ -34,7 +34,7 @@
             android:id="@+id/login_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_password"
+            android:hint="Password"
             android:imeOptions="actionDone"
             android:inputType="textPassword"
             style="@style/InputEditText"/>
@@ -47,7 +47,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="@string/action_sign_in"
+        android:text="Sign In"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/login_register_button"
+        style="?android:textAppearanceSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Register"
         android:textStyle="bold"/>
 
 </LinearLayout>

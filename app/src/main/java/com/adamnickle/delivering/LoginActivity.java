@@ -85,6 +85,18 @@ public class LoginActivity extends AppCompatActivity
                 attemptLogin();
             }
         } );
+
+        findViewById( R.id.login_register_button ).setOnClickListener( new OnClickListener()
+        {
+            @Override
+            public void onClick( View v )
+            {
+                final String email = mEmailView.getText().toString();
+                final Intent intent = new Intent( LoginActivity.this, RegisterActivity.class )
+                        .putExtra( RegisterActivity.EXTRA_USERNAME, email );
+                startActivityForResult( intent, REQUEST_REGISTER_USER );
+            }
+        } );
     }
 
     @Override
@@ -216,15 +228,19 @@ public class LoginActivity extends AppCompatActivity
         final String email = mEmailView.getText().toString();
         final String password = mPasswordView.getText().toString();
 
-        final boolean possiblyRegistering = TextUtils.isEmpty( password );
-
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
-        if( !possiblyRegistering && !Deliverer.isPasswordValid( password ) )
+        // Check for a valid password.
+        if( TextUtils.isEmpty( password ) )
         {
-            mPasswordView.setError( getString( R.string.error_invalid_password ) );
+            mPasswordView.setError( "This field is required" );
+            focusView = mPasswordView;
+            cancel = true;
+        }
+        else if( !Deliverer.isPasswordValid( password ) )
+        {
+            mPasswordView.setError( "Invalid password" );
             focusView = mPasswordView;
             cancel = true;
         }
@@ -232,13 +248,13 @@ public class LoginActivity extends AppCompatActivity
         // Check for a valid email address.
         if( TextUtils.isEmpty( email ) )
         {
-            mEmailView.setError( getString( R.string.error_field_required ) );
+            mEmailView.setError( "This field is required" );
             focusView = mEmailView;
             cancel = true;
         }
         else if( !Deliverer.isEmailValid( email ) )
         {
-            mEmailView.setError( getString( R.string.error_invalid_email ) );
+            mEmailView.setError( "Invalid email" );
             focusView = mEmailView;
             cancel = true;
         }
@@ -251,66 +267,57 @@ public class LoginActivity extends AppCompatActivity
         }
         else
         {
-            if( possiblyRegistering )
-            {
-                final Intent intent = new Intent( this, RegisterActivity.class )
-                        .putExtra( RegisterActivity.EXTRA_USERNAME, email );
-                startActivityForResult( intent, REQUEST_REGISTER_USER );
-            }
-            else
-            {
-                // Show a progress spinner, and kick off a background task to
-                // perform the user login attempt.
-                showProgress( true );
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            showProgress( true );
 
-                mLoggingIn = true;
-                Deliverer.logInInBackground( email, password, new LogInCallback()
+            mLoggingIn = true;
+            Deliverer.logInInBackground( email, password, new LogInCallback()
+            {
+                @Override
+                public void done( ParseUser user, ParseException ex )
                 {
-                    @Override
-                    public void done( ParseUser user, ParseException ex )
+                    if( ex == null )
                     {
-                        if( ex == null )
-                        {
-                            finishLogin();
-                            return;
-                        }
-                        mLoggingIn = false;
-                        showProgress( false );
-
-                        switch( ex.getCode() )
-                        {
-                            case ParseException.EMAIL_MISSING:
-                            case ParseException.USERNAME_MISSING:
-                                mEmailView.setError( "Email address missing" );
-                                mEmailView.requestFocus();
-                                break;
-
-                            case ParseException.INVALID_EMAIL_ADDRESS:
-                                mEmailView.setError( "Invalid email address" );
-                                mEmailView.requestFocus();
-                                break;
-
-                            case ParseException.PASSWORD_MISSING:
-                                mPasswordView.setError( "Password missing" );
-                                mPasswordView.requestFocus();
-                                break;
-
-                            case ParseException.OBJECT_NOT_FOUND:
-                            case ParseException.EMAIL_NOT_FOUND:
-                                Delivering.toast( "Invalid login" );
-                                mEmailView.requestFocus();
-                                break;
-
-                            default:
-                                Delivering.oops( ex );
-                                mEmailView.requestFocus();
-                                break;
-                        }
-
-                        Delivering.log( "Could not login user.", ex );
+                        finishLogin();
+                        return;
                     }
-                } );
-            }
+                    mLoggingIn = false;
+                    showProgress( false );
+
+                    switch( ex.getCode() )
+                    {
+                        case ParseException.EMAIL_MISSING:
+                        case ParseException.USERNAME_MISSING:
+                            mEmailView.setError( "Email address missing" );
+                            mEmailView.requestFocus();
+                            break;
+
+                        case ParseException.INVALID_EMAIL_ADDRESS:
+                            mEmailView.setError( "Invalid email address" );
+                            mEmailView.requestFocus();
+                            break;
+
+                        case ParseException.PASSWORD_MISSING:
+                            mPasswordView.setError( "Password missing" );
+                            mPasswordView.requestFocus();
+                            break;
+
+                        case ParseException.OBJECT_NOT_FOUND:
+                        case ParseException.EMAIL_NOT_FOUND:
+                            Delivering.toast( "Invalid login" );
+                            mEmailView.requestFocus();
+                            break;
+
+                        default:
+                            Delivering.oops( ex );
+                            mEmailView.requestFocus();
+                            break;
+                    }
+
+                    Delivering.log( "Could not login user.", ex );
+                }
+            } );
         }
     }
 

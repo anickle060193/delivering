@@ -24,7 +24,7 @@
 
         <activity
             android:name=".RegisterActivity"
-            android:label="@string/action_register"
+            android:label="@string/title_activity_register"
             android:screenOrientation="portrait"/>
 
         <activity
