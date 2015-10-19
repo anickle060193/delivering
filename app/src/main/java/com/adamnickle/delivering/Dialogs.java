@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.v7.app.AlertDialog;
 
 
-public abstract class Dialogs
+public final class Dialogs
 {
     private Dialogs() { }
 

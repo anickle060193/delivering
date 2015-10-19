@@ -10,7 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 
-public abstract class Utilities
+public final class Utilities
 {
     public static final NumberFormat CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance();
     public static final NumberFormat PLAIN_MONEY_FORMATTER = new DecimalFormat( "0.00" );

@@ -2,6 +2,7 @@ package com.adamnickle.delivering;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.view.KeyEvent;
@@ -16,8 +17,10 @@ import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 
-public abstract class DeliveryDialogs
+public final class DeliveryDialogs
 {
+    private static final String PREF_LAST_MILEAGE = BuildConfig.APPLICATION_ID + ".preference.last_mileage";
+
     private DeliveryDialogs() { }
 
     public interface DeliveryCreatorListener
@@ -157,7 +160,21 @@ public abstract class DeliveryDialogs
         void onDeliveryComplete( double endMileage );
     }
 
-    public static void completeDelivery( Context context, final Delivery delivery, final DeliveryCompleteListener listener )
+    private static double getLastEnteredMileage( Context context )
+    {
+        return PreferenceManager.getDefaultSharedPreferences( context )
+                .getFloat( PREF_LAST_MILEAGE, 0.0f );
+    }
+
+    private static void setLastEnteredMileage( Context context, double mileage )
+    {
+        PreferenceManager.getDefaultSharedPreferences( context )
+                .edit()
+                .putFloat( PREF_LAST_MILEAGE, (float)mileage )
+                .apply();
+    }
+
+    public static void completeDelivery( final Context context, final Delivery delivery, final DeliveryCompleteListener listener )
     {
         final AlertDialog dialog = new AlertDialog.Builder( context )
                 .setView( R.layout.delivery_completed_dialog_layout )
@@ -203,8 +220,10 @@ public abstract class DeliveryDialogs
                     }
                     else
                     {
-                        listener.onDeliveryComplete( endMileage );
+                        DeliveryDialogs.setLastEnteredMileage( context, endMileage );
                         dialog.dismiss();
+
+                        listener.onDeliveryComplete( endMileage );
                     }
                 }
                 catch( NumberFormatException ex )
@@ -242,6 +261,9 @@ public abstract class DeliveryDialogs
                 return false;
             }
         } );
+
+        final double lastEnteredMileage = DeliveryDialogs.getLastEnteredMileage( context );
+        startMileageEditText.setText( Utilities.MILEAGE_FORMATTER.format( lastEnteredMileage ) );
 
         dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
         {

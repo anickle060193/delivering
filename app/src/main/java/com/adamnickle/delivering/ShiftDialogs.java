@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 
 
-public abstract class ShiftDialogs
+public final class ShiftDialogs
 {
     private ShiftDialogs() { }
 
