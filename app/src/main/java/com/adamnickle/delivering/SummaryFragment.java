@@ -64,13 +64,14 @@ public class SummaryFragment extends Fragment
                     getData();
                 }
             } );
-
-            getData();
         }
         else
         {
             Utilities.removeFromParent( mMainView );
         }
+
+        getData();
+
         return mMainView;
     }
 
