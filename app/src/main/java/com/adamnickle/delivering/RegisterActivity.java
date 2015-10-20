@@ -61,7 +61,7 @@ public class RegisterActivity extends AppCompatActivity
             }
         } );
 
-        if( username != null )
+        if( !TextUtils.isEmpty( username ) )
         {
             mEmailView.setText( username );
             mPasswordView.requestFocus();
