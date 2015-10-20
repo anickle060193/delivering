@@ -40,12 +40,18 @@ public class Delivering extends Application
 
     public static void log( String message )
     {
-        Log.d( TAG, message );
+        if( BuildConfig.DEBUG )
+        {
+            Log.d( TAG, message );
+        }
     }
 
     public static void log( String message, Exception ex )
     {
-        Log.e( TAG, message, ex );
+        if( BuildConfig.DEBUG )
+        {
+            Log.e( TAG, message, ex );
+        }
     }
 
     public static void oops( ParseException ex )
