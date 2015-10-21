@@ -1,6 +1,9 @@
 package com.adamnickle.delivering;
 
 import android.content.Context;
+import android.support.design.widget.Snackbar;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +17,14 @@ import java.util.concurrent.TimeUnit;
 public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryAdapter.DeliveryViewHolder>
 {
     private final Context mContext;
+    private final ItemTouchHelper mTouchHelper;
 
     public DeliveryAdapter( Context context, ParseQueryFactory<Delivery> factory )
     {
         super( factory );
 
         mContext = context;
+        mTouchHelper = new ItemTouchHelper( mItemTouchHelperCallback );
     }
 
     @Override
@@ -35,6 +40,95 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
         holder.Delivery = get( position );
         holder.update();
     }
+
+    @Override
+    public void onAttachedToRecyclerView( RecyclerView recyclerView )
+    {
+        super.onAttachedToRecyclerView( recyclerView );
+
+        mTouchHelper.attachToRecyclerView( recyclerView );
+    }
+
+    final ItemTouchHelper.SimpleCallback mItemTouchHelperCallback = new ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT )
+    {
+        private final Object LOCK = new Object();
+
+        @Override
+        public boolean onMove( RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target )
+        {
+            return false;
+        }
+
+        @Override
+        public int getSwipeDirs( RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder )
+        {
+            if( viewHolder instanceof DeliveryViewHolder )
+            {
+                return super.getSwipeDirs( recyclerView, viewHolder );
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        @Override
+        public void onSwiped( RecyclerView.ViewHolder viewHolder, int direction )
+        {
+            if( viewHolder instanceof DeliveryViewHolder )
+            {
+                synchronized( LOCK )
+                {
+                    final Delivery removed = ( (DeliveryViewHolder)viewHolder ).Delivery;
+                    final int index = indexOf( removed );
+
+                    remove( removed );
+
+                    Snackbar.make( viewHolder.itemView, "Delivery deleted.", Snackbar.LENGTH_LONG )
+                            .setAction( "Undo", new View.OnClickListener()
+                            {
+                                @Override
+                                public void onClick( View v )
+                                {
+                                    add( index, removed );
+                                }
+                            } )
+                            .setCallback( new Snackbar.Callback()
+                            {
+                                private boolean hasRemoved = false;
+
+                                @Override
+                                public void onDismissed( Snackbar snackbar, int event )
+                                {
+                                    if( !hasRemoved && event != DISMISS_EVENT_ACTION )
+                                    {
+                                        Delivering.log( "ACTION: " + event + " DELETED: " + removed.getName() );
+                                        hasRemoved = true;
+                                        /*
+                                        removed.unpinInBackground( new DeleteCallback()
+                                        {
+                                            @Override
+                                            public void done( ParseException e )
+                                            {
+                                                if( e == null )
+                                                {
+                                                    removed.deleteEventually();
+                                                }
+                                                else
+                                                {
+                                                    Delivering.log( "Could not delete Delivery.", e );
+                                                }
+                                            }
+                                        } );
+                                        */
+                                    }
+                                }
+                            } )
+                            .show();
+                }
+            }
+        }
+    };
 
     private void onSetPaymentClick( final DeliveryViewHolder holder )
     {

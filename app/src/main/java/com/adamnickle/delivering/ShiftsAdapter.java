@@ -1,10 +1,16 @@
 package com.adamnickle.delivering;
 
 import android.content.Context;
+import android.support.design.widget.Snackbar;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.parse.DeleteCallback;
+import com.parse.ParseException;
 
 import java.util.Date;
 
@@ -17,6 +23,7 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
     }
 
     private final Context mContext;
+    private final ItemTouchHelper mTouchHelper;
 
     private ShiftsAdapterListener mListener;
 
@@ -25,6 +32,7 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
         super( queryFactory );
 
         mContext = context;
+        mTouchHelper = new ItemTouchHelper( mItemTouchHelperCallback );
     }
 
     public void setListener( ShiftsAdapterListener listener )
@@ -45,6 +53,90 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
         holder.Shift = get( position );
         holder.update();
     }
+
+    @Override
+    public void onAttachedToRecyclerView( RecyclerView recyclerView )
+    {
+        super.onAttachedToRecyclerView( recyclerView );
+
+        mTouchHelper.attachToRecyclerView( recyclerView );
+    }
+
+    final ItemTouchHelper.SimpleCallback mItemTouchHelperCallback = new ItemTouchHelper.SimpleCallback( 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT )
+    {
+        private final Object LOCK = new Object();
+
+        private Shift mLastRemoved;
+        private int mLastRemovedIndex;
+
+        @Override
+        public boolean onMove( RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target )
+        {
+            return false;
+        }
+
+        @Override
+        public int getSwipeDirs( RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder )
+        {
+            if( viewHolder instanceof ShiftViewHolder )
+            {
+                return super.getSwipeDirs( recyclerView, viewHolder );
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        @Override
+        public void onSwiped( RecyclerView.ViewHolder viewHolder, int direction )
+        {
+            if( viewHolder instanceof ShiftViewHolder )
+            {
+                synchronized( LOCK )
+                {
+                    if( mLastRemoved != null )
+                    {
+                        mLastRemoved.unpinInBackground( new DeleteCallback()
+                        {
+                            @Override
+                            public void done( ParseException e )
+                            {
+                                if( e == null )
+                                {
+                                    mLastRemoved.deleteEventually();
+                                }
+                                else
+                                {
+                                    Delivering.log( "Could not delete Shift.", e );
+                                }
+                            }
+                        } );
+                    }
+
+                    mLastRemoved = ( (ShiftViewHolder)viewHolder ).Shift;
+                    mLastRemovedIndex = indexOf( mLastRemoved );
+                    remove( mLastRemovedIndex );
+                }
+                Snackbar.make( viewHolder.itemView, "Shift deleted.", Snackbar.LENGTH_LONG )
+                        .setAction( "Undo", new View.OnClickListener()
+                        {
+                            @Override
+                            public void onClick( View v )
+                            {
+                                synchronized( LOCK )
+                                {
+                                    if( mLastRemoved != null )
+                                    {
+                                        add( mLastRemovedIndex, mLastRemoved );
+                                    }
+                                }
+                            }
+                        } )
+                        .show();
+            }
+        }
+    };
 
     private void onClockInOutClick( final ShiftViewHolder holder )
     {
