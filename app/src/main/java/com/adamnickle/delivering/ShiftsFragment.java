@@ -10,7 +10,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -26,7 +25,7 @@ public class ShiftsFragment extends Fragment
     private View mMainView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mShiftsList;
-    private ShiftsArrayAdapter mAdapter;
+    private ShiftsAdapter mAdapter;
 
     public static ShiftsFragment newInstance()
     {
@@ -48,25 +47,11 @@ public class ShiftsFragment extends Fragment
         {
             mMainView = inflater.inflate( R.layout.fragment_shifts, container, false );
 
+            mAdapter = new ShiftsAdapter( getActivity(), mShiftQueryFactory );
+            mAdapter.setListener( mShiftsAdapterListener );
+            mAdapter.addOnQueryListener( mQueryListener );
+
             mSwipeRefreshLayout = (SwipeRefreshLayout)mMainView.findViewById( R.id.shifts_fragment_swipe_refresh_layout );
-            mShiftsList = (RecyclerView)mMainView.findViewById( R.id.shifts_fragment_list );
-            mAdapter = new ShiftsArrayAdapter();
-            mShiftsList.setAdapter( mAdapter );
-            mAdapter.addOnQueryListener( new ParseObjectArrayAdapter.OnQueryListener()
-            {
-                @Override
-                public void onQueryStarted()
-                {
-                    mSwipeRefreshLayout.setRefreshing( true );
-                }
-
-                @Override
-                public void onQueryEnded( boolean successful )
-                {
-                    mSwipeRefreshLayout.setRefreshing( false );
-                }
-            } );
-
             mSwipeRefreshLayout.setColorSchemeResources( R.color.colorAccent );
             mSwipeRefreshLayout.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener()
             {
@@ -76,6 +61,9 @@ public class ShiftsFragment extends Fragment
                     mAdapter.refresh();
                 }
             } );
+
+            mShiftsList = (RecyclerView)mMainView.findViewById( R.id.shifts_fragment_list );
+            mShiftsList.setAdapter( mAdapter );
         }
         else
         {
@@ -137,129 +125,42 @@ public class ShiftsFragment extends Fragment
         } );
     }
 
-    private void openShift( ShiftViewHolder holder )
+    final ParseObjectArrayAdapter.ParseQueryFactory<Shift> mShiftQueryFactory = new ParseObjectArrayAdapter.ParseQueryFactory<Shift>()
     {
-        getActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .addToBackStack( null )
-                .replace( R.id.main_activity_content_holder, ShiftFragment.newInstance( holder.Shift ) )
-                .commit();
-    }
-
-    private void onClockInOutClick( final ShiftViewHolder holder )
-    {
-        ShiftDialogs.clockInOut( getActivity(), holder.Shift, new ShiftDialogs.ShiftStatusListener()
+        @Override
+        public ParseQuery<Shift> getQuery()
         {
-            @Override
-            public void onShiftClockIn()
-            {
-                holder.Shift.setStart( new Date() );
-                holder.Shift.saveEventually();
-                holder.update();
-            }
-
-            @Override
-            public void onShiftClockOut()
-            {
-                holder.Shift.setEnd( new Date() );
-                holder.Shift.saveEventually();
-                holder.update();
-            }
-        } );
-    }
-
-    private class ShiftViewHolder extends ParseObjectArrayAdapter.ViewHolder
-    {
-        public Shift Shift;
-        public final TextView ShiftDate;
-        public final TextView ClockInTime;
-        public final TextView ClockOutTime;
-        public final View ClockInOut;
-
-        public ShiftViewHolder( View itemView )
-        {
-            super( itemView );
-
-            ShiftDate = findViewById( R.id.shift_item_date );
-            ClockInTime = findViewById( R.id.shift_item_clock_in_time );
-            ClockOutTime = findViewById( R.id.shift_item_clock_out_time );
-            ClockInOut = findViewById( R.id.shift_item_clock_in_out );
-
-            itemView.setOnClickListener( new View.OnClickListener()
-            {
-                @Override
-                public void onClick( View v )
-                {
-                    openShift( ShiftViewHolder.this );
-                }
-            } );
-            ClockInOut.setOnClickListener( new View.OnClickListener()
-            {
-                @Override
-                public void onClick( View v )
-                {
-                    onClockInOutClick( ShiftViewHolder.this );
-                }
-            } );
+            return Shift.createQuery()
+                    .whereEqualTo( Shift.DELIVERER, Deliverer.getCurrentUser() )
+                    .addDescendingOrder( Shift.CREATED_AT );
         }
+    };
 
-        public void update()
-        {
-            if( Shift != null )
-            {
-                final Date start = Shift.getStart();
-                final Date end = Shift.getEnd();
-                if( start == null )
-                {
-                    final Date createdAt = Shift.getCreatedAt();
-                    ShiftDate.setText( Utilities.DATE_FORMAT.format( createdAt ) );
-                    ClockInTime.setText( "[Not clocked-in yet]" );
-                }
-                else
-                {
-                    ShiftDate.setText( Utilities.DATE_FORMAT.format( start ) );
-                    ClockInTime.setText( Utilities.SHORT_TIME_FORMAT.format( start ) );
-                }
-                if( end == null )
-                {
-                    ClockOutTime.setText( "[Not clocked-out yet]" );
-                }
-                else
-                {
-                    ClockOutTime.setText( Utilities.SHORT_TIME_FORMAT.format( end ) );
-                }
-            }
-        }
-    }
-
-    private class ShiftsArrayAdapter extends ParseObjectArrayAdapter<Shift, ShiftViewHolder>
+    private final ShiftsAdapter.ShiftsAdapterListener mShiftsAdapterListener = new ShiftsAdapter.ShiftsAdapterListener()
     {
-        public ShiftsArrayAdapter()
+        @Override
+        public void onShiftClicked( Shift shift )
         {
-            super( new ParseQueryFactory<Shift>()
-            {
-                @Override
-                public ParseQuery<Shift> getQuery()
-                {
-                    return Shift.createQuery()
-                            .whereEqualTo( Shift.DELIVERER, Deliverer.getCurrentUser() )
-                            .addDescendingOrder( Shift.CREATED_AT );
-                }
-            } );
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack( null )
+                    .replace( R.id.main_activity_content_holder, ShiftFragment.newInstance( shift ) )
+                    .commit();
+        }
+    };
+
+    private final ParseObjectArrayAdapter.OnQueryListener mQueryListener = new ParseObjectArrayAdapter.OnQueryListener()
+    {
+        @Override
+        public void onQueryStarted()
+        {
+            mSwipeRefreshLayout.setRefreshing( true );
         }
 
         @Override
-        public ShiftViewHolder onCreateParseObjectViewHolder( ViewGroup parent, int viewType )
+        public void onQueryEnded( boolean successful )
         {
-            final View view = LayoutInflater.from( parent.getContext() ).inflate( R.layout.shift_item_layout, parent, false );
-            return new ShiftViewHolder( view );
+            mSwipeRefreshLayout.setRefreshing( false );
         }
-
-        @Override
-        public void onBindParseObjectViewHolder( ShiftViewHolder holder, int position )
-        {
-            holder.Shift = get( position );
-            holder.update();
-        }
-    }
+    };
 }
