@@ -122,13 +122,13 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
                 if( start == null )
                 {
                     final Date createdAt = Shift.getCreatedAt();
-                    ShiftDate.setText( Utilities.DATE_FORMAT.format( createdAt ) );
+                    ShiftDate.setText( Utilities.formatDate( createdAt ) );
                     ClockInTime.setText( "[Not clocked-in yet]" );
                 }
                 else
                 {
-                    ShiftDate.setText( Utilities.DATE_FORMAT.format( start ) );
-                    ClockInTime.setText( Utilities.SHORT_TIME_FORMAT.format( start ) );
+                    ShiftDate.setText( Utilities.formatDate( start ) );
+                    ClockInTime.setText( Utilities.formatShortDate( start ) );
                 }
                 if( end == null )
                 {
@@ -136,7 +136,7 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
                 }
                 else
                 {
-                    ClockOutTime.setText( Utilities.SHORT_TIME_FORMAT.format( end ) );
+                    ClockOutTime.setText( Utilities.formatShortDate( end ) );
                 }
             }
         }

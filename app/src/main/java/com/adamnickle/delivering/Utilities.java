@@ -3,22 +3,24 @@ package com.adamnickle.delivering;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
 public final class Utilities
 {
-    public static final NumberFormat CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance();
-    public static final NumberFormat PLAIN_MONEY_FORMATTER = new DecimalFormat( "0.00" );
-    public static final DateFormat DATE_FORMAT = SimpleDateFormat.getDateInstance();
-    public static final DateFormat SHORT_TIME_FORMAT = SimpleDateFormat.getTimeInstance( DateFormat.SHORT );
-    public static final DateFormat DAY_MONTH_DATE_FORMAT = new SimpleDateFormat( android.text.format.DateFormat.getBestDateTimePattern( Locale.getDefault(), "Md" ), Locale.getDefault() );
-    public static final NumberFormat MILEAGE_FORMATTER = new DecimalFormat( "0.0" );
+    private static final NumberFormat CURRENCY_FORMATTER = NumberFormat.getCurrencyInstance();
+    private static final NumberFormat PLAIN_MONEY_FORMATTER = new DecimalFormat( "0.00" );
+    private static final DateFormat DATE_FORMAT = SimpleDateFormat.getDateInstance();
+    private static final DateFormat SHORT_TIME_FORMAT = SimpleDateFormat.getTimeInstance( DateFormat.SHORT );
+    private static final DateFormat DAY_MONTH_DATE_FORMAT = new SimpleDateFormat( android.text.format.DateFormat.getBestDateTimePattern( Locale.getDefault(), "Md" ), Locale.getDefault() );
+    private static final NumberFormat MILEAGE_FORMATTER = new DecimalFormat( "0.0" );
 
     private Utilities() { }
 
@@ -41,5 +43,55 @@ public final class Utilities
     {
         final long minutes = TimeUnit.MINUTES.convert( System.currentTimeMillis() - time, TimeUnit.MILLISECONDS );
         return String.valueOf( minutes ) + " minutes ago";
+    }
+
+    public static String formatCurrency( BigDecimal currency )
+    {
+        if( currency != null )
+        {
+            return CURRENCY_FORMATTER.format( currency );
+        }
+        return "";
+    }
+
+    public static String formatPlainMoney( BigDecimal money )
+    {
+        if( money != null )
+        {
+            return PLAIN_MONEY_FORMATTER.format( money );
+        }
+        return "";
+    }
+
+    public static String formatDate( Date date )
+    {
+        if( date != null )
+        {
+            return DATE_FORMAT.format( date );
+        }
+        return "";
+    }
+
+    public static String formatShortDate( Date date )
+    {
+        if( date != null )
+        {
+            return SHORT_TIME_FORMAT.format( date );
+        }
+        return "";
+    }
+
+    public static String formatDayMonthDate( Date date )
+    {
+        if( date != null )
+        {
+            return DAY_MONTH_DATE_FORMAT.format( date );
+        }
+        return "";
+    }
+
+    public static String formatMileage( double mileage )
+    {
+        return MILEAGE_FORMATTER.format( mileage );
     }
 }

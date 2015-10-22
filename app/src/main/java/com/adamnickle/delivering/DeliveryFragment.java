@@ -19,6 +19,7 @@ import com.parse.ParseException;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -153,7 +154,23 @@ public class DeliveryFragment extends Fragment
 
     private void onEditClick()
     {
-
+        final DeliveryEditFragment fragment = DeliveryEditFragment.newInstance( mDelivery, new DeliveryEditFragment.DeliveryEditFragmentListener()
+        {
+            @Override
+            public void onDeliveryEdited( Delivery delivery )
+            {
+                update();
+                if( mListener != null )
+                {
+                    mListener.onDeliveryEdited( delivery );
+                }
+            }
+        } );
+        getFragmentManager()
+                .beginTransaction()
+                .addToBackStack( null )
+                .replace( R.id.main_activity_content_holder, fragment )
+                .commit();
     }
 
     private void update()
@@ -163,7 +180,7 @@ public class DeliveryFragment extends Fragment
         final BigDecimal tip = mDelivery.getTip();
         if( tip != null )
         {
-            mTip.setText( Utilities.CURRENCY_FORMATTER.format( tip ) );
+            mTip.setText( Utilities.formatCurrency( tip ) );
         }
         else
         {
@@ -174,7 +191,7 @@ public class DeliveryFragment extends Fragment
         final BigDecimal total = mDelivery.getTotal();
         if( total != null )
         {
-            mTotal.setText( Utilities.CURRENCY_FORMATTER.format( total ) );
+            mTotal.setText( Utilities.formatCurrency( total ) );
         }
         else
         {
@@ -184,30 +201,30 @@ public class DeliveryFragment extends Fragment
 
         if( mDelivery.isCompleted() )
         {
-            final long start = mDelivery.getDeliveryStart().getTime();
-            final long end = mDelivery.getDeliveryEnd().getTime();
-            final String timeSpan = Utilities.formatTimeSpan( end - start );
+            final Date start = mDelivery.getDeliveryStart();
+            final Date end = mDelivery.getDeliveryEnd();
+            final String timeSpan = Utilities.formatTimeSpan( end.getTime() - start.getTime() );
             mTotalTime.setText( timeSpan );
-            mStartTime.setText( Utilities.SHORT_TIME_FORMAT.format( start ) );
-            mEndTime.setText( Utilities.SHORT_TIME_FORMAT.format( end ) );
+            mStartTime.setText( Utilities.formatShortDate( start ) );
+            mEndTime.setText( Utilities.formatShortDate( end ) );
 
             final double startMileage = mDelivery.getStartMileage();
             final double endMileage = mDelivery.getEndMileage();
-            mTotalMileage.setText( Utilities.MILEAGE_FORMATTER.format( endMileage - startMileage ) + " miles" );
-            mStartMileage.setText( Utilities.MILEAGE_FORMATTER.format( startMileage ) );
-            mEndMileage.setText( Utilities.MILEAGE_FORMATTER.format( endMileage ) );
+            mTotalMileage.setText( Utilities.formatMileage( endMileage - startMileage ) + " miles" );
+            mStartMileage.setText( Utilities.formatMileage( startMileage ) );
+            mEndMileage.setText( Utilities.formatMileage( endMileage ) );
         }
         else if( mDelivery.isInProgress() )
         {
-            final long start = mDelivery.getDeliveryStart().getTime();
-            final String pastTime = Utilities.formatPastTime( start );
+            final Date start = mDelivery.getDeliveryStart();
+            final String pastTime = Utilities.formatPastTime( start.getTime() );
             mTotalTime.setText( "Started " + pastTime );
-            mStartTime.setText( Utilities.SHORT_TIME_FORMAT.format( start ) );
+            mStartTime.setText( Utilities.formatShortDate( start ) );
             mEndTime.setText( "Not yet ended" );
 
             final double startMileage = mDelivery.getStartMileage();
             mTotalMileage.setText( "--------" );
-            mStartMileage.setText( Utilities.MILEAGE_FORMATTER.format( startMileage ) );
+            mStartMileage.setText( Utilities.formatMileage( startMileage ) );
             mEndMileage.setText( "Not yet ended" );
         }
         else

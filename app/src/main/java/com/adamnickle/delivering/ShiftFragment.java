@@ -107,8 +107,8 @@ public class ShiftFragment extends Fragment
         }
         else
         {
-            mShiftDate.setText( Utilities.DATE_FORMAT.format( start ) );
-            mShiftClockInTime.setText( Utilities.SHORT_TIME_FORMAT.format( start ) );
+            mShiftDate.setText( Utilities.formatDate( start ) );
+            mShiftClockInTime.setText( Utilities.formatShortDate( start ) );
         }
         if( end == null )
         {
@@ -116,7 +116,7 @@ public class ShiftFragment extends Fragment
         }
         else
         {
-            mShiftClockOutTime.setText( Utilities.SHORT_TIME_FORMAT.format( end ) );
+            mShiftClockOutTime.setText( Utilities.formatShortDate( end ) );
         }
     }
 

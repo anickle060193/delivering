@@ -207,7 +207,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                 else
                 {
                     DeliveryTotalGroup.setVisibility( View.VISIBLE );
-                    final String totalText = String.format( "%s (%s)", Utilities.CURRENCY_FORMATTER.format( total ), Delivery.getTotalPaymentMethod() );
+                    final String totalText = String.format( "%s (%s)", Utilities.formatCurrency( total ), Delivery.getTotalPaymentMethod() );
                     DeliveryTotal.setText( totalText );
                 }
 
@@ -219,7 +219,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                 else
                 {
                     DeliveryTipGroup.setVisibility( View.VISIBLE );
-                    final String tipText = String.format( "%s (%s)", Utilities.CURRENCY_FORMATTER.format( tip ), Delivery.getTipPaymentMethod() );
+                    final String tipText = String.format( "%s (%s)", Utilities.formatCurrency( tip ), Delivery.getTipPaymentMethod() );
                     DeliveryTip.setText( tipText );
                 }
 
@@ -233,7 +233,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                     final double startMileage = Delivery.getStartMileage();
                     final double endMileage = Delivery.getEndMileage();
                     final double mileage = endMileage - startMileage;
-                    DeliveryMileage.setText( Utilities.MILEAGE_FORMATTER.format( mileage ) );
+                    DeliveryMileage.setText( Utilities.formatMileage( mileage ) );
                 }
             }
         }
