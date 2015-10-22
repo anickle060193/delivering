@@ -139,7 +139,7 @@ public class ShiftsFragment extends Fragment
     private final ShiftsAdapter.ShiftsAdapterListener mShiftsAdapterListener = new ShiftsAdapter.ShiftsAdapterListener()
     {
         @Override
-        public void onShiftClicked( Shift shift )
+        public void onShiftClick( Shift shift )
         {
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -149,7 +149,7 @@ public class ShiftsFragment extends Fragment
         }
     };
 
-    private final ParseObjectArrayAdapter.OnQueryListener mQueryListener = new ParseObjectArrayAdapter.OnQueryListener()
+    private final ParseObjectArrayAdapter.QueryListener mQueryListener = new ParseObjectArrayAdapter.QueryListener()
     {
         @Override
         public void onQueryStarted()

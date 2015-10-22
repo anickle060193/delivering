@@ -13,6 +13,7 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +37,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
         }
     }
 
-    public static abstract class OnQueryListener
+    public static abstract class QueryListener
     {
         public void onQueryStarted() { }
         public void onQueryEnded( boolean successful ) { }
@@ -71,8 +72,9 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
         }
     }
 
-    private final Set<OnQueryListener> mListeners = new HashSet<>();
+    private final Set<QueryListener> mListeners = new HashSet<>();
     private final Set<RecyclerView> mRecyclerViews = new HashSet<>();
+    private final boolean mQueryingEnabled;
     private final ParseQueryFactory<T> mQueryFactory;
     private final int mItemsToLoadPerQuery;
 
@@ -82,31 +84,40 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
     private boolean mQuerying = false;
     private boolean mHasMoreItems = true;
 
+    public ParseObjectArrayAdapter( ParseQueryFactory<T> factory, int itemsToLoadPerQuery )
+    {
+        mQueryingEnabled = true;
+        mQueryFactory = factory;
+        mItemsToLoadPerQuery = itemsToLoadPerQuery;
+    }
+
     public ParseObjectArrayAdapter( ParseQueryFactory<T> factory )
     {
         this( factory, 10 );
     }
 
-    public ParseObjectArrayAdapter( ParseQueryFactory<T> factory, int itemsToLoadPerQuery )
+    public ParseObjectArrayAdapter( Collection<T> items )
     {
-        mQueryFactory = factory;
-        mItemsToLoadPerQuery = itemsToLoadPerQuery;
+        super( items );
+        mQueryingEnabled = false;
+        mQueryFactory = null;
+        mItemsToLoadPerQuery = 0;
     }
 
-    public void addOnQueryListener( OnQueryListener listener )
+    public void addOnQueryListener( QueryListener listener )
     {
         if( mListeners.contains( listener ) )
         {
-            throw new IllegalStateException( OnQueryListener.class.getSimpleName() + listener + " is already registered." );
+            throw new IllegalStateException( QueryListener.class.getSimpleName() + listener + " is already registered." );
         }
         mListeners.add( listener );
     }
 
-    public void removeOnQueryListener( OnQueryListener listener )
+    public void removeOnQueryListener( QueryListener listener )
     {
         if( !mListeners.contains( listener ) )
         {
-            throw new IllegalStateException( OnQueryListener.class.getSimpleName() + listener + " was never registered." );
+            throw new IllegalStateException( QueryListener.class.getSimpleName() + listener + " was never registered." );
         }
         mListeners.remove( listener );
     }
@@ -117,7 +128,10 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
         super.onAttachedToRecyclerView( recyclerView );
 
         mRecyclerViews.add( recyclerView );
-        queryForMore();
+        if( mQueryingEnabled )
+        {
+            queryForMore();
+        }
     }
 
     @Override
@@ -147,7 +161,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
 
     public void refresh()
     {
-        if( !mQuerying )
+        if( mQueryingEnabled && !mQuerying )
         {
             mSkipCount = 0;
             mHasMoreItems = true;
@@ -158,12 +172,12 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
 
     public boolean hasMoreToQuery()
     {
-        return mHasMoreItems;
+        return mQueryingEnabled && mHasMoreItems;
     }
 
     public void queryForMore()
     {
-        if( mQuerying || !mHasMoreItems )
+        if( !mQueryingEnabled || mQuerying || !mHasMoreItems )
         {
             return;
         }
@@ -172,7 +186,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
         {
             mLastEndViewHolder.disable();
         }
-        for( OnQueryListener listener : mListeners )
+        for( QueryListener listener : mListeners )
         {
             listener.onQueryStarted();
         }
@@ -214,7 +228,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
                         {
                             mLastEndViewHolder.enable();
                         }
-                        for( OnQueryListener listener : mListeners )
+                        for( QueryListener listener : mListeners )
                         {
                             listener.onQueryEnded( ex == null );
                         }
@@ -225,7 +239,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
     @Override
     public final int getItemCount()
     {
-        if( mHasMoreItems )
+        if( hasMoreToQuery() )
         {
             return getParseObjectItemCount() + 1;
         }
@@ -243,7 +257,7 @@ public abstract class ParseObjectArrayAdapter<T extends ParseObject, V extends P
     @Override
     public final int getItemViewType( int position )
     {
-        if( mHasMoreItems && position == getParseObjectItemCount() )
+        if( hasMoreToQuery() && position == getParseObjectItemCount() )
         {
             return END_ITEM_TYPE;
         }

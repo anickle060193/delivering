@@ -8,18 +8,29 @@ import android.widget.TextView;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 
 public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryAdapter.DeliveryViewHolder>
 {
+    public interface DeliveryAdapterListener
+    {
+        void onDeliveryClick( Delivery delivery );
+    }
+
     private final Context mContext;
+
+    private DeliveryAdapterListener mListener;
 
     public DeliveryAdapter( Context context, ParseQueryFactory<Delivery> factory )
     {
         super( factory );
 
         mContext = context;
+    }
+
+    public void setListener( DeliveryAdapterListener listener )
+    {
+        mListener = listener;
     }
 
     @Override
@@ -116,6 +127,18 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
             DeliveryStatusInProgress = findViewById( R.id.delivery_item_status_in_progress );
             DeliveryStatusCompleted = findViewById( R.id.delivery_item_status_completed );
 
+            itemView.setOnClickListener( new View.OnClickListener()
+            {
+                @Override
+                public void onClick( View v )
+                {
+                    if( mListener != null )
+                    {
+                        mListener.onDeliveryClick( DeliveryViewHolder.this.Delivery );
+                    }
+                }
+            } );
+
             SetPayment.setOnClickListener( new View.OnClickListener()
             {
                 @Override
@@ -158,17 +181,16 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                     DeliveryStatusCompleted.setVisibility( View.VISIBLE );
                     final long start = Delivery.getDeliveryStart().getTime();
                     final long end = Delivery.getDeliveryEnd().getTime();
-                    final long minutes = TimeUnit.MINUTES.convert( end - start, TimeUnit.MILLISECONDS );
-                    DeliveryStatus.setText( "Delivery completed in " + minutes + " minutes" );
+                    final String timeSpan = Utilities.formatTimeSpan( end - start );
+                    DeliveryStatus.setText( "Delivery completed in " + timeSpan );
                 }
                 else if( Delivery.isInProgress() )
                 {
                     DeliveryStatusInProgress.setVisibility( View.VISIBLE );
                     DeliveryStatusCompleted.setVisibility( View.GONE );
                     final long start = Delivery.getDeliveryStart().getTime();
-                    final long now = System.currentTimeMillis();
-                    final long minutes = TimeUnit.MINUTES.convert( now - start, TimeUnit.MILLISECONDS );
-                    DeliveryStatus.setText( "Delivery started " + minutes + " minutes ago" );
+                    final String timeSpan = Utilities.formatPastTime( start );
+                    DeliveryStatus.setText( "Delivery started " + timeSpan );
                 }
                 else
                 {

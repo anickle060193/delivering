@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 
 public final class Utilities
@@ -28,5 +29,17 @@ public final class Utilities
         {
             parent.removeView( view );
         }
+    }
+
+    public static String formatTimeSpan( long timeSpan )
+    {
+        final long minutes = TimeUnit.MINUTES.convert( timeSpan, TimeUnit.MILLISECONDS );
+        return String.valueOf( minutes ) + " minutes";
+    }
+
+    public static String formatPastTime( long time )
+    {
+        final long minutes = TimeUnit.MINUTES.convert( System.currentTimeMillis() - time, TimeUnit.MILLISECONDS );
+        return String.valueOf( minutes ) + " minutes ago";
     }
 }

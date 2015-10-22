@@ -96,13 +96,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     setTitle( "Shifts" );
                 }
+                else if( fragment instanceof ShiftFragment )
+                {
+                    setTitle( "Shift" );
+                }
                 else if( fragment instanceof DeliveriesFragment )
                 {
                     setTitle( "Deliveries" );
                 }
-                else if( fragment instanceof ShiftFragment )
+                else if( fragment instanceof DeliveryFragment )
                 {
-                    setTitle( "Shift" );
+                    setTitle( "Delivery" );
                 }
             }
         } );

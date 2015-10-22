@@ -46,34 +46,11 @@ public class DeliveriesFragment extends Fragment
         {
             mMainView = inflater.inflate( R.layout.fragment_deliveries, container, false );
 
+            mAdapter = new DeliveryAdapter( getActivity(), mQueryFactory );
+            mAdapter.addOnQueryListener( mQueryListener );
+            mAdapter.setListener( mDeliveryAdapterListener );
+
             mSwipeToRefreshLayout = (SwipeRefreshLayout)mMainView.findViewById( R.id.deliveries_fragment_swipe_refresh_layout );
-            mDeliveriesList = (RecyclerView)mMainView.findViewById( R.id.deliveries_fragment_list );
-            mAdapter = new DeliveryAdapter( getActivity(), new ParseObjectArrayAdapter.ParseQueryFactory<Delivery>()
-            {
-                @Override
-                public ParseQuery<Delivery> getQuery()
-                {
-                    return Delivery.createQuery()
-                            .whereEqualTo( Delivery.DELIVERER, Deliverer.getCurrentUser() )
-                            .addDescendingOrder( Delivery.CREATED_AT );
-                }
-            } );
-            mDeliveriesList.setAdapter( mAdapter );
-            mAdapter.addOnQueryListener( new ParseObjectArrayAdapter.OnQueryListener()
-            {
-                @Override
-                public void onQueryStarted()
-                {
-                    mSwipeToRefreshLayout.setRefreshing( true );
-                }
-
-                @Override
-                public void onQueryEnded( boolean successful )
-                {
-                    mSwipeToRefreshLayout.setRefreshing( false );
-                }
-            } );
-
             mSwipeToRefreshLayout.setColorSchemeResources( R.color.colorAccent );
             mSwipeToRefreshLayout.setOnRefreshListener( new SwipeRefreshLayout.OnRefreshListener()
             {
@@ -83,6 +60,9 @@ public class DeliveriesFragment extends Fragment
                     mAdapter.refresh();
                 }
             } );
+
+            mDeliveriesList = (RecyclerView)mMainView.findViewById( R.id.deliveries_fragment_list );
+            mDeliveriesList.setAdapter( mAdapter );
         }
         else
         {
@@ -151,4 +131,57 @@ public class DeliveriesFragment extends Fragment
             }
         } );
     }
+
+    private final ParseObjectArrayAdapter.ParseQueryFactory<Delivery> mQueryFactory = new ParseObjectArrayAdapter.ParseQueryFactory<Delivery>()
+    {
+        @Override
+        public ParseQuery<Delivery> getQuery()
+        {
+            return Delivery.createQuery()
+                    .whereEqualTo( Delivery.DELIVERER, Deliverer.getCurrentUser() )
+                    .addDescendingOrder( Delivery.CREATED_AT );
+        }
+    };
+
+    private final ParseObjectArrayAdapter.QueryListener mQueryListener = new ParseObjectArrayAdapter.QueryListener()
+    {
+        @Override
+        public void onQueryStarted()
+        {
+            mSwipeToRefreshLayout.setRefreshing( true );
+        }
+
+        @Override
+        public void onQueryEnded( boolean successful )
+        {
+            mSwipeToRefreshLayout.setRefreshing( false );
+        }
+    };
+
+    private final DeliveryAdapter.DeliveryAdapterListener mDeliveryAdapterListener = new DeliveryAdapter.DeliveryAdapterListener()
+    {
+        @Override
+        public void onDeliveryClick( Delivery delivery )
+        {
+            final DeliveryFragment fragment = DeliveryFragment.newInstance( delivery, new DeliveryFragment.DeliveryFragmentListener()
+            {
+                @Override
+                public void onDeliveryEdited( Delivery delivery )
+                {
+                    mAdapter.notifyItemUpdated( delivery );
+                }
+
+                @Override
+                public void onDeliveryDeleted( Delivery delivery )
+                {
+                    mAdapter.remove( delivery );
+                }
+            } );
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .addToBackStack( null )
+                    .replace( R.id.main_activity_content_holder, fragment )
+                    .commit();
+        }
+    };
 }

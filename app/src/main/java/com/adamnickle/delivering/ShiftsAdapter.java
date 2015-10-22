@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Collection;
 import java.util.Date;
 
 
@@ -13,7 +14,7 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
 {
     public interface ShiftsAdapterListener
     {
-        void onShiftClicked( Shift shift );
+        void onShiftClick( Shift shift );
     }
 
     private final Context mContext;
@@ -24,6 +25,12 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
     {
         super( queryFactory );
 
+        mContext = context;
+    }
+
+    public ShiftsAdapter( Context context, Collection<Shift> items )
+    {
+        super( items );
         mContext = context;
     }
 
@@ -92,7 +99,7 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
                 {
                     if( mListener != null )
                     {
-                        mListener.onShiftClicked( ShiftViewHolder.this.Shift );
+                        mListener.onShiftClick( ShiftViewHolder.this.Shift );
                     }
                 }
             } );
