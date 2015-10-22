@@ -37,6 +37,7 @@ public class DeliveryFragment extends Fragment
 
     private DeliveryFragmentListener mListener;
 
+    private View mMainView;
     @Bind( R.id.delivery_fragment_name ) TextView mName;
     @Bind( R.id.delivery_fragment_tip ) TextView mTip;
     @Bind( R.id.delivery_fragment_tip_payment_method ) TextView mTipPaymentMethod;
@@ -67,16 +68,24 @@ public class DeliveryFragment extends Fragment
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        setRetainInstance( true );
         setHasOptionsMenu( true );
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
-        final View view = inflater.inflate( R.layout.fragment_delivery, container, false );
-        ButterKnife.bind( this, view );
+        if( mMainView == null )
+        {
+            mMainView = inflater.inflate( R.layout.fragment_delivery, container, false );
+            ButterKnife.bind( this, mMainView );
+        }
+        else
+        {
+            Utilities.removeFromParent( mMainView );
+        }
         update();
-        return view;
+        return mMainView;
     }
 
     @Override
