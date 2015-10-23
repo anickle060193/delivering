@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     tools:context="com.adamnickle.delivering.DeliveryEditFragment"
-    style="@style/MainContentFragment">
+    style="@style/MainContentPadding">
 
     <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"

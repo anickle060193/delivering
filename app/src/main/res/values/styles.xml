@@ -31,11 +31,11 @@
         <item name="contentPadding">8dp</item>
     </style>
 
-    <style name="MainContentFragment">
-        <item name="android:paddingLeft">@dimen/activity_horizontal_margin</item>
-        <item name="android:paddingRight">@dimen/activity_horizontal_margin</item>
-        <item name="android:paddingTop">@dimen/activity_vertical_margin</item>
-        <item name="android:paddingBottom">@dimen/activity_vertical_margin</item>
+    <style name="MainContentPadding">
+        <item name="android:paddingLeft">@dimen/main_content_horizontal_margin</item>
+        <item name="android:paddingRight">@dimen/main_content_horizontal_margin</item>
+        <item name="android:paddingTop">@dimen/main_content_vertical_margin</item>
+        <item name="android:paddingBottom">@dimen/main_content_vertical_margin</item>
     </style>
     
     <style name="InputEditText">
