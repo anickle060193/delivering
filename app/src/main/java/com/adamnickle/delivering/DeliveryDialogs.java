@@ -14,7 +14,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.math.BigDecimal;
-import java.util.regex.Pattern;
 
 
 public final class DeliveryDialogs
@@ -67,8 +66,6 @@ public final class DeliveryDialogs
         void onDeliveryPaymentSet( BigDecimal total, String totalPaymentMethod, BigDecimal tip, String tipPaymentMethod );
     }
 
-    private static final Pattern PLAIN_MONEY_PATTERN = Pattern.compile( "^[1-9]\\d*(?:\\.\\d{2})?$" );
-
     public static void setPayment( Context context, Delivery prefillDelivery, final DeliveryPaymentSetListener listener )
     {
         final AlertDialog dialog = new AlertDialog.Builder( context )
@@ -111,7 +108,7 @@ public final class DeliveryDialogs
                 boolean hasError = false;
 
                 final String totalString = totalEditText.getText().toString();
-                if( !PLAIN_MONEY_PATTERN.matcher( totalString ).matches() )
+                if( !Validator.money( totalString ) )
                 {
                     totalEditText.setError( "Invalid total format (e.g. 12.73)" );
                     focusView = totalEditText;
@@ -119,7 +116,7 @@ public final class DeliveryDialogs
                 }
 
                 final String tipString = tipEditText.getText().toString();
-                if( !PLAIN_MONEY_PATTERN.matcher( tipString ).matches() )
+                if( !Validator.money( tipString ) )
                 {
                     tipEditText.setError( "Invalid tip format (e.g. 4.56)" );
                     focusView = tipEditText;

@@ -11,6 +11,10 @@ import auto.parcel.AutoParcel;
 @AutoParcel
 public abstract class DeliveryEditConfig implements Parcelable
 {
+    abstract String activityTitle();
+
+    abstract boolean showTipIncluded();
+
     abstract String name();
     abstract Date start();
     abstract Date end();
@@ -35,6 +39,11 @@ public abstract class DeliveryEditConfig implements Parcelable
     public abstract static class Builder
     {
         public abstract DeliveryEditConfig build();
+
+        public abstract Builder activityTitle( String title );
+
+        public abstract Builder showTipIncluded( boolean show );
+
         public abstract Builder name( String name );
         public abstract Builder start( Date start );
         public abstract Builder end( Date end );
@@ -56,17 +65,91 @@ public abstract class DeliveryEditConfig implements Parcelable
         public abstract Builder hasEndMileage( boolean has );
     }
 
-    public static Builder builder()
+    public void updateDelivery( Delivery delivery )
+    {
+        delivery.setName( name() );
+        delivery.setDeliveryStart( start() );
+        delivery.setDeliveryEnd( end() );
+        delivery.setTip( tip() );
+        delivery.setTipPaymentMethod( tipPaymentMethod() );
+        delivery.setTotal( total() );
+        delivery.setTotalPaymentMethod( totalPaymentMethod() );
+        delivery.setStartMileage( startMileage() );
+        delivery.setEndMileage( endMileage() );
+    }
+
+    private static Builder builder( boolean showAll )
     {
         return new AutoParcel_DeliveryEditConfig.Builder()
-                .name( "" ).hasName( false )
-                .start( new Date() ).hasStart( false )
-                .end( new Date() ).hasEnd( false )
-                .tip( BigDecimal.ZERO ).hasTip( false )
-                .tipPaymentMethod( "" ).hasTipPaymentMethod( false )
-                .total( BigDecimal.ZERO ).hasTotal( false )
-                .totalPaymentMethod( "" ).hasTotalPaymentMethod( false )
-                .startMileage( 0.0 ).hasStartMileage( false )
-                .endMileage( 0.0 ).hasEndMileage( false );
+                .activityTitle( "Delivery" )
+                .showTipIncluded( showAll )
+                .name( "" ).hasName( showAll )
+                .start( new Date() ).hasStart( showAll )
+                .end( new Date() ).hasEnd( showAll )
+                .tip( BigDecimal.ZERO ).hasTip( showAll )
+                .tipPaymentMethod( "" ).hasTipPaymentMethod( showAll )
+                .total( BigDecimal.ZERO ).hasTotal( showAll )
+                .totalPaymentMethod( "" ).hasTotalPaymentMethod( showAll )
+                .startMileage( 0.0 ).hasStartMileage( showAll )
+                .endMileage( 0.0 ).hasEndMileage( showAll );
+    }
+
+    public static Builder creating()
+    {
+        return builder( false )
+                .activityTitle( "Create Delivery" )
+                .hasName( true );
+    }
+
+    public static Builder editing( Delivery delivery )
+    {
+        final Builder builder = builder( true )
+                .activityTitle( "Edit Delivery" )
+                .name( delivery.getName() )
+                .startMileage( delivery.getStartMileage() )
+                .endMileage( delivery.getEndMileage() );
+
+        final Date start = delivery.getDeliveryStart();
+        if( start != null )
+        {
+            builder.start( start );
+        }
+
+        final Date end = delivery.getDeliveryEnd();
+        if( end != null )
+        {
+            builder.end( end );
+        }
+
+        final BigDecimal tip = delivery.getTip();
+        if( tip != null )
+        {
+            builder.tip( tip );
+        }
+
+        final String tipPaymentMethod = delivery.getTipPaymentMethod();
+        if( tipPaymentMethod != null )
+        {
+            builder.tipPaymentMethod( tipPaymentMethod );
+        }
+
+        final BigDecimal total = delivery.getTotal();
+        if( total != null )
+        {
+            builder.total( total );
+        }
+
+        final String totalPaymentMethod = delivery.getTotalPaymentMethod();
+        if( totalPaymentMethod != null )
+        {
+            builder.totalPaymentMethod( totalPaymentMethod );
+        }
+
+        return builder;
+    }
+
+    public static Builder copy( DeliveryEditConfig config )
+    {
+        return new AutoParcel_DeliveryEditConfig.Builder( config );
     }
 }

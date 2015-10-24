@@ -19,6 +19,7 @@ public final class Utilities
     private static final NumberFormat PLAIN_MONEY_FORMATTER = new DecimalFormat( "0.00" );
     private static final DateFormat DATE_FORMAT = SimpleDateFormat.getDateInstance();
     private static final DateFormat SHORT_TIME_FORMAT = SimpleDateFormat.getTimeInstance( DateFormat.SHORT );
+    private static final DateFormat DATE_TIME_FORMAT = SimpleDateFormat.getDateTimeInstance();
     private static final DateFormat DAY_MONTH_DATE_FORMAT = new SimpleDateFormat( android.text.format.DateFormat.getBestDateTimePattern( Locale.getDefault(), "Md" ), Locale.getDefault() );
     private static final NumberFormat MILEAGE_FORMATTER = new DecimalFormat( "0.0" );
 
@@ -72,13 +73,27 @@ public final class Utilities
         return "";
     }
 
-    public static String formatShortDate( Date date )
+    public static String formatShortTime( Date date )
     {
         if( date != null )
         {
             return SHORT_TIME_FORMAT.format( date );
         }
         return "";
+    }
+
+    public static String formatDateTime( Date date )
+    {
+        if( date != null )
+        {
+            return DATE_TIME_FORMAT.format( date );
+        }
+        return "";
+    }
+
+    public static DateFormat getDateTimeFormat()
+    {
+        return DATE_TIME_FORMAT;
     }
 
     public static String formatDayMonthDate( Date date )

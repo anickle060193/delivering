@@ -128,7 +128,7 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
                 else
                 {
                     ShiftDate.setText( Utilities.formatDate( start ) );
-                    ClockInTime.setText( Utilities.formatShortDate( start ) );
+                    ClockInTime.setText( Utilities.formatDateTime( start ) );
                 }
                 if( end == null )
                 {
@@ -136,7 +136,7 @@ public class ShiftsAdapter extends ParseObjectArrayAdapter<Shift, ShiftsAdapter.
                 }
                 else
                 {
-                    ClockOutTime.setText( Utilities.formatShortDate( end ) );
+                    ClockOutTime.setText( Utilities.formatDateTime( end ) );
                 }
             }
         }

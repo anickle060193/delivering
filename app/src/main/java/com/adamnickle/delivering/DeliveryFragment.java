@@ -1,7 +1,9 @@
 package com.adamnickle.delivering;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -28,6 +30,8 @@ import butterknife.ButterKnife;
 @SuppressLint("ValidFragment")
 public class DeliveryFragment extends Fragment
 {
+    public static final int REQUEST_EDIT_DELIVERY = 1001;
+
     public interface DeliveryFragmentListener
     {
         void onDeliveryEdited( Delivery delivery );
@@ -113,6 +117,27 @@ public class DeliveryFragment extends Fragment
         }
     }
 
+    @Override
+    public void onActivityResult( int requestCode, int resultCode, Intent data )
+    {
+        if( requestCode == REQUEST_EDIT_DELIVERY )
+        {
+            if( resultCode == Activity.RESULT_OK )
+            {
+                final DeliveryEditConfig config = data.getParcelableExtra( DeliveryEditActivity.EXTRA_DELIVERY_EDIT_CONFIG );
+                if( config != null )
+                {
+                    config.updateDelivery( mDelivery );
+                    mDelivery.saveEventually();
+                    if( mListener != null )
+                    {
+                        mListener.onDeliveryEdited( mDelivery );
+                    }
+                }
+            }
+        }
+    }
+
     private void onDeleteClick()
     {
         new AlertDialog.Builder( getActivity() )
@@ -154,23 +179,10 @@ public class DeliveryFragment extends Fragment
 
     private void onEditClick()
     {
-        final DeliveryEditFragment fragment = DeliveryEditFragment.newInstance( mDelivery, new DeliveryEditFragment.DeliveryEditFragmentListener()
-        {
-            @Override
-            public void onDeliveryEdited( Delivery delivery )
-            {
-                update();
-                if( mListener != null )
-                {
-                    mListener.onDeliveryEdited( delivery );
-                }
-            }
-        } );
-        getFragmentManager()
-                .beginTransaction()
-                .addToBackStack( null )
-                .replace( R.id.main_activity_content_holder, fragment )
-                .commit();
+        final DeliveryEditConfig config = DeliveryEditConfig.editing( mDelivery ).build();
+        final Intent intent = new Intent( getActivity(), DeliveryEditActivity.class )
+                .putExtra( DeliveryEditActivity.EXTRA_DELIVERY_EDIT_CONFIG, config );
+        startActivityForResult( intent, REQUEST_EDIT_DELIVERY );
     }
 
     private void update()
@@ -205,8 +217,8 @@ public class DeliveryFragment extends Fragment
             final Date end = mDelivery.getDeliveryEnd();
             final String timeSpan = Utilities.formatTimeSpan( end.getTime() - start.getTime() );
             mTotalTime.setText( timeSpan );
-            mStartTime.setText( Utilities.formatShortDate( start ) );
-            mEndTime.setText( Utilities.formatShortDate( end ) );
+            mStartTime.setText( Utilities.formatDateTime( start ) );
+            mEndTime.setText( Utilities.formatDateTime( end ) );
 
             final double startMileage = mDelivery.getStartMileage();
             final double endMileage = mDelivery.getEndMileage();
@@ -219,7 +231,7 @@ public class DeliveryFragment extends Fragment
             final Date start = mDelivery.getDeliveryStart();
             final String pastTime = Utilities.formatPastTime( start.getTime() );
             mTotalTime.setText( "Started " + pastTime );
-            mStartTime.setText( Utilities.formatShortDate( start ) );
+            mStartTime.setText( Utilities.formatDateTime( start ) );
             mEndTime.setText( "Not yet ended" );
 
             final double startMileage = mDelivery.getStartMileage();
