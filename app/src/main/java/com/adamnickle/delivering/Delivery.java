@@ -24,6 +24,7 @@ public class Delivery extends ParseObject
     public static final String DELIVERY_START = "delivery_started_at";
     public static final String DELIVERY_END = "delivered_at";
 
+    public static final String OBJECT_ID = "objectId";
     public static final String CREATED_AT = "createdAt";
     public static final String UPDATED_AT = "updatedAt";
 

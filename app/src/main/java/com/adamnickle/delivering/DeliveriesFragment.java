@@ -1,5 +1,6 @@
 package com.adamnickle.delivering;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -21,10 +22,14 @@ public class DeliveriesFragment extends Fragment
 {
     public static final String FRAGMENT_TAG = DeliveriesFragment.class.getName();
 
+    private static final int REQUEST_OPEN_DELIVERY = 1002;
+
     private View mMainView;
     private SwipeRefreshLayout mSwipeToRefreshLayout;
     private RecyclerView mDeliveriesList;
     private DeliveryAdapter mAdapter;
+
+    private Delivery mOpenedDelivery;
 
     public static DeliveriesFragment newInstance()
     {
@@ -69,6 +74,30 @@ public class DeliveriesFragment extends Fragment
             Utilities.removeFromParent( mMainView );
         }
         return mMainView;
+    }
+
+    @Override
+    public void onActivityResult( int requestCode, int resultCode, Intent data )
+    {
+        if( requestCode == REQUEST_OPEN_DELIVERY )
+        {
+            if( resultCode == DeliveryActivity.RESULT_EDITED )
+            {
+                if( mOpenedDelivery != null )
+                {
+                    mAdapter.notifyItemUpdated( mOpenedDelivery );
+                    mOpenedDelivery = null;
+                }
+            }
+            else if( resultCode == DeliveryActivity.RESULT_DELETED )
+            {
+                if( mOpenedDelivery != null )
+                {
+                    mAdapter.remove( mOpenedDelivery );
+                    mOpenedDelivery = null;
+                }
+            }
+        }
     }
 
     @Override
@@ -163,25 +192,10 @@ public class DeliveriesFragment extends Fragment
         @Override
         public void onDeliveryClick( Delivery delivery )
         {
-            final DeliveryFragment fragment = DeliveryFragment.newInstance( delivery, new DeliveryFragment.DeliveryFragmentListener()
-            {
-                @Override
-                public void onDeliveryEdited( Delivery delivery )
-                {
-                    mAdapter.notifyItemUpdated( delivery );
-                }
-
-                @Override
-                public void onDeliveryDeleted( Delivery delivery )
-                {
-                    mAdapter.remove( delivery );
-                }
-            } );
-            getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .addToBackStack( null )
-                    .replace( R.id.main_activity_content_holder, fragment )
-                    .commit();
+            mOpenedDelivery = delivery;
+            final Intent intent = new Intent( getActivity(), DeliveryActivity.class )
+                    .putExtra( DeliveryActivity.EXTRA_DELIVERY_OBJECT_ID, delivery.getObjectId() );
+            startActivityForResult( intent, REQUEST_OPEN_DELIVERY );
         }
     };
 }

@@ -6,7 +6,7 @@ public final class Validator
 {
     private Validator() { }
 
-    private static final Pattern PLAIN_MONEY_PATTERN = Pattern.compile( "^[1-9]\\d*(?:\\.\\d{2})?$" );
+    private static final Pattern PLAIN_MONEY_PATTERN = Pattern.compile( "^\\d*(?:\\.\\d{2})?$" );
 
     public static boolean money( String money )
     {

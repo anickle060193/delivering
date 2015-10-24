@@ -43,6 +43,10 @@
             android:label="@string/title_activity_delivery_edit"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <activity
+            android:name=".DeliveryActivity"
+            android:label="@string/title_activity_delivery"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

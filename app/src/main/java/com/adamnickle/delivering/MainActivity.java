@@ -104,10 +104,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     setTitle( "Deliveries" );
                 }
-                else if( fragment instanceof DeliveryFragment )
-                {
-                    setTitle( "Delivery" );
-                }
             }
         } );
     }
