@@ -101,8 +101,10 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
         public final TextView DeliveryStatus;
         public final View DeliveryTotalGroup;
         public final TextView DeliveryTotal;
+        public final TextView DeliveryTotalTotalPaymentMethod;
         public final View DeliveryTipGroup;
         public final TextView DeliveryTip;
+        public final TextView DeliveryTipPaymentMethod;
         public final View DeliveryMileageGroup;
         public final TextView DeliveryMileage;
         public final View SetPayment;
@@ -118,8 +120,10 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
             DeliveryStatus = findViewById( R.id.delivery_item_status );
             DeliveryTotalGroup = findViewById( R.id.delivery_item_total_group );
             DeliveryTotal = findViewById( R.id.delivery_item_total );
+            DeliveryTotalTotalPaymentMethod = findViewById( R.id.delivery_item_total_payment_method );
             DeliveryTipGroup = findViewById( R.id.delivery_item_tip_group );
             DeliveryTip = findViewById( R.id.delivery_item_tip );
+            DeliveryTipPaymentMethod = findViewById( R.id.delivery_item_tip_payment_method );
             DeliveryMileageGroup = findViewById( R.id.delivery_item_mileage_group );
             DeliveryMileage = findViewById( R.id.delivery_item_mileage );
             SetPayment = findViewById( R.id.delivery_item_set_payment );
@@ -181,7 +185,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                     DeliveryStatusCompleted.setVisibility( View.VISIBLE );
                     final long start = Delivery.getDeliveryStart().getTime();
                     final long end = Delivery.getDeliveryEnd().getTime();
-                    final String timeSpan = Utilities.formatTimeSpan( end - start );
+                    final String timeSpan = Formatter.timeSpan( end - start );
                     DeliveryStatus.setText( "Delivery completed in " + timeSpan );
                 }
                 else if( Delivery.isInProgress() )
@@ -189,7 +193,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                     DeliveryStatusInProgress.setVisibility( View.VISIBLE );
                     DeliveryStatusCompleted.setVisibility( View.GONE );
                     final long start = Delivery.getDeliveryStart().getTime();
-                    final String timeSpan = Utilities.formatPastTime( start );
+                    final String timeSpan = Formatter.pastTime( start );
                     DeliveryStatus.setText( "Delivery started " + timeSpan );
                 }
                 else
@@ -199,29 +203,9 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                     DeliveryStatus.setText( "Delivery not yet started." );
                 }
 
-                final BigDecimal total = Delivery.getTotal();
-                if( total == null )
-                {
-                    DeliveryTotalGroup.setVisibility( View.GONE );
-                }
-                else
-                {
-                    DeliveryTotalGroup.setVisibility( View.VISIBLE );
-                    final String totalText = String.format( "%s (%s)", Utilities.formatCurrency( total ), Delivery.getTotalPaymentMethod() );
-                    DeliveryTotal.setText( totalText );
-                }
-
-                final BigDecimal tip = Delivery.getTip();
-                if( tip == null )
-                {
-                    DeliveryTipGroup.setVisibility( View.GONE );
-                }
-                else
-                {
-                    DeliveryTipGroup.setVisibility( View.VISIBLE );
-                    final String tipText = String.format( "%s (%s)", Utilities.formatCurrency( tip ), Delivery.getTipPaymentMethod() );
-                    DeliveryTip.setText( tipText );
-                }
+                Formatter.deliveryTipTotal( Delivery, DeliveryTip, DeliveryTipPaymentMethod, DeliveryTotal, DeliveryTotalTotalPaymentMethod );
+                DeliveryTotalGroup.setVisibility( Delivery.getTotal() == null ? View.GONE : View.VISIBLE );
+                DeliveryTipGroup.setVisibility( Delivery.getTip() == null ? View.GONE : View.VISIBLE );
 
                 if( !Delivery.hasStartMileage() || !Delivery.hasEndMileage() )
                 {
@@ -229,11 +213,7 @@ public class DeliveryAdapter extends ParseObjectArrayAdapter<Delivery, DeliveryA
                 }
                 else
                 {
-                    DeliveryMileageGroup.setVisibility( View.VISIBLE );
-                    final double startMileage = Delivery.getStartMileage();
-                    final double endMileage = Delivery.getEndMileage();
-                    final double mileage = endMileage - startMileage;
-                    DeliveryMileage.setText( Utilities.formatMileage( mileage ) );
+                    Formatter.deliveryTotalMileage( Delivery, DeliveryMileage );
                 }
             }
         }

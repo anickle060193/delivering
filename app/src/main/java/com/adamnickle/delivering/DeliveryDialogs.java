@@ -90,13 +90,13 @@ public final class DeliveryDialogs
         final BigDecimal initialTip = prefillDelivery.getTip();
         if( initialTip != null )
         {
-            tipEditText.setText( Utilities.formatPlainMoney( initialTip ) );
+            tipEditText.setText( Formatter.plainMoney( initialTip ) );
         }
 
         final BigDecimal initialTotal = prefillDelivery.getTotal();
         if( initialTotal != null )
         {
-            totalEditText.setText( Utilities.formatPlainMoney( initialTotal ) );
+            totalEditText.setText( Formatter.plainMoney( initialTotal ) );
         }
 
         dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
@@ -179,7 +179,7 @@ public final class DeliveryDialogs
                 .show();
 
         final EditText startMileageEditText = (EditText)dialog.findViewById( R.id.delivery_completed_dialog_start_mileage );
-        startMileageEditText.setText( Utilities.formatMileage( delivery.getStartMileage() ) );
+        startMileageEditText.setText( Formatter.mileage( delivery.getStartMileage() ) );
 
         final EditText endMileageEditText = (EditText)dialog.findViewById( R.id.delivery_completed_dialog_end_mileage );
         endMileageEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
@@ -260,7 +260,7 @@ public final class DeliveryDialogs
         } );
 
         final double lastEnteredMileage = DeliveryDialogs.getLastEnteredMileage( context );
-        startMileageEditText.setText( Utilities.formatMileage( lastEnteredMileage ) );
+        startMileageEditText.setText( Formatter.mileage( lastEnteredMileage ) );
 
         dialog.getButton( DialogInterface.BUTTON_POSITIVE ).setOnClickListener( new View.OnClickListener()
         {

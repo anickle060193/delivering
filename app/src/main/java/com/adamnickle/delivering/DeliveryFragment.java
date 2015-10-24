@@ -19,9 +19,7 @@ import android.widget.TextView;
 import com.parse.DeleteCallback;
 import com.parse.ParseException;
 
-import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -188,67 +186,9 @@ public class DeliveryFragment extends Fragment
     private void update()
     {
         mName.setText( mDelivery.getName() );
-
-        final BigDecimal tip = mDelivery.getTip();
-        if( tip != null )
-        {
-            mTip.setText( Utilities.formatCurrency( tip ) );
-        }
-        else
-        {
-            mTip.setText( "No tip yet" );
-        }
-        mTipPaymentMethod.setText( mDelivery.getTipPaymentMethod() );
-
-        final BigDecimal total = mDelivery.getTotal();
-        if( total != null )
-        {
-            mTotal.setText( Utilities.formatCurrency( total ) );
-        }
-        else
-        {
-            mTotal.setText( "No total yet" );
-        }
-        mTotalPaymentMethod.setText( mDelivery.getTotalPaymentMethod() );
-
-        if( mDelivery.isCompleted() )
-        {
-            final Date start = mDelivery.getDeliveryStart();
-            final Date end = mDelivery.getDeliveryEnd();
-            final String timeSpan = Utilities.formatTimeSpan( end.getTime() - start.getTime() );
-            mTotalTime.setText( timeSpan );
-            mStartTime.setText( Utilities.formatDateTime( start ) );
-            mEndTime.setText( Utilities.formatDateTime( end ) );
-
-            final double startMileage = mDelivery.getStartMileage();
-            final double endMileage = mDelivery.getEndMileage();
-            mTotalMileage.setText( Utilities.formatMileage( endMileage - startMileage ) + " miles" );
-            mStartMileage.setText( Utilities.formatMileage( startMileage ) );
-            mEndMileage.setText( Utilities.formatMileage( endMileage ) );
-        }
-        else if( mDelivery.isInProgress() )
-        {
-            final Date start = mDelivery.getDeliveryStart();
-            final String pastTime = Utilities.formatPastTime( start.getTime() );
-            mTotalTime.setText( "Started " + pastTime );
-            mStartTime.setText( Utilities.formatDateTime( start ) );
-            mEndTime.setText( "Not yet ended" );
-
-            final double startMileage = mDelivery.getStartMileage();
-            mTotalMileage.setText( "--------" );
-            mStartMileage.setText( Utilities.formatMileage( startMileage ) );
-            mEndMileage.setText( "Not yet ended" );
-        }
-        else
-        {
-            mTotalTime.setText( "--------" );
-            mStartTime.setText( "Not yet started" );
-            mEndTime.setText( "Not yet started" );
-
-            mTotalMileage.setText( "--------" );
-            mStartMileage.setText( "Not yet started" );
-            mEndMileage.setText( "Not yet started" );
-        }
+        Formatter.deliveryStartEndTimes( mDelivery, mTotalTime, mStartTime, mEndTime );
+        Formatter.deliveryStartEndMileage( mDelivery, mTotalMileage, mStartMileage, mEndMileage );
+        Formatter.deliveryTipTotal( mDelivery, mTip, mTipPaymentMethod, mTotal, mTotalPaymentMethod );
 
         final Shift shift = mDelivery.getShift();
         if( shift != null )

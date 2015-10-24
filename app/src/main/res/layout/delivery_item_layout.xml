@@ -52,7 +52,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:textAppearance="?android:textAppearanceSmall"
-                    android:text="$12.00 (Credit)"/>
+                    android:text="$12.00"/>
+
+                <TextView
+                    android:id="@+id/delivery_item_total_payment_method"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textAppearance="?android:textAppearanceSmall"
+                    android:text="(Cash)"/>
 
             </LinearLayout>
 
@@ -75,7 +83,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:textAppearance="?android:textAppearanceSmall"
-                    android:text="$2.00 (Credit)"/>
+                    android:text="$2.00"/>
+
+                <TextView
+                    android:id="@+id/delivery_item_tip_payment_method"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:textAppearance="?android:textAppearanceSmall"
+                    android:text="(Cash)"/>
 
             </LinearLayout>
 

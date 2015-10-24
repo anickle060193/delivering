@@ -98,26 +98,7 @@ public class ShiftFragment extends Fragment
 
     private void update()
     {
-        final Date start = mShift.getStart();
-        final Date end = mShift.getEnd();
-        if( start == null )
-        {
-            mShiftDate.setText( "Not Clocked-In" );
-            mShiftClockInTime.setText( "Not clocked-in" );
-        }
-        else
-        {
-            mShiftDate.setText( Utilities.formatDate( start ) );
-            mShiftClockInTime.setText( Utilities.formatDateTime( start ) );
-        }
-        if( end == null )
-        {
-            mShiftClockOutTime.setText( "Not clocked-out" );
-        }
-        else
-        {
-            mShiftClockOutTime.setText( Utilities.formatDateTime( end ) );
-        }
+        Formatter.shiftStartEndTimes( mShift, mShiftDate, mShiftClockInTime, mShiftClockOutTime );
     }
 
     private void onClockInOutClick()

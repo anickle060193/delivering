@@ -210,10 +210,10 @@ public class SummaryFragment extends Fragment
 
         items.add( new SummaryItem( "Total Deliveries", null, deliveryCount ) );
         items.add( new SummaryItem( "Tip Count", null, tipCount ) );
-        items.add( new SummaryItem( "Total Tip Amount", null, Utilities.formatCurrency( totalTip ) ) );
+        items.add( new SummaryItem( "Total Tip Amount", null, Formatter.currency( totalTip ) ) );
         items.add( new SummaryItem( "Total Payment Count", null, totalsCount ) );
-        items.add( new SummaryItem( "Total Paid Amount", null, Utilities.formatCurrency( totalTotal ) ) );
-        items.add( new SummaryItem( "Miles Driven", null, Utilities.formatMileage( milesDriven ) ) );
+        items.add( new SummaryItem( "Total Paid Amount", null, Formatter.currency( totalTotal ) ) );
+        items.add( new SummaryItem( "Miles Driven", null, Formatter.mileage( milesDriven ) ) );
         items.add( new SummaryItem( "Hours Spent Delivering", null, hoursSpentDelivering ) );
         items.add( new SummaryItem( "Total Shifts", null, shiftCount ) );
         items.add( new SummaryItem( "Hours Worked", null, hoursWorked ) );

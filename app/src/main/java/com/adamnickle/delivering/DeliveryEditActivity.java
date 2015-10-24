@@ -80,13 +80,13 @@ public class DeliveryEditActivity extends AppCompatActivity
             mName.setText( mConfig.name() );
             visibility( (View)mName.getParent(), mConfig.hasName() );
 
-            mTip.setText( Utilities.formatPlainMoney( mConfig.tip() ) );
+            mTip.setText( Formatter.plainMoney( mConfig.tip() ) );
             visibility( (View)mTip.getParent(), mConfig.hasTip() );
 
             mTipPaymentMethod.setSelection( paymentMethodAdapter.getPosition( mConfig.tipPaymentMethod() ) );
             visibility( mTipPaymentMethod, mConfig.hasTipPaymentMethod() );
 
-            mTotal.setText( Utilities.formatPlainMoney( mConfig.total() ) );
+            mTotal.setText( Formatter.plainMoney( mConfig.total() ) );
             visibility( (View)mTotal.getParent(), mConfig.hasTotal() );
 
             mTotalPaymentMethod.setSelection( paymentMethodAdapter.getPosition( mConfig.totalPaymentMethod() ) );
@@ -95,19 +95,19 @@ public class DeliveryEditActivity extends AppCompatActivity
             visibility( (View)mTipIncluded.getParent(), mConfig.showTipIncluded() );
 
             final Date start = mConfig.start();
-            mStartTime.setText( Utilities.formatDateTime( start ) );
+            mStartTime.setText( Formatter.dateTime( start ) );
             mStartTime.setTag( start );
             visibility( (View)mStartTime.getParent(), mConfig.hasStart() );
 
             final Date end = mConfig.end();
-            mEndTime.setText( Utilities.formatDateTime( end ) );
+            mEndTime.setText( Formatter.dateTime( end ) );
             mEndTime.setTag( end );
             visibility( (View)mEndTime.getParent(), mConfig.hasEnd() );
 
-            mStartMileage.setText( Utilities.formatMileage( mConfig.startMileage() ) );
+            mStartMileage.setText( Formatter.mileage( mConfig.startMileage() ) );
             visibility( (View)mStartMileage.getParent(), mConfig.hasStartMileage() );
 
-            mEndMileage.setText( Utilities.formatMileage( mConfig.endMileage() ) );
+            mEndMileage.setText( Formatter.mileage( mConfig.endMileage() ) );
             visibility( (View)mEndMileage.getParent(), mConfig.hasEndMileage() );
         }
 
@@ -150,7 +150,7 @@ public class DeliveryEditActivity extends AppCompatActivity
                     public void onTimeSet( TimePicker view, int hourOfDay, int minute )
                     {
                         final Date date = new Date( year - 1900, monthOfYear, dayOfMonth, hourOfDay, minute );
-                        output.setText( Utilities.formatDateTime( date ) );
+                        output.setText( Formatter.dateTime( date ) );
                         output.setTag( date );
                     }
                 }, init.getHours(), init.getMinutes(), android.text.format.DateFormat.is24HourFormat( DeliveryEditActivity.this ) ).show();
@@ -225,7 +225,7 @@ public class DeliveryEditActivity extends AppCompatActivity
         Date end = null;
         try
         {
-            end = Utilities.getDateTimeFormat().parse( mEndTime.getText().toString() );
+            end = Formatter.getDateTimeFormat().parse( mEndTime.getText().toString() );
         }
         catch( ParseException ex )
         {
@@ -238,7 +238,7 @@ public class DeliveryEditActivity extends AppCompatActivity
         Date start = null;
         try
         {
-            start = Utilities.getDateTimeFormat().parse( mStartTime.getText().toString() );
+            start = Formatter.getDateTimeFormat().parse( mStartTime.getText().toString() );
         }
         catch( ParseException ex )
         {
