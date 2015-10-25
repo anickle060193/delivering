@@ -231,35 +231,70 @@ public class DeliveryEditDialogFragment extends AppCompatDialogFragment
         }, init.getYear() + 1900, init.getMonth(), init.getDay() ).show();
     }
 
+    private void clearErrors()
+    {
+        mEndMileage.setError( null );
+        mStartMileage.setError( null );
+        mEndTime.setError( null );
+        mStartTime.setError( null );
+        mTotal.setError( null );
+        mTip.setError( null );
+        mName.setError( null );
+    }
+
     private void done()
     {
+        clearErrors();
+
         View focusView = null;
         boolean cancel = false;
 
-        mEndMileage.setError( null );
+        boolean hasEndMileage = mConfig.hasEndMileage();
         double endMileage = -1.0;
-        try
+        if( hasEndMileage )
         {
-            endMileage = Double.valueOf( mEndMileage.getText().toString() );
-        }
-        catch( NumberFormatException ex )
-        {
-            cancel = true;
-            focusView = mEndMileage;
-            mEndMileage.setError( "Invalid mileage format" );
+            final String endMileageString = mEndMileage.getText().toString();
+            if( !TextUtils.isEmpty( endMileageString ) && !mDelivery.hasEndMileage() )
+            {
+                try
+                {
+                    endMileage = Double.valueOf( endMileageString );
+                }
+                catch( NumberFormatException ex )
+                {
+                    cancel = true;
+                    focusView = mEndMileage;
+                    mEndMileage.setError( "Invalid mileage format" );
+                }
+            }
+            else
+            {
+                hasEndMileage = false;
+            }
         }
 
-        mStartMileage.setError( null );
+        boolean hasStartMileage = mConfig.hasStartMileage();
         double startMileage = -1.0;
-        try
+        if( hasStartMileage )
         {
-            startMileage = Double.valueOf( mStartMileage.getText().toString() );
-        }
-        catch( NumberFormatException ex )
-        {
-            cancel = true;
-            focusView = mStartMileage;
-            mStartMileage.setError( "Invalid mileage format" );
+            final String startMileageString = mStartMileage.getText().toString();
+            if( !TextUtils.isEmpty( startMileageString ) && mDelivery.hasStartMileage() )
+            {
+                try
+                {
+                    startMileage = Double.valueOf( startMileageString );
+                }
+                catch( NumberFormatException ex )
+                {
+                    cancel = true;
+                    focusView = mStartMileage;
+                    mStartMileage.setError( "Invalid mileage format" );
+                }
+            }
+            else
+            {
+                hasStartMileage = false;
+            }
         }
 
         if( endMileage != -1.0 && startMileage != -1.0 && endMileage < startMileage )
@@ -269,7 +304,6 @@ public class DeliveryEditDialogFragment extends AppCompatDialogFragment
             mEndMileage.setError( "End mileage must be greater than start mileage" );
         }
 
-        mEndTime.setError( null );
         Date end = null;
         try
         {
@@ -282,7 +316,6 @@ public class DeliveryEditDialogFragment extends AppCompatDialogFragment
             mEndTime.setError( "Invalid date/time format" );
         }
 
-        mStartTime.setError( null );
         Date start = null;
         try
         {
