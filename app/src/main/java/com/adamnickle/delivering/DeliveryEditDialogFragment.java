@@ -22,7 +22,6 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 
 import java.math.BigDecimal;
-import java.text.ParseException;
 import java.util.Date;
 
 import butterknife.Bind;
@@ -31,33 +30,30 @@ import butterknife.ButterKnife;
 
 public class DeliveryEditDialogFragment extends AppCompatDialogFragment
 {
-    private static final int NAME = 0;
-    private static final int TIP = 1;
-    private static final int TIP_PAYMENT_METHOD = 2;
-    private static final int TOTAL = 3;
-    private static final int TOTAL_PAYMENT_METHOD = 4;
-    private static final int TIP_INCLUDED = 5;
-    private static final int START_TIME = 6;
-    private static final int END_TIME = 7;
-    private static final int START_MILEAGE = 8;
-    private static final int END_MILEAGE = 9;
-    private static final int FIELDS = 10;
-
-    @Bind( R.id.delivery_edit_dialog_fragment_name ) EditText mName;
-    @Bind( R.id.delivery_edit_dialog_fragment_tip ) EditText mTip;
-    @Bind( R.id.delivery_edit_dialog_fragment_tip_payment_method ) Spinner mTipPaymentMethod;
-    @Bind( R.id.delivery_edit_dialog_fragment_total ) EditText mTotal;
-    @Bind( R.id.delivery_edit_dialog_fragment_total_payment_method ) Spinner mTotalPaymentMethod;
-    @Bind( R.id.delivery_edit_dialog_fragment_tip_included ) SwitchCompat mTipIncluded;
-    @Bind( R.id.delivery_edit_dialog_fragment_start_time ) EditText mStartTime;
-    @Bind( R.id.delivery_edit_dialog_fragment_end_time ) EditText mEndTime;
-    @Bind( R.id.delivery_edit_dialog_fragment_start_mileage ) EditText mStartMileage;
-    @Bind( R.id.delivery_edit_dialog_fragment_end_mileage ) EditText mEndMileage;
-
-    final String[] mOriginalText = new String[ FIELDS ];
+    @Bind( R.id.delivery_edit_dialog_fragment_name ) EditText mNameView;
+    @Bind( R.id.delivery_edit_dialog_fragment_tip ) EditText mTipView;
+    @Bind( R.id.delivery_edit_dialog_fragment_tip_payment_method ) Spinner mTipPaymentMethodView;
+    @Bind( R.id.delivery_edit_dialog_fragment_total ) EditText mTotalView;
+    @Bind( R.id.delivery_edit_dialog_fragment_total_payment_method ) Spinner mTotalPaymentMethodView;
+    @Bind( R.id.delivery_edit_dialog_fragment_tip_included ) SwitchCompat mTipIncludedView;
+    @Bind( R.id.delivery_edit_dialog_fragment_start_time ) EditText mStartTimeView;
+    @Bind( R.id.delivery_edit_dialog_fragment_end_time ) EditText mEndTimeView;
+    @Bind( R.id.delivery_edit_dialog_fragment_start_mileage ) EditText mStartMileageView;
+    @Bind( R.id.delivery_edit_dialog_fragment_end_mileage ) EditText mEndMileageView;
 
     private Delivery mDelivery;
     private DeliveryEditConfig mConfig;
+
+    private String mName;
+    private BigDecimal mTip;
+    private String mTipPaymentMethod;
+    private BigDecimal mTotal;
+    private String mTotalPaymentMethod;
+    private boolean mTipIncluded;
+    private Date mStartTime;
+    private Date mEndTime;
+    private double mStartMileage;
+    private double mEndMileage;
 
     public static DeliveryEditDialogFragment newInstance( Delivery delivery, DeliveryEditConfig config )
     {
@@ -121,88 +117,76 @@ public class DeliveryEditDialogFragment extends AppCompatDialogFragment
     {
         final ArrayAdapter<CharSequence> paymentMethodAdapter = ArrayAdapter.createFromResource( getActivity(), R.array.delivery_payment_methods, android.R.layout.simple_spinner_item );
         paymentMethodAdapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item );
-        mTipPaymentMethod.setAdapter( paymentMethodAdapter );
-        mTotalPaymentMethod.setAdapter( paymentMethodAdapter );
+        mTipPaymentMethodView.setAdapter( paymentMethodAdapter );
+        mTotalPaymentMethodView.setAdapter( paymentMethodAdapter );
 
         // Name
-        final String name = mDelivery.getName();
-        mName.setText( name );
-        mOriginalText[ NAME ] = name;
+        mName = mDelivery.getName();
+        mNameView.setText( mName );
 
         // Tip
-        final String tipString = Formatter.plainMoney( mDelivery.getTip() );
-        mTip.setText( tipString );
-        visibility( (View)mTip.getParent(), mConfig.hasTip() );
-        mOriginalText[ TIP ] = tipString;
+        mTip = mDelivery.getTip();
+        mTipView.setText( Formatter.plainMoney( mTip ) );
+        visibility( (View)mTipView.getParent(), mConfig.hasTip() );
 
         // Tip Payment Method
-        final String tipPaymentMethod = mDelivery.getTipPaymentMethod();
-        mTipPaymentMethod.setSelection( paymentMethodAdapter.getPosition( tipPaymentMethod ) );
-        visibility( mTipPaymentMethod, mConfig.hasTipPaymentMethod() );
-        mOriginalText[ TIP_PAYMENT_METHOD ] = tipPaymentMethod;
+        mTipPaymentMethod = mDelivery.getTipPaymentMethod();
+        mTipPaymentMethodView.setSelection( paymentMethodAdapter.getPosition( mTipPaymentMethod ) );
+        visibility( mTipPaymentMethodView, mConfig.hasTipPaymentMethod() );
 
         // Total
-        final String totalString = Formatter.plainMoney( mDelivery.getTotal() );
-        mTotal.setText( totalString );
-        visibility( (View)mTotal.getParent(), mConfig.hasTotal() );
-        mOriginalText[ TOTAL ] = totalString;
+        mTotal = mDelivery.getTotal();
+        mTotalView.setText( Formatter.plainMoney( mTotal ) );
+        visibility( (View)mTotalView.getParent(), mConfig.hasTotal() );
 
         // Total Payment Method
-        final String totalPaymentMethod = mDelivery.getTotalPaymentMethod();
-        mTotalPaymentMethod.setSelection( paymentMethodAdapter.getPosition( totalPaymentMethod ) );
-        visibility( mTotalPaymentMethod, mConfig.hasTotalPaymentMethod() );
-        mOriginalText[ TOTAL_PAYMENT_METHOD ] = totalPaymentMethod;
+        mTotalPaymentMethod = mDelivery.getTotalPaymentMethod();
+        mTotalPaymentMethodView.setSelection( paymentMethodAdapter.getPosition( mTotalPaymentMethod ) );
+        visibility( mTotalPaymentMethodView, mConfig.hasTotalPaymentMethod() );
 
         // Tip Included
-        final String tipIncluded = String.valueOf( mConfig.showTipIncluded() );
-        visibility( (View)mTipIncluded.getParent(), mConfig.showTipIncluded() );
-        mOriginalText[ TIP_INCLUDED ] = tipIncluded;
+        mTipIncluded = false;
+        visibility( (View)mTipIncludedView.getParent(), mConfig.showTipIncluded() );
 
         // Start Time
-        final Date start = mDelivery.getDeliveryStart();
-        final String startString = Formatter.dateTime( start );
-        mStartTime.setText( startString );
-        mStartTime.setTag( start );
-        visibility( (View)mStartTime.getParent(), mConfig.hasStart() );
-        mStartTime.setOnClickListener( new View.OnClickListener()
+        mStartTime = mDelivery.getDeliveryStart();
+        mStartTimeView.setText( Formatter.dateTime( mStartTime ) );
+        mStartTimeView.setTag( mStartTime );
+        visibility( (View)mStartTimeView.getParent(), mConfig.hasStart() );
+        mStartTimeView.setOnClickListener( new View.OnClickListener()
         {
             @Override
             public void onClick( View v )
             {
-                final Date start = (Date)mStartTime.getTag();
-                showDateTimeDialog( start == null ? null : start, mStartTime );
+                final Date start = (Date)mStartTimeView.getTag();
+                showDateTimeDialog( start == null ? null : start, mStartTimeView );
             }
         } );
-        mOriginalText[ START_TIME ] = startString;
 
         // End Time
-        final Date end = mDelivery.getDeliveryEnd();
-        final String endString = Formatter.dateTime( end );
-        mEndTime.setText( endString );
-        mEndTime.setTag( end );
-        visibility( (View)mEndTime.getParent(), mConfig.hasEnd() );
-        mEndTime.setOnClickListener( new View.OnClickListener()
+        mEndTime = mDelivery.getDeliveryEnd();
+        mEndTimeView.setText( Formatter.dateTime( mEndTime ) );
+        mEndTimeView.setTag( mEndTime );
+        visibility( (View)mEndTimeView.getParent(), mConfig.hasEnd() );
+        mEndTimeView.setOnClickListener( new View.OnClickListener()
         {
             @Override
             public void onClick( View v )
             {
-                final Date end = (Date)mEndTime.getTag();
-                showDateTimeDialog( end == null ? null : end, mEndTime );
+                final Date end = (Date)mEndTimeView.getTag();
+                showDateTimeDialog( end == null ? null : end, mEndTimeView );
             }
         } );
-        mOriginalText[ END_TIME ] = endString;
 
         // Start Mileage
-        final String startMileage = Formatter.mileage( mDelivery.getStartMileage() );
-        mStartMileage.setText( startMileage );
-        visibility( (View)mStartMileage.getParent(), mConfig.hasStartMileage() );
-        mOriginalText[ START_MILEAGE ] = startMileage;
+        mStartMileage = mDelivery.getStartMileage();
+        mStartMileageView.setText( Formatter.mileage( mStartMileage ) );
+        visibility( (View)mStartMileageView.getParent(), mConfig.hasStartMileage() );
 
         // End Mileage
-        final String endMileage = Formatter.mileage( mDelivery.getEndMileage() );
-        mEndMileage.setText( endMileage );
-        visibility( (View)mEndMileage.getParent(), mConfig.hasEndMileage() );
-        mOriginalText[ END_MILEAGE ] = endMileage;
+        mEndMileage = mDelivery.getEndMileage();
+        mEndMileageView.setText( Formatter.mileage( mEndMileage ) );
+        visibility( (View)mEndMileageView.getParent(), mConfig.hasEndMileage() );
     }
 
     private void visibility( View view, boolean visible )
@@ -233,13 +217,13 @@ public class DeliveryEditDialogFragment extends AppCompatDialogFragment
 
     private void clearErrors()
     {
-        mEndMileage.setError( null );
-        mStartMileage.setError( null );
-        mEndTime.setError( null );
-        mStartTime.setError( null );
-        mTotal.setError( null );
-        mTip.setError( null );
-        mName.setError( null );
+        mEndMileageView.setError( null );
+        mStartMileageView.setError( null );
+        mEndTimeView.setError( null );
+        mStartTimeView.setError( null );
+        mTotalView.setError( null );
+        mTipView.setError( null );
+        mNameView.setError( null );
     }
 
     private void done()
@@ -249,167 +233,270 @@ public class DeliveryEditDialogFragment extends AppCompatDialogFragment
         View focusView = null;
         boolean cancel = false;
 
-        boolean hasEndMileage = mConfig.hasEndMileage();
+        // End Mileage
+        boolean endMileageModified = false;
         double endMileage = -1.0;
-        if( hasEndMileage )
+        if( mConfig.hasEndMileage() )
         {
-            final String endMileageString = mEndMileage.getText().toString();
+            final String endMileageString = mEndMileageView.getText().toString();
             if( !TextUtils.isEmpty( endMileageString ) && !mDelivery.hasEndMileage() )
             {
                 try
                 {
                     endMileage = Double.valueOf( endMileageString );
+                    endMileageModified = endMileage != mEndMileage;
                 }
                 catch( NumberFormatException ex )
                 {
                     cancel = true;
-                    focusView = mEndMileage;
-                    mEndMileage.setError( "Invalid mileage format" );
+                    focusView = mEndMileageView;
+                    mEndMileageView.setError( "Invalid mileage format" );
                 }
-            }
-            else
-            {
-                hasEndMileage = false;
             }
         }
 
-        boolean hasStartMileage = mConfig.hasStartMileage();
+        // Start Mileage
+        boolean startMileageModified = false;
         double startMileage = -1.0;
-        if( hasStartMileage )
+        if( mConfig.hasStartMileage() )
         {
-            final String startMileageString = mStartMileage.getText().toString();
+            final String startMileageString = mStartMileageView.getText().toString();
             if( !TextUtils.isEmpty( startMileageString ) && mDelivery.hasStartMileage() )
             {
                 try
                 {
                     startMileage = Double.valueOf( startMileageString );
+                    startMileageModified = startMileage != mStartMileage;
                 }
                 catch( NumberFormatException ex )
                 {
                     cancel = true;
-                    focusView = mStartMileage;
-                    mStartMileage.setError( "Invalid mileage format" );
+                    focusView = mStartMileageView;
+                    mStartMileageView.setError( "Invalid mileage format" );
                 }
+            }
+        }
+
+        // Start vs End Mileage Check
+        if( endMileage != -1.0 )
+        {
+            if( mStartMileage == -1.0 )
+            {
+                cancel = true;
+                focusView = mStartMileageView;
+                mStartMileageView.setError( "Must specify start mileage with end mileage" );
+            }
+            else if( endMileage < startMileage )
+            {
+                cancel = true;
+                focusView = mEndMileageView;
+                mEndMileageView.setError( "End mileage cannot be less than start mileage" );
+            }
+        }
+
+        // End Time
+        boolean endTimeModified = false;
+        Date endTime = null;
+        if( mConfig.hasEnd() )
+        {
+            endTime = (Date)mEndTimeView.getTag();
+            if( endTime != null )
+            {
+                endTimeModified = !endTime.equals( mEndTime );
             }
             else
             {
-                hasStartMileage = false;
+                cancel = true;
+                focusView = mEndTimeView;
+                mEndTimeView.setError( "Invalid end date/time" );
             }
         }
 
-        if( endMileage != -1.0 && startMileage != -1.0 && endMileage < startMileage )
+        // Start Time
+        boolean startTimeModified = false;
+        Date startTime = null;
+        if( mConfig.hasStart() )
         {
-            cancel = true;
-            focusView = mEndMileage;
-            mEndMileage.setError( "End mileage must be greater than start mileage" );
+            startTime = (Date)mStartTimeView.getTag();
+            if( startTime != null )
+            {
+                startTimeModified = !startTime.equals( mStartTime );
+            }
+            else
+            {
+                cancel = true;
+                focusView = mStartTimeView;
+                mStartTimeView.setError( "Invalid start date/time" );
+            }
         }
 
-        Date end = null;
-        try
+        // Start vs End Time Check
+        if( endTime != null )
         {
-            end = Formatter.getDateTimeFormat().parse( mEndTime.getText().toString() );
-        }
-        catch( ParseException ex )
-        {
-            cancel = true;
-            focusView = mEndTime;
-            mEndTime.setError( "Invalid date/time format" );
-        }
-
-        Date start = null;
-        try
-        {
-            start = Formatter.getDateTimeFormat().parse( mStartTime.getText().toString() );
-        }
-        catch( ParseException ex )
-        {
-            cancel = true;
-            focusView = mStartTime;
-            mStartTime.setError( "Invalid date/time format" );
+            if( startTime == null )
+            {
+                cancel = true;
+                focusView = mStartTimeView;
+                mStartTimeView.setError( "Must specify start time with end time" );
+            }
+            else if( startTime.after( endTime ) )
+            {
+                cancel = true;
+                focusView = mEndTimeView;
+                mEndTimeView.setError( "Delivery end time must be later than start time" );
+            }
         }
 
-        if( start != null && end != null && start.after( end ) )
-        {
-            cancel = true;
-            focusView = mEndTime;
-            mEndTime.setError( "Delivery end time must be later than start time" );
-        }
+        // Total Payment Method
+        String totalPaymentMethod = (String)mTotalPaymentMethodView.getSelectedItem();
+        boolean totalPaymentMethodModified = !totalPaymentMethod.equals( mTotalPaymentMethod );
 
-        String totalPaymentMethod = (String)mTotalPaymentMethod.getSelectedItem();
-
+        // Total
+        boolean totalModified = false;
         BigDecimal total = null;
-        final String totalString = mTotal.getText().toString();
-        if( Validator.money( totalString ) )
+        if( mConfig.hasTotal() )
         {
-            try
+            final String totalString = mTotalView.getText().toString();
+            if( Validator.money( totalString ) )
             {
-                total = new BigDecimal( totalString );
+                try
+                {
+                    total = new BigDecimal( totalString );
+                }
+                catch( NumberFormatException ex ) { }
             }
-            catch( NumberFormatException ex ){ }
-        }
-        if( total == null )
-        {
-            cancel = true;
-            focusView = mTotal;
-            mTotal.setError( "Invalid total format" );
+            if( total != null )
+            {
+                totalModified = !total.equals( mTotal );
+            }
+            else
+            {
+                cancel = true;
+                focusView = mTotalView;
+                mTotalView.setError( "Invalid total format" );
+            }
         }
 
-        String tipPaymentMethod = (String)mTipPaymentMethod.getSelectedItem();
+        // Tip Payment Method
+        String tipPaymentMethod = (String)mTipPaymentMethodView.getSelectedItem();
+        boolean tipPaymentMethodModified = !tipPaymentMethod.equals( mTipPaymentMethod );
 
+        // Tip
+        boolean tipModified = false;
         BigDecimal tip = null;
-        final String tipString = mTip.getText().toString();
-        if( Validator.money( tipString ) )
+        if( mConfig.hasTip() )
         {
-            try
+            final String tipString = mTipView.getText().toString();
+            if( Validator.money( tipString ) )
             {
-                tip = new BigDecimal( tipString );
+                try
+                {
+                    tip = new BigDecimal( tipString );
+                }
+                catch( NumberFormatException ex ) { }
             }
-            catch( NumberFormatException ex ) { }
-        }
-        if( tip == null )
-        {
-            cancel = true;
-            focusView = mTip;
-            mTip.setError( "Invalid tip format" );
+            if( tip != null )
+            {
+                tipModified = !tip.equals( mTip );
+            }
+            else
+            {
+                cancel = true;
+                focusView = mTipView;
+                mTipView.setError( "Invalid tip format" );
+            }
         }
 
-        final boolean tipIncluded = mTipIncluded.isChecked();
+        // Tip Included
+        final boolean tipIncluded = mTipIncludedView.isChecked();
         if( tipIncluded && tip != null && total != null )
         {
             total = total.subtract( tip );
             if( total.signum() < 0 )
             {
                 cancel = true;
-                focusView = mTip;
-                mTip.setError( "Tip cannot be greater than the total when included" );
+                focusView = mTipView;
+                mTipView.setError( "Tip cannot be greater than the total when included" );
             }
         }
 
-        String name = mName.getText().toString();
-        if( TextUtils.isEmpty( name ) )
+        // Name
+        boolean nameModified = false;
+        String name = null;
+        if( mConfig.hasName() )
         {
-            cancel = true;
-            focusView = mName;
-            mName.setError( "Delivery name cannot be empty" );
+            name = mNameView.getText().toString();
+            nameModified = !name.equals( mName );
+            if( TextUtils.isEmpty( name ) )
+            {
+                cancel = true;
+                focusView = mNameView;
+                mNameView.setError( "Delivery name cannot be empty" );
+            }
         }
 
+        // Cancel
         if( cancel )
         {
             focusView.requestFocus();
             return;
         }
 
-        mDelivery.setName( name );
-        mDelivery.setTip( tip );
-        mDelivery.setTipPaymentMethod( tipPaymentMethod );
-        mDelivery.setTotal( total );
-        mDelivery.setTotalPaymentMethod( totalPaymentMethod );
-        mDelivery.setDeliveryStart( start );
-        mDelivery.setDeliveryEnd( end );
-        mDelivery.setStartMileage( startMileage );
-        mDelivery.setEndMileage( endMileage );
-        mDelivery.saveEventually();
+        // Update Delivery
+        boolean modified = false;
+        if( nameModified )
+        {
+            mDelivery.setName( name );
+            modified = true;
+        }
+        if( tipModified )
+        {
+            mDelivery.setTip( tip );
+            modified = true;
+        }
+        if( tipPaymentMethodModified )
+        {
+            mDelivery.setTipPaymentMethod( tipPaymentMethod );
+            modified = true;
+        }
+        if( totalModified )
+        {
+            mDelivery.setTotal( total );
+            modified = true;
+        }
+        if( totalPaymentMethodModified )
+        {
+            mDelivery.setTotalPaymentMethod( totalPaymentMethod );
+            modified = true;
+        }
+        if( startTimeModified )
+        {
+            mDelivery.setDeliveryStart( startTime );
+            modified = true;
+        }
+        if( endTimeModified )
+        {
+            mDelivery.setDeliveryEnd( endTime );
+            modified = true;
+        }
+        if( startMileageModified )
+        {
+            mDelivery.setStartMileage( startMileage );
+            modified = true;
+        }
+        if( endMileageModified )
+        {
+            mDelivery.setEndMileage( endMileage );
+            modified = true;
+        }
 
+        // Save Delivery
+        if( modified )
+        {
+            mDelivery.saveEventually();
+        }
+
+        // Finish
         getFragmentManager().popBackStack();
         //TODO Listener
     }
